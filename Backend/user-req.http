@@ -1,0 +1,23 @@
+### create new user
+POST http://localhost:3000/user-api/users
+Content-Type: application/json
+
+{
+    "username":"soujith",
+    "email":"soujith@gmail.com",
+    "password":"soujith",
+    "gender":"MALE"
+}
+
+### user login
+POST http://localhost:3000/user-api/auth
+Content-Type: application/json
+
+{
+    "email":"soujith@gmail.com",
+    "password":"soujith"
+}
+
+### user logout
+GET http://localhost:3000/user-api/logout
+

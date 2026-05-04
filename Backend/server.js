@@ -3,12 +3,24 @@ import {connect} from 'mongoose'
 import { config } from 'dotenv'
 import { createServer } from 'node:http'
 import { Server } from "socket.io";
+import { userApp } from './APIs/UserAPI.js';
+import cookieParser from 'cookie-parser'
 
 
 const app=exp()
 const server=createServer(app)
 const io = new Server(server);
 config()
+
+//body parser middleware
+app.use(exp.json())
+
+//cookie parser
+app.use(cookieParser())
+
+//forward to userapi if path starts with /user-api
+app.use('/user-api',userApp)
+
 
 io.on("connection", (socket) => {
   console.log("User connected");

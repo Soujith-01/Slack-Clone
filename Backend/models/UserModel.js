@@ -9,11 +9,13 @@ const UserSchema = new Schema({
         maxLength:[10,"maximum 10 characters"],
         unique:[true,"username already exists"]
     },
-    email:{
-        type:String,
-        required:[true,"email required"],
-        unique:[true,"email already exists"]
-    },
+   email: {
+  type: String,
+  required: true,
+  unique: true,
+  lowercase: true,
+  trim: true
+},
     password:{
         type:String,
         required:[true,"password required"]

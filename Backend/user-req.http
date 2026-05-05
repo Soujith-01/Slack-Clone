@@ -15,9 +15,19 @@ Content-Type: application/json
 
 {
     "email":"soujith@gmail.com",
-    "password":"soujith"
+    "password":"newpass123"
 }
 
 ### user logout
 GET http://localhost:3000/user-api/logout
 
+### user update by username
+PUT http://localhost:3000/user-api/users
+Content-Type: application/json
+
+{
+  "username": "soujithg",
+  "email": "soujith@gmail.com",
+  "password": "newpass123",
+  "gender": "MALE"
+}

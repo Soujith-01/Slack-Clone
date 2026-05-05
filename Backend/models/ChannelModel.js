@@ -15,6 +15,11 @@ const channelSchema=new Schema({
         type:String,
         default:true,
     },
+    admin: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    latestMessage: {
+        type: Types.ObjectId,
+        ref: "message",
+    },
 },{
     timestamps:true,
     versionKey:false,

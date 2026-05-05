@@ -4,6 +4,7 @@ import { config } from 'dotenv'
 import { createServer } from 'node:http'
 import { Server } from "socket.io";
 import { userApp } from './APIs/UserAPI.js';
+import { chatApp } from './APIs/channelAPI.js';
 import cookieParser from 'cookie-parser'
 
 
@@ -20,6 +21,7 @@ app.use(cookieParser())
 
 //forward to userapi if path starts with /user-api
 app.use('/user-api',userApp)
+app.use('/chat-api',chatApp)
 
 
 io.on("connection", (socket) => {

@@ -3,10 +3,10 @@ POST http://localhost:3000/user-api/users
 Content-Type: application/json
 
 {
-    "username":"soujith",
-    "email":"soujith@gmail.com",
-    "password":"soujith",
-    "gender":"MALE"
+    "username":"user1",
+    "email":"user1@gmail.com",
+    "password":"user1",
+    "gender":"FEMALE"
 }
 
 ### user login

@@ -1,6 +1,11 @@
 import {Schema,model,Types} from "mongoose"
 
-const channelSchema=new Schema({
+const chatSchema=new Schema({
+    type: {
+        type: String,
+        enum: ["channel", "dm"],
+        required: true,
+    },
     channelName:{
         type:String,
         requried:[true,"channel name is required"],
@@ -9,13 +14,15 @@ const channelSchema=new Schema({
     members:[{
         type:Types.ObjectId,
         ref:"user"
-    
     }],
     isChannelActive:{
-        type:String,
+        type:Boolean,
         default:true,
     },
-    admin: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    admin: { 
+        type: Types.ObjectId, 
+        ref: "user" 
+    },
     latestMessage: {
         type: Types.ObjectId,
         ref: "message",
@@ -26,4 +33,4 @@ const channelSchema=new Schema({
     strict:"throw"
 });
 //create model
-export const channelModel=model("channel",channelSchema)
+export const chatModel=model("chat",chatSchema)

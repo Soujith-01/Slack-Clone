@@ -4,6 +4,7 @@ import { config } from 'dotenv'
 import { createServer } from 'node:http'
 import { Server } from "socket.io";
 import { userApp } from './APIs/UserAPI.js';
+import { chatApp } from './APIs/channelAPI.js';
 import cookieParser from 'cookie-parser'
 
 
@@ -20,6 +21,7 @@ app.use(cookieParser())
 
 //forward to userapi if path starts with /user-api
 app.use('/user-api',userApp)
+app.use('/chat-api',chatApp)
 
 
 io.on("connection", (socket) => {
@@ -34,7 +36,7 @@ const connectDB = async()=>{
     try{
         await connect(process.env.DB_URL)
         console.log('DB connected ')
-        const port=process.env.PORT || 4000;
+        const port=process.env.PORT || 3000;
         server.listen(port,()=>console.log(`server listening in ${port}`))
     }catch(error){
         console.log("error in connecting",error.message)

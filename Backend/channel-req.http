@@ -1,0 +1,48 @@
+### create new channel
+POST http://localhost:3000/chat-api/chats/channel
+Content-Type: application/json
+
+{
+    "type":"channel",
+    "channelName":"channel2",
+    "members":["69f97ac01d362e1cecc3f39c"]
+}
+
+
+### create a DM
+POST http://localhost:3000/chat-api/chats/dm
+Content-Type: application/json
+
+{
+    "type":"dm",
+    "members":["69f97ac01d362e1cecc3f39c"]
+}
+
+### get all chats for a specific user
+GET http://localhost:3000/chat-api/chats
+
+
+###get channels by chennalName
+GET http://localhost:3000/chat-api/channels
+Content-Type: application/json
+
+{
+    "channelName":"channel3"
+}
+
+###update channel name
+PATCH http://localhost:3000/chat-api/channel
+Content-Type: application/json
+
+{
+    "oldName":"channel1",
+    "newName":"channel01"
+}
+
+###delete channel name 
+DELETE http://localhost:3000/chat-api/delete
+Content-Type: application/json
+
+{
+    "channelName":"channel01"
+}

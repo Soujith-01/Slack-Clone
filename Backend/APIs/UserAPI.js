@@ -51,7 +51,11 @@ export const userApp = exp.Router()
         }
         //if passwords matched
             //create token(jsonwebtoken-jwt)
+<<<<<<< HEAD
             const signedToken=sign({userId:user._id,email:user.email,username:user.username,gender:user.gender},process.env.SECRET_KEY,{expiresIn:"1h"})//if time is give in "",then it is ms
+=======
+            const signedToken=sign({id:user._id,email:user.email,password:user.password,username:user.username,gender:user.gender},process.env.SECRET_KEY,{expiresIn:"1h"})//if time is give in "",then it is ms
+>>>>>>> 04adb162284f11074161b9ee9e14871eaa7821b1
             //store token as http only cookie 
             res.cookie("token",signedToken,{
                 httpOnly:true,  //will store cookie in httpOnly

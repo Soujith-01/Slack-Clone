@@ -7,12 +7,15 @@ const UserSchema = new Schema({
         required:[true,"Username required"],
         minLength:[4,"minimum 4 characters"],
         maxLength:[10,"maximum 10 characters"],
-        unique:[true,"username already exists"]
+        unique:[true,"username already exists"],
+        trim:true
+    
     },
     email:{
         type:String,
         required:[true,"email required"],
-        unique:[true,"email already exists"]
+        unique:[true,"email already exists"],
+        toLowerCase:true
     },
     password:{
         type:String,

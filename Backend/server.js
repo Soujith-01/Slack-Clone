@@ -34,7 +34,7 @@ const connectDB = async()=>{
     try{
         await connect(process.env.DB_URL)
         console.log('DB connected ')
-        const port=process.env.PORT || 4000;
+        const port=process.env.PORT || 3000;
         server.listen(port,()=>console.log(`server listening in ${port}`))
     }catch(error){
         console.log("error in connecting",error.message)

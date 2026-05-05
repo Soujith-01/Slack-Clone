@@ -1,50 +1,74 @@
-import {Schema, Types, model} from 'mongoose'
+import { Schema, model } from "mongoose";
 
-// create message model
-const messageSchema = new Schema({
+const messageSchema = new Schema(
+  {
     sender: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "user",
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
     },
+
+    // DM or Channel
+    receiver: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      default: null,
+    },
+
+    channel: {
+      type: Schema.Types.ObjectId,
+      ref: "channel",
+      default: null,
+    },
+
     content: {
-        type: String,
-        trim: true,
+      type: String,
+      trim: true,
+      required: true,
     },
-    chat: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "channel",
-    },
-    // Threads
+
+    //threads
     parentMessage: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "message",
-        default: null,
+      type: Schema.Types.ObjectId,
+      ref: "message",
+      default: null,
     },
-    // Reactions
+    //msg reactions 
     reactions: [
-        {
-            user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-            emoji: String,
+      {
+        user: {
+          type: Schema.Types.ObjectId,
+          ref: "user",
         },
-    ],
-    // Attachments
-    attachments: [  
-        {
-          url: String,
-          type: String,
-          name: String,
-        }
+        emoji: String,
+      },
     ],
 
-    // Edit
-    isEdited: { 
-        type: Boolean, default: false 
+   //file or image attachments
+    attachments: [
+      {
+        url: String,
+        type: String,
+        name: String,
+      },
+    ],
+
+    //editing messages
+    isEdited: {
+      type: Boolean,
+      default: false,
     },
     editedAt: Date,
-    // Read receipts
-    readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-},
-{ timestamps: true }
-)
 
-export const messageModel = model("message", messageSchema);
+    //Read receipts  
+    readBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "user",
+      },
+    ],
+  },
+  { timestamps: true }
+);
+
+export const MessageModel = model("message", messageSchema);

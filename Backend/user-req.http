@@ -15,13 +15,12 @@ Content-Type: application/json
 
 {
     "email":"soujith@gmail.com",
-    "password":"newpass123"
+    "password":"soujith"
 }
 
 ### user logout
 GET http://localhost:3000/user-api/logout
 
-<<<<<<< HEAD
 ### user update by username
 PUT http://localhost:3000/user-api/users
 Content-Type: application/json
@@ -32,7 +31,6 @@ Content-Type: application/json
   "password": "newpass123",
   "gender": "MALE"
 }
-=======
 
 ### get user by username
 GET http://localhost:3000/user-api/find-user
@@ -44,4 +42,3 @@ Content-Type: application/json
 
 ### delete user
 DELETE http://localhost:3000/user-api/delete-user
->>>>>>> 60ce87ab9187edc9dd3f964c6b17be3b574bb130

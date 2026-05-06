@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {
     "type":"channel",
-    "channelName":"channel2",
+    "channelName":"channel01",
     "members":["69f97ac01d362e1cecc3f39c"]
 }
 
@@ -45,4 +45,30 @@ Content-Type: application/json
 
 {
     "channelName":"channel01"
+}
+
+###add members to channel
+PUT http://localhost:3000/chat-api/add-members
+Content-Type: application/json
+
+{
+    "channelName":"channel01",
+    "members":["69f989af77faeef6c0519c60"]
+}
+
+###delete members from channel
+DELETE http://localhost:3000/chat-api/delete-members
+Content-Type: application/json
+
+{
+    "channelName":"channel01",
+    "member":"69f989af77faeef6c0519c60"
+}
+
+### get all members in the channel
+GET http://localhost:3000/chat-api/members
+Content-Type: application/json
+
+{
+    "channelName" : "channel01"
 }

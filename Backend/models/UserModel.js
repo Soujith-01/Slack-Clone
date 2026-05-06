@@ -11,22 +11,12 @@ const UserSchema = new Schema({
         trim:true
     
     },
-<<<<<<< HEAD
-   email: {
-  type: String,
-  required: true,
-  unique: true,
-  lowercase: true,
-  trim: true
-},
-=======
     email:{
         type:String,
         required:[true,"email required"],
         unique:[true,"email already exists"],
         toLowerCase:true
     },
->>>>>>> 60ce87ab9187edc9dd3f964c6b17be3b574bb130
     password:{
         type:String,
         required:[true,"password required"]

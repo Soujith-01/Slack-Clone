@@ -3,9 +3,9 @@ POST http://localhost:3000/user-api/users
 Content-Type: application/json
 
 {
-    "username":"user1",
-    "email":"user1@gmail.com",
-    "password":"user1",
+    "username":"user2",
+    "email":"user2@gmail.com",
+    "password":"user2",
     "gender":"FEMALE"
 }
 
@@ -14,14 +14,13 @@ POST http://localhost:3000/user-api/auth
 Content-Type: application/json
 
 {
-    "email":"soujith@gmail.com",
-    "password":"newpass123"
+    "email":"user2@gmail.com",
+    "password":"user2"
 }
 
 ### user logout
 GET http://localhost:3000/user-api/logout
 
-<<<<<<< HEAD
 ### user update by username
 PUT http://localhost:3000/user-api/users
 Content-Type: application/json
@@ -32,7 +31,6 @@ Content-Type: application/json
   "password": "newpass123",
   "gender": "MALE"
 }
-=======
 
 ### get user by username
 GET http://localhost:3000/user-api/find-user
@@ -44,4 +42,3 @@ Content-Type: application/json
 
 ### delete user
 DELETE http://localhost:3000/user-api/delete-user
->>>>>>> 60ce87ab9187edc9dd3f964c6b17be3b574bb130

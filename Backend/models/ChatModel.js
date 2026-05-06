@@ -16,7 +16,7 @@ const chatSchema=new Schema({
         ref:"user"
     }],
     isChannelActive:{
-        type:Boolean,
+        type:Boolean,   
         default:true,
     },
     admin: { 

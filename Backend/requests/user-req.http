@@ -3,9 +3,9 @@ POST http://localhost:3000/user-api/users
 Content-Type: application/json
 
 {
-    "username":"user1",
-    "email":"user1@gmail.com",
-    "password":"user1",
+    "username":"user2",
+    "email":"user2@gmail.com",
+    "password":"user2",
     "gender":"FEMALE"
 }
 

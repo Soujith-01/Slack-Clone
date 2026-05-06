@@ -13,7 +13,7 @@ export function verifyToken(req,res,next){
     try{
     //if token valid
     const decodedtoken=verify(token,process.env.SECRET_KEY)//returns error if token is invalid
-    console.log(decodedtoken)
+    //console.log(decodedtoken)
     //attach encoded user to req
     //if decodedToken is not attached the request wont be able to know who sent the request
     req.user=decodedtoken

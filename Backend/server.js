@@ -7,11 +7,16 @@ import { userApp } from './APIs/UserAPI.js';
 import { chatApp } from './APIs/channelAPI.js';
 import { messageApp } from './APIs/MessagesAPI.js';
 import cookieParser from 'cookie-parser'
+import jwt from "jsonwebtoken"
+import { setupSocket } from "./sockets/socket.js";
+import { messageApp } from "./APIs/MessageAPI.js";
+import {fileTransferApp } from "./APIs/FileTransferAPI.js"
+
 
 
 const app=exp()
 const server=createServer(app)
-const io = new Server(server);
+
 config()
 
 //body parser middleware
@@ -23,23 +28,18 @@ app.use(cookieParser())
 //forward to userapi if path starts with /user-api
 app.use('/user-api',userApp)
 app.use('/chat-api',chatApp)
-app.use('/message-api',messageApp)
+app.use("/message-api", messageApp);
+app.use("/fileTranser-api",fileTransferApp)
 
-
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-
-  socket.on("sendMessage", async (data) => {
-    console.log("Message received:", data);
-
-    // Emit message back
-    io.emit("receiveMessage", data);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
-  });
+//socket server
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+     methods: ["GET", "POST"],
+  }
 });
+
+setupSocket(io);
 
 const connectDB = async()=>{
     try{

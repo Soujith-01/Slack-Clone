@@ -24,7 +24,7 @@ const messageSchema = new Schema(
     content: {
       type: String,
       trim: true,
-      required: true,
+      default:"",
     },
 
     //threads

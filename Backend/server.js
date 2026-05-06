@@ -5,6 +5,7 @@ import { createServer } from 'node:http'
 import { Server } from "socket.io";
 import { userApp } from './APIs/UserAPI.js';
 import { chatApp } from './APIs/channelAPI.js';
+import { messageApp } from './APIs/MessagesAPI.js';
 import cookieParser from 'cookie-parser'
 
 
@@ -22,10 +23,18 @@ app.use(cookieParser())
 //forward to userapi if path starts with /user-api
 app.use('/user-api',userApp)
 app.use('/chat-api',chatApp)
+app.use('/message-api',messageApp)
 
 
 io.on("connection", (socket) => {
-  console.log("User connected");
+  console.log("User connected:", socket.id);
+
+  socket.on("sendMessage", async (data) => {
+    console.log("Message received:", data);
+
+    // Emit message back
+    io.emit("receiveMessage", data);
+  });
 
   socket.on("disconnect", () => {
     console.log("User disconnected");

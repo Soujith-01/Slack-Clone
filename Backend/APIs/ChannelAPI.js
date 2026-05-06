@@ -37,7 +37,6 @@ chatApp.post('/chats/channel',verifyToken,async(req,res)=>{
 chatApp.post('/chats/dm',verifyToken,async(req,res)=>{
     //logged in userId
     const userId=req.user.id;
-    console.log(userId)
     //other userId to create a DM
     const newUser=req.body.members;
     //check the newUser is existed or not

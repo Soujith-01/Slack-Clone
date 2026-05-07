@@ -47,7 +47,7 @@ export const userApp = exp.Router()
    
 
 //user login
-    userApp.post('/auth',async(req,res)=>{
+    userApp.post('/login',async(req,res)=>{
         //get user cred from req body
         const {email,password}=req.body
         //verify email
@@ -70,15 +70,20 @@ export const userApp = exp.Router()
         }
         //if passwords matched
             //create token(jsonwebtoken-jwt)
-            const signedToken=sign({userId:user._id,email:user.email,password:user.password,username:user.username,gender:user.gender},process.env.SECRET_KEY,{expiresIn:"1h"})//if time is give in "",then it is ms
+            const signedToken=sign({userId:user._id,email:user.email,username:user.username,gender:user.gender},process.env.SECRET_KEY,{expiresIn:"1h"})//if time is give in "",then it is ms
             //store token as http only cookie 
             res.cookie("token",signedToken,{
                 httpOnly:true,  //will store cookie in httpOnly
                 sameSite:"lax",
                 secure:false 
             })
-            //send res
-            res.status(200).json({message:'login Success'})
+            //send res  
+            res.status(200).json({message:'login Success',payload: {
+                                _id: user._id,
+                                username: user.username,
+                                email: user.email,
+                                gender: user.gender
+                            }})
     })
 
 //Route for Logout

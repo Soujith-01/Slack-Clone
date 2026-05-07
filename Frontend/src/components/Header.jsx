@@ -16,15 +16,8 @@ function Header() {
   // decide profile route
   const getProfile = () => {
     if (!user) return "/";
-
-    switch (user.role) {
-      case "AUTHOR":
-        return "/author-profile";
-      case "ADMIN":
-        return "/admin-profile";
-      default:
-        return "/user-profile";
-    }
+    return "/chat-window"
+    
   };
 
   return (
@@ -82,7 +75,7 @@ function Header() {
           {isAuthenticated && (
             <li>
               <NavLink
-                to={getProfilePath()}
+                to={getProfile()}
                 className={({ isActive }) =>
                   isActive ? navLinkActiveClass : navLinkClass
                 }

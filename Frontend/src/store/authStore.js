@@ -12,8 +12,9 @@ export const useAuth = create((set) => ({
     try {
       //set loading true
       set(state=>({...state,loading: true}))
+      console.log(userCred)
       //make api call
-      let res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`,userCred,{withCredentials:true})
+      let res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user-api/login`,userCred,{withCredentials:true})
       //update state
       if(res.status === 200){
         set({
@@ -24,13 +25,17 @@ export const useAuth = create((set) => ({
         })
       }
     } catch (err) {
-      console.log("err is ", err);
+      console.log(err.response?.data);
       set({
         loading: false,
         isAuthenticated: false,
         currentUser: null,
         //error: err,
-        error: err.response?.data?.error || "Login failed",
+        error:
+          err.response?.data?.message ||
+          err.response?.data?.error?.message ||
+          err.message ||
+          "Login failed",
       });
     }
   },
@@ -49,13 +54,17 @@ export const useAuth = create((set) => ({
         });
       }
     } catch (err) {
-      set({
-        loading: false,
-        isAuthenticated: false,
-        currentUser: null,
-        error: err.response?.data?.error || "Logout failed",
-      });
-    }
+  set({
+    loading: false,
+    isAuthenticated: false,
+    currentUser: null,
+    error:
+      err.response?.data?.message ||
+      err.response?.data?.error?.message ||
+      err.message ||
+      "Logout failed",
+  });
+}
   },
   // restore login
   checkAuth: async () => {

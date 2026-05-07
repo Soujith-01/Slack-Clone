@@ -9,6 +9,8 @@ import UserProfile from './components/userProfile'
 import { useAuth } from "./store/authStore";
 import { useEffect } from 'react'
 import EditProfile from './components/EditProfile'
+import ChatList from './components/ChatList'
+import Chat from './components/Chat'
 RouterProvider
 
 
@@ -37,7 +39,17 @@ function App() {
       },
       {
         path: "chat-window",
-        element: <ChatWindow/>
+        element: <ChatWindow/>,
+        children:[
+          {
+            index: true,
+            element: <ChatList/>
+          },
+          {
+            index: true,
+            element: <Chat/>
+          }
+        ]
       },
       {
         path: "UserProfile",
@@ -48,8 +60,7 @@ function App() {
         element: <EditProfile/>
       }
     ]
-  }]
-  )
+  }])
 
   return (
     <div>

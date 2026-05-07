@@ -37,7 +37,7 @@ function Login() {
   useEffect(() => {
     //navigation logic
     if (isAuthenticated === true) {
-      navigate("/UserProfile")
+      navigate("/chat-window")
     }
   }, [isAuthenticated,currentUser]);
 

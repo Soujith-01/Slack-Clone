@@ -69,14 +69,23 @@ chatApp.post('/chats/dm',verifyToken,async(req,res)=>{
     res.status(400).json({message:"dm created successfully",payload:newDm})
 })
 
-//get all chats
-chatApp.get('/chats',verifyToken,async(req,res)=>{
+//get channel List
+chatApp.get('/chats/channels',verifyToken,async(req,res)=>{
+    //get logged in userId
+    const userId = req.user.id
+    //get all channels
+    const channelChats = await chatModel.find({type:"channel",members:userId})
+    //send res
+    res.status(200).json({message:"chats",payload:channelChats})
+})
+
+chatApp.get('/chats/dms',verifyToken,async(req,res)=>{
     //get logged in userId
     const userId = req.user.userId
     //get all chats 
-    const chats = await chatModel.find({members:userId})
+    const dmChats = await chatModel.find({type:"dm",members:userId})
     //send res
-    res.status(200).json({message:"chats",payload:chats})
+    res.status(200).json({message:"chats",payload:dmChats})
 })
 
 //get chgannel by channelId

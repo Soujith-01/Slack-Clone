@@ -1,8 +1,9 @@
 import { useAuth } from "../store/authStore";
 import { useNavigate } from "react-router";
-
 import axios from "axios";
 import { useEffect, useState } from "react";
+import EditProfile from "../components/EditProfile";
+
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
@@ -24,6 +25,7 @@ function UserProfile() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [editMode, setEditMode] = useState(false);
 
 
     // convert UTC → IST
@@ -74,6 +76,14 @@ function UserProfile() {
           </div>
         </div>
 
+          <div className="flex-row items-end mx-10">
+        <button
+            onClick={() => setEditMode(true)}
+            className="bg-[#0066cc] text-white px-4 py-2 rounded-full transition"
+          >
+            Edit Profile
+        </button>
+
         {/* LOGOUT */}
         <button
           className="bg-[#ff3b30] text-white text-sm px-5 py-2 rounded-full hover:bg-[#d62c23] transition"
@@ -81,7 +91,15 @@ function UserProfile() {
         >
           Logout
         </button>
+        </div>
       </div>
+       {/* EDIT PROFILE COMPONENT */}
+      {editMode && (
+        <EditProfile
+          currentUser={currentUser}
+          setEditMode={setEditMode}
+        />
+      )}
       </div>
    )
 }

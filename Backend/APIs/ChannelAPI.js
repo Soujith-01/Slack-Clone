@@ -240,3 +240,133 @@ chatApp.get('/members',verifyToken,async(req,res)=>{
     //send res
     res.status(200).json({message:"members",payload:channel.members})
 })
+
+//request to join a channel
+chatApp.post('/chats/join-request',verifyToken,async(req,res)=>{
+    try {
+        const userId = req.user.userId;
+        const username = req.user.username;
+        const { channelId } = req.body;
+
+        if (!channelId) {
+            return res.status(400).json({ message: 'channelId is required' });
+        }
+
+        const channel = await chatModel.findOne({ _id: channelId, type: 'channel' });
+        if (!channel) {
+            return res.status(404).json({ message: 'channel not found' });
+        }
+        if (channel.members?.some(member => member.toString() === userId.toString())) {
+            return res.status(400).json({ message: 'already a member of this channel' });
+        }
+        const pendingRequests = channel.joinRequests || [];
+        if (pendingRequests.some(req => req.user.toString() === userId.toString())) {
+            return res.status(400).json({ message: 'join request already pending' });
+        }
+
+        channel.joinRequests = pendingRequests;
+        channel.joinRequests.push({ user: userId });
+        await channel.save();
+
+        await MessageModel.create({
+            sender: userId,
+            receiver: channel.admin,
+            content: `User ${username} has requested to join channel ${channel.channelName}.`,
+        });
+
+        res.status(200).json({ message: 'join request sent to channel admin' });
+    } catch (err) {
+        console.error('Join request error:', err);
+        res.status(500).json({ message: 'server error creating join request', error: err.message });
+    }
+})
+
+//approve or reject a pending join request
+chatApp.post('/chats/approve-request',verifyToken,async(req,res)=>{
+    try {
+        const adminId = req.user.userId;
+        const { channelId, userId, approve } = req.body;
+
+        if (!channelId || !userId) {
+            return res.status(400).json({ message: 'channelId and userId are required' });
+        }
+
+        const channel = await chatModel.findOne({ _id: channelId, type: 'channel' });
+        if (!channel) {
+            return res.status(404).json({ message: 'channel not found' });
+        }
+        if (channel.admin.toString() !== adminId.toString()) {
+            return res.status(403).json({ message: 'only channel admin can approve requests' });
+        }
+
+        const pendingRequests = channel.joinRequests || [];
+        const requestIndex = pendingRequests.findIndex(req => req.user.toString() === userId.toString());
+        if (requestIndex === -1) {
+            return res.status(400).json({ message: 'no pending join request found for this user' });
+        }
+
+        channel.joinRequests = pendingRequests;
+        channel.joinRequests.splice(requestIndex, 1);
+        if (approve) {
+            if (!channel.members.some(member => member.toString() === userId.toString())) {
+                channel.members.push(userId);
+            }
+        }
+        await channel.save();
+
+        const actionMessage = approve ?
+            `Your request to join channel ${channel.channelName} has been approved.` :
+            `Your request to join channel ${channel.channelName} has been rejected.`;
+
+        await MessageModel.create({
+            sender: adminId,
+            receiver: userId,
+            content: actionMessage,
+        });
+
+        res.status(200).json({
+            message: approve ? 'user added to channel' : 'join request rejected',
+            payload: { channel, approved: !!approve }
+        });
+    } catch (err) {
+        console.error('Approve request error:', err);
+        res.status(500).json({ message: 'server error processing join request', error: err.message });
+    }
+})
+
+//leave a channel
+chatApp.post('/chats/leave',verifyToken,async(req,res)=>{
+    try {
+        const userId = req.user.userId;
+        const { channelId } = req.body;
+
+        if (!channelId) {
+            return res.status(400).json({ message: 'channelId is required' });
+        }
+
+        const channel = await chatModel.findOne({ _id: channelId, type: 'channel' });
+        if (!channel) {
+            return res.status(404).json({ message: 'channel not found' });
+        }
+        if (!channel.members?.some(member => member.toString() === userId.toString())) {
+            return res.status(400).json({ message: 'not a member of this channel' });
+        }
+        if (channel.admin.toString() === userId.toString()) {
+            return res.status(400).json({ message: 'channel admin cannot leave the channel' });
+        }
+
+        channel.members = channel.members.filter(member => member.toString() !== userId.toString());
+        await channel.save();
+
+        await MessageModel.create({
+            sender: userId,
+            receiver: channel.admin,
+            content: `User ${req.user.username} has left channel ${channel.channelName}.`,
+        });
+
+        res.status(200).json({ message: 'left channel successfully' });
+    } catch (err) {
+        console.error('Leave channel error:', err);
+        res.status(500).json({ message: 'server error leaving channel', error: err.message });
+    }
+})

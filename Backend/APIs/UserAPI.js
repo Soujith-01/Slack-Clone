@@ -121,6 +121,8 @@ userApp.put("/users", verifyToken, async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
+    
+
     //  USERNAME
     if (username) {
       const userExists = await UserModel.findOne({ username });
@@ -249,3 +251,11 @@ userApp.delete("/delete-user",verifyToken,async (req, res) => {
       message: "Account deactivated successfully"
     });
 })
+
+//page refresh
+userApp.get("/check-auth", verifyToken, (req, res) => {
+  res.status(200).json({
+    message: "authenticated",
+    payload: req.user,
+  });
+});

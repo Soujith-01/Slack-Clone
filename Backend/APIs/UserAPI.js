@@ -6,6 +6,8 @@ import jwt from 'jsonwebtoken'
 const {sign}=jwt
 import { verifyToken } from '../middlewares/verifyToken.js'
 import {config} from 'dotenv'
+import {upload} from '../config/multer.js'
+import {uploadToCloudinary } from '../config/cloudinaryUpload.js'
 
 config()
 
@@ -13,19 +15,34 @@ config()
 export const userApp = exp.Router()
 
 //Create New User
-    userApp.post('/users',async(req,res)=>{
+    userApp.post('/users',upload.single("profileImageUrl"),async(req,res,next)=>{
+      let cloudinaryResult;
+      try{
         //get new user obj from req
         const newUser=req.body
+        console.log(newUser)
         //hash the password
         const hashedPassword=await hash(newUser.password,10)
         //replace original password with hashed password
         newUser.password=hashedPassword
+        if(req.file){
+          cloudinaryResult = await uploadToCloudinary.apply(req.file.buffer)
+        }
         //create new user document
         const NewUserDocument=new UserModel(newUser)
         //save
         let result=await NewUserDocument.save()
         //send response
         res.status(201).json({message:'User Created'})//it is mandatory to send status code
+      }catch (err) {
+    console.log("err is ", err);
+    //delete image from cloudinary
+    if (cloudinaryResult?.public_id) {
+        console.log("cloudinary cleanup failed", cleanupErr.message);
+      
+    }
+    next(err);
+  }
     })
    
 

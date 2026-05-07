@@ -3,9 +3,9 @@ import {connect} from 'mongoose'
 import { config } from 'dotenv'
 import { createServer } from 'node:http'
 import { Server } from "socket.io";
+import cors from 'cors'
 import { userApp } from './APIs/UserAPI.js';
 import { chatApp } from './APIs/channelAPI.js';
-import { messageApp } from './APIs/MessagesAPI.js';
 import cookieParser from 'cookie-parser'
 import jwt from "jsonwebtoken"
 import { setupSocket } from "./sockets/socket.js";
@@ -18,6 +18,35 @@ const app=exp()
 const server=createServer(app)
 
 config()
+
+const envOrigins = `${process.env.FRONTEND_URL || ''},${process.env.FRONTEND_URLS || ''}`
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
+const allowedOrigins = new Set([
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:5174',
+  'http://127.0.0.1:5175',
+  'https://blog-frontend-e041d.netlify.app',
+  ...envOrigins,
+])
+
+//add cors middleware
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.has(origin)) {
+        return callback(null, true)
+      }
+      return callback(new Error(`CORS blocked for origin ${origin}`))
+    },
+    credentials: true
+  }),
+);
 
 //body parser middleware
 app.use(exp.json())
@@ -34,8 +63,15 @@ app.use("/fileTranser-api",fileTransferApp)
 //socket server
 const io = new Server(server, {
   cors: {
-    origin: "*",
-     methods: ["GET", "POST"],
+    origin: [
+      'http://localhost:5173',    // Frontend dev server
+      'http://localhost:3000',    // Local testing
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:3000',
+    ],
+    credentials: true,
+    methods: ["GET", "POST","PUT","DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
   }
 });
 

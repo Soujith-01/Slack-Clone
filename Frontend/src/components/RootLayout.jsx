@@ -6,9 +6,9 @@ import Header from './Header'
 
 function RootLayout() {
   return (
-    <div>
+    <div className='h-screen flex flex-col '>
         < Header/>
-        <div className ="min-h-screen ">
+        <div className ="flex-1 overflow-hidden">
             < Outlet/>
         </div>
     </div>

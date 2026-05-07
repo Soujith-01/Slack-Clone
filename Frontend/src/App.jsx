@@ -5,6 +5,8 @@ import RootLayout from './components/RootLayout'
 import Register from './components/Register'
 import Login from './components/Login'
 import ChatWindow from './components/ChatWindow'
+import ChatList from './components/ChatList'
+import Chat from './components/Chat'
 RouterProvider
 
 
@@ -28,11 +30,20 @@ function App() {
       },
       {
         path: "chat-window",
-        element: <ChatWindow/>
+        element: <ChatWindow/>,
+        children:[
+          {
+              index: true,
+              element: <ChatList />,
+            },
+            {
+              index: true,
+              element: <Chat />,
+            }
+        ]
       }
     ]
-  }]
-  )
+  }])
 
   return (
     <div>

@@ -31,22 +31,21 @@ function Header() {
 
         <ul className={navLinksClass}>
 
-          {/* HOME */}
-          <li>
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) =>
-                isActive ? navLinkActiveClass : navLinkClass
-              }
-            >
-              Home
-            </NavLink>
-          </li>
+          
 
           {/* NOT LOGGED IN */}
           {!isAuthenticated && (
             <>
+            {/* HOME */}
+            <li>
+              <NavLink to="/"
+               end className={({ isActive }) => 
+               isActive ? navLinkActiveClass : navLinkClass
+               }
+              >
+                Home
+              </NavLink>
+          </li>
               <li>
                 <NavLink
                   to="/register"
@@ -73,6 +72,7 @@ function Header() {
 
           {/* LOGGED IN */}
           {isAuthenticated && (
+
             <li>
               <NavLink
                 to={getProfile()}

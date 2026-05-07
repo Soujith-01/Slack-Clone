@@ -70,7 +70,7 @@ export const useAuth = create((set) => ({
   checkAuth: async () => {
     try {
       set({ loading: true });
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/check-auth`, { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user-api/check-auth`, { withCredentials: true });
 
       set({
         currentUser: res.data.payload,
@@ -93,4 +93,11 @@ export const useAuth = create((set) => ({
       set({ loading: false });
     }
   },
+  updateCurrentUser: (userData) =>
+    set((state) => ({
+      currentUser: {
+        ...state.currentUser,
+        ...userData,
+      },
+    })),
 }));

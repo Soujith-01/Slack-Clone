@@ -6,10 +6,18 @@ import Register from './components/Register'
 import Login from './components/Login'
 import ChatWindow from './components/ChatWindow'
 import UserProfile from './components/userProfile'
+import { useAuth } from "./store/authStore";
+import { useEffect } from 'react'
+import EditProfile from './components/EditProfile'
 RouterProvider
 
 
 function App() {
+   const checkAuth = useAuth((state) => state.checkAuth);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   const routerObj = createBrowserRouter([{
     path: "/",
@@ -34,6 +42,10 @@ function App() {
       {
         path: "UserProfile",
         element: <UserProfile/>
+      },
+      {
+        path: "EditProfile",
+        element: <EditProfile/>
       }
     ]
   }]

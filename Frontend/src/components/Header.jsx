@@ -16,7 +16,7 @@ function Header() {
   // decide profile route
   const getProfile = () => {
     if (!user) return "/";
-    return "/chat-window"
+    return "/UserProfile"
     
   };
 

@@ -26,7 +26,8 @@ export const userApp = exp.Router()
         //replace original password with hashed password
         newUser.password=hashedPassword
         if(req.file){
-          cloudinaryResult = await uploadToCloudinary.apply(req.file.buffer)
+          cloudinaryResult = await uploadToCloudinary(req.file.buffer)
+          newUser.profileImageUrl = cloudinaryResult.secure_url;
         }
         //create new user document
         const NewUserDocument=new UserModel(newUser)
@@ -82,7 +83,8 @@ export const userApp = exp.Router()
                                 _id: user._id,
                                 username: user.username,
                                 email: user.email,
-                                gender: user.gender
+                                gender: user.gender,
+                                profileImageUrl: user.profileImageUrl
                             }})
     })
 
@@ -104,8 +106,6 @@ userApp.get("/logout", (req, res) => {
 
 
 //update user by username
-
-// UPDATE USER (using JWT → req.user.username)
 userApp.put("/users", verifyToken, async (req, res) => {
   try {
     const oldUsername = req.user.username; // 🔥 from token

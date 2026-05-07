@@ -12,7 +12,6 @@ export const useAuth = create((set) => ({
     try {
       //set loading true
       set(state=>({...state,loading: true}))
-      console.log(userCred)
       //make api call
       let res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user-api/login`,userCred,{withCredentials:true})
       //update state
@@ -46,6 +45,7 @@ export const useAuth = create((set) => ({
       let res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, { withCredentials: true });
       //update state
       if (res.status === 200) {
+        console.log(res.data)
         set({
           currentUser: null,
           isAuthenticated: false,

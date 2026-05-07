@@ -5,6 +5,7 @@ import RootLayout from './components/RootLayout'
 import Register from './components/Register'
 import Login from './components/Login'
 import ChatWindow from './components/ChatWindow'
+import UserProfile from './components/userProfile'
 RouterProvider
 
 
@@ -29,6 +30,10 @@ function App() {
       {
         path: "chat-window",
         element: <ChatWindow/>
+      },
+      {
+        path: "UserProfile",
+        element: <UserProfile/>
       }
     ]
   }]

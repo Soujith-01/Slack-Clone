@@ -20,7 +20,7 @@ chatApp.post('/chats/channel',verifyToken,async(req,res)=>{
         return res.status(400).json({message:"minimum 1 members is required to create a channel"})
     }
 
-    const adminId=req.user.id
+    const adminId=req.user.userId
     //create channel
     const newChannel=await chatModel.create({
         channelName,
@@ -72,7 +72,7 @@ chatApp.post('/chats/dm',verifyToken,async(req,res)=>{
 //get all chats
 chatApp.get('/chats',verifyToken,async(req,res)=>{
     //get logged in userId
-    const userId = req.user.id
+    const userId = req.user.userId
     //get all chats 
     const chats = await chatModel.find({members:userId})
     //send res
@@ -98,7 +98,7 @@ chatApp.patch('/channel',verifyToken,async(req,res)=>{
     //get old and new channel names from req
     const {oldName,newName} = req.body
     //logged in user
-    const user=req.user.id
+    const user=req.user.userId
     //find channel by oldName
     const channel=await chatModel.findOne({channelName:oldName})
     //check if admin of channel is logged in or not
@@ -117,7 +117,7 @@ chatApp.delete('/delete',verifyToken,async(req,res)=>{
     //get channel name from req body
     const {channelName} = req.body
     //get logged in user
-    const userId = req.user.id
+    const userId = req.user.userId
     //find channel
     const channel = await chatModel.findOne({channelName:channelName})
     //check logged in user and admin of the channel is same or not
@@ -136,7 +136,7 @@ chatApp.put('/add-members',verifyToken,async(req,res)=>{
     //get channel details from req body
     const {channelName,members} = req.body
     //admin
-    const adminId = req.user.id
+    const adminId = req.user.userId
     //check members 
     if(!members || members.lenght===0){
         return res.status(400).json({message:"atleast one members should be added"})
@@ -177,7 +177,7 @@ chatApp.delete('/delete-members',verifyToken,async(req,res)=>{
     //get channelName and members from the req body
     const {channelName,member} = req.body
     //logged in user id
-    const userId = req.user.id
+    const userId = req.user.userId
     //check members array 
     if(member.length===0){
         return res.status(400).json({message:"userIds are required"})
@@ -245,7 +245,6 @@ chatApp.get('/members',verifyToken,async(req,res)=>{
 chatApp.post('/chats/join-request',verifyToken,async(req,res)=>{
     try {
         const userId = req.user.userId;
-        const username = req.user.username;
         const { channelId } = req.body;
 
         if (!channelId) {
@@ -268,10 +267,13 @@ chatApp.post('/chats/join-request',verifyToken,async(req,res)=>{
         channel.joinRequests.push({ user: userId });
         await channel.save();
 
+        const requester = await UserModel.findById(userId).select('username');
+        const requesterName = requester?.username || 'Unknown user';
+
         await MessageModel.create({
             sender: userId,
             receiver: channel.admin,
-            content: `User ${username} has requested to join channel ${channel.channelName}.`,
+            content: `User ${requesterName} has requested to join channel ${channel.channelName}.`,
         });
 
         res.status(200).json({ message: 'join request sent to channel admin' });
@@ -358,10 +360,13 @@ chatApp.post('/chats/leave',verifyToken,async(req,res)=>{
         channel.members = channel.members.filter(member => member.toString() !== userId.toString());
         await channel.save();
 
+        const leavingUser = await UserModel.findById(userId).select('username');
+        const leavingUsername = leavingUser?.username || 'Unknown user';
+
         await MessageModel.create({
             sender: userId,
             receiver: channel.admin,
-            content: `User ${req.user.username} has left channel ${channel.channelName}.`,
+            content: `User ${leavingUsername} has left channel ${channel.channelName}.`,
         });
 
         res.status(200).json({ message: 'left channel successfully' });

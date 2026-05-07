@@ -71,7 +71,7 @@ export const userApp = exp.Router()
         }
         //if passwords matched
             //create token(jsonwebtoken-jwt)
-            const signedToken=sign({userId:user._id,email:user.email,username:user.username,gender:user.gender},process.env.SECRET_KEY,{expiresIn:"1h"})//if time is give in "",then it is ms
+            const signedToken=sign({userId:user._id},process.env.SECRET_KEY,{expiresIn:"1h"})//if time is give in "",then it is ms
             //store token as http only cookie 
             res.cookie("token",signedToken,{
                 httpOnly:true,  //will store cookie in httpOnly
@@ -108,19 +108,34 @@ userApp.get("/logout", (req, res) => {
 //update user by username
 userApp.put("/users", verifyToken, async (req, res) => {
   try {
-    const oldUsername = req.user.username; // 🔥 from token
+    const userIdFromToken = req.user.userId;
 
-    const { username, email, password, gender, profileImage } = req.body;
+    const { username, email,oldPassword, newPassword, gender, profileImage } = req.body;
 
     const updates = {};
 
     //  Get current user first
-    const currentUser = await UserModel.findOne({ username: oldUsername });
+    const currentUser = await UserModel.findById(userIdFromToken);
 
     if (!currentUser) {
       return res.status(404).json({ msg: "User not found" });
     }
 
+    if (newPassword) {
+
+      if (!oldPassword) {
+        return res.status(400).json({message: "Old password is required"});
+      }
+
+  const isMatch = await bcrypt.compare(
+    oldPassword,
+    currentUser.password
+  );
+
+  if (!isMatch) {
+    return res.status(400).json({message: "Old password is incorrect"});
+  }
+}
     
 
     //  USERNAME
@@ -148,9 +163,9 @@ userApp.put("/users", verifyToken, async (req, res) => {
     }
 
     //  PASSWORD
-    if (password) {
-      updates.password = await bcrypt.hash(password, 10);
-    }
+    if (newPassword) {
+      updates.password = await bcrypt.hash(newPassword, 10);
+    } 
 
     //  GENDER
     if (gender) {
@@ -167,7 +182,7 @@ userApp.put("/users", verifyToken, async (req, res) => {
       { _id: currentUser._id },
       { $set: updates },
       {
-        new: true,
+        returnDocument: "after",
         runValidators: true
       }
     ).select("-password");
@@ -253,9 +268,20 @@ userApp.delete("/delete-user",verifyToken,async (req, res) => {
 })
 
 //page refresh
-userApp.get("/check-auth", verifyToken, (req, res) => {
-  res.status(200).json({
-    message: "authenticated",
-    payload: req.user,
-  });
+userApp.get("/check-auth", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    const user = await UserModel.findById(userId).select("_id username email gender profileImageUrl");
+
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    res.status(200).json({
+      message: "authenticated",
+      payload: user,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });

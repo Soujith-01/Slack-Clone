@@ -17,7 +17,7 @@ messageApp.get("/get-channel", verifyToken, async (req, res) => {
     }
 
     // check if user is part of channel
-    if (!channel.members.includes(req.user.id)) {
+    if (!channel.members.includes(req.user.userId)) {
       return res.status(403).json({ message: "Access denied" });
     }
 

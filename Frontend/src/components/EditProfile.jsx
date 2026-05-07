@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../store/authStore";
+import { useState } from "react";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
@@ -11,6 +12,8 @@ function EditProfile({ currentUser, setEditMode }) {
     (state) => state.updateCurrentUser
   );
 
+  const [apiError, setApiError] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -19,7 +22,8 @@ function EditProfile({ currentUser, setEditMode }) {
     defaultValues: {
       username: currentUser?.username || "",
       email: currentUser?.email || "",
-      password: "",
+      oldPassword: "",
+      newPassword: "",
       gender: currentUser?.gender || "",
     },
   });
@@ -28,6 +32,8 @@ function EditProfile({ currentUser, setEditMode }) {
   const onUpdateProfile = async (updatedUser) => {
 
     try {
+
+      setApiError("");
 
       const res = await axios.put(
         `${backendUrl}/user-api/users`,
@@ -47,7 +53,7 @@ function EditProfile({ currentUser, setEditMode }) {
 
       console.log(err);
 
-      alert(
+      setApiError(
         err.response?.data?.message ||
         err.response?.data?.msg ||
         "Update failed"
@@ -61,6 +67,13 @@ function EditProfile({ currentUser, setEditMode }) {
       <h2 className="text-xl font-semibold mb-6">
         Edit Profile
       </h2>
+
+      {/* API ERROR */}
+      {apiError && (
+        <p className="text-red-500 text-sm mb-4">
+          {apiError}
+        </p>
+      )}
 
       <form onSubmit={handleSubmit(onUpdateProfile)}>
 
@@ -80,6 +93,10 @@ function EditProfile({ currentUser, setEditMode }) {
               minLength: {
                 value: 2,
                 message: "Minimum 2 characters required",
+              },
+              maxLength: {
+                value: 10,
+                message: "Maximum 10 characters allowed",
               },
             })}
           />
@@ -114,7 +131,22 @@ function EditProfile({ currentUser, setEditMode }) {
           )}
         </div>
 
-        {/* PASSWORD */}
+        {/* OLD PASSWORD */}
+        <div className="mb-4">
+
+          <label className="block text-sm mb-2">
+            Old Password
+          </label>
+
+          <input
+            type="password"
+            placeholder="Old Password"
+            className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-[#0066cc]"
+            {...register("oldPassword")}
+          />
+        </div>
+
+        {/* NEW PASSWORD */}
         <div className="mb-4">
 
           <label className="block text-sm mb-2">
@@ -125,8 +157,19 @@ function EditProfile({ currentUser, setEditMode }) {
             type="password"
             placeholder="New Password"
             className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-[#0066cc]"
-            {...register("password")}
+            {...register("newPassword", {
+              minLength: {
+                value: 6,
+                message: "Minimum 6 characters required",
+              },
+            })}
           />
+
+          {errors.newPassword && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.newPassword.message}
+            </p>
+          )}
         </div>
 
         {/* GENDER */}

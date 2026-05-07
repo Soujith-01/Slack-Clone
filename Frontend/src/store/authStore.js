@@ -42,7 +42,7 @@ export const useAuth = create((set) => ({
     try {
       //set loading state
       //make logout api req
-      let res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, { withCredentials: true });
+      let res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user-api/logout`, { withCredentials: true });
       //update state
       if (res.status === 200) {
         console.log(res.data)

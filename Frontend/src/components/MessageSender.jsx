@@ -2,7 +2,7 @@
 
 import React, {useState,} from "react";
 import { Send } from "lucide-react";
-import { socket } from "../socket";
+import { getSocket } from "../socket";
 
 function MessageSender({
   chat,
@@ -26,6 +26,7 @@ function MessageSender({
     // ======================================
     if (chat.type ==="channel") {
       console.log({channelId: chat._id,content});
+      const socket = getSocket();
       socket.emit(
         "send-channel-message",
         {
@@ -46,7 +47,7 @@ function MessageSender({
             member._id !==
             currentUser._id
         )?._id;
-
+        const socket = getSocket();
       socket.emit(
         "send-dm",
         {

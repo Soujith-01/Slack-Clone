@@ -12,7 +12,7 @@ import ChatHeader from "./ChatHeader";
 import MessageList from "./MessageList";
 import MessageSender from "./MessageSender";
 
-import { socket } from "../socket";
+import { getSocket } from "../socket";
 
 import { useAuth } from "../store/authStore";
 
@@ -88,95 +88,84 @@ function Chat() {
   // ======================================
   useEffect(() => {
 
-    if (!chat?._id) return;
+  const socket = getSocket();
 
-    // Join channel room
-    if (
-      chat.type ===
-      "channel"
-    ) {
-      socket.emit(
-        "join-channel",
-        chat._id
+  // IMPORTANT
+  if (!socket) return;
+
+  if (!chat?._id) return;
+
+  // Join channel room
+  if (chat.type === "channel") {
+
+    socket.emit(
+      "join-channel",
+      chat._id
+    );
+  }
+
+  socket.on(
+    "receive-channel-message",
+    (message) => {
+
+      setMessages((prev) => [
+        ...prev,
+        message,
+      ]);
+    }
+  );
+
+  socket.on(
+    "receive-dm",
+    (message) => {
+
+      setMessages((prev) => [
+        ...prev,
+        message,
+      ]);
+    }
+  );
+
+  socket.on(
+    "message-edited",
+    (updatedMessage) => {
+
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === updatedMessage._id
+            ? updatedMessage
+            : msg
+        )
       );
     }
+  );
 
-    // receive channel msg
-    socket.on(
-      "receive-channel-message",
-      (message) => {
+  socket.on(
+    "reaction-updated",
+    (updatedMessage) => {
 
-        setMessages((prev) => [
-          ...prev,
-          message,
-        ]);
-      }
-    );
-
-    // receive dm
-    socket.on(
-      "receive-dm",
-      (message) => {
-
-        setMessages((prev) => [
-          ...prev,
-          message,
-        ]);
-      }
-    );
-
-    // message edited
-    socket.on(
-      "message-edited",
-      (updatedMessage) => {
-
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg._id ===
-            updatedMessage._id
-              ? updatedMessage
-              : msg
-          )
-        );
-      }
-    );
-
-    // reaction updated
-    socket.on(
-      "reaction-updated",
-      (updatedMessage) => {
-
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg._id ===
-            updatedMessage._id
-              ? updatedMessage
-              : msg
-          )
-        );
-      }
-    );
-
-    return () => {
-
-      socket.off(
-        "receive-channel-message"
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === updatedMessage._id
+            ? updatedMessage
+            : msg
+        )
       );
+    }
+  );
 
-      socket.off(
-        "receive-dm"
-      );
+  return () => {
 
-      socket.off(
-        "message-edited"
-      );
+    socket.off("receive-channel-message");
 
-      socket.off(
-        "reaction-updated"
-      );
-    };
+    socket.off("receive-dm");
 
-  }, [chat]);
+    socket.off("message-edited");
+
+    socket.off("reaction-updated");
+  };
+
+}, [chat]);
 
 
   return (

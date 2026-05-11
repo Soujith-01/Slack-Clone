@@ -64,20 +64,20 @@ function App() {
       path: "Chat",
       element: <Chat />,
     },
-    {
-      path: "settings",
-      element: <Settings />
-    }
   ],
 },
       {
-        path: "UserProfile",
+        path: "user-profile",
         element: <UserProfile/>
       },
       {
-        path: "EditProfile",
+        path: "edit-profile",
         element: <EditProfile/>
-      }
+      },
+      {
+      path: "settings",
+      element: <Settings />
+    }
     ]
   }])
   

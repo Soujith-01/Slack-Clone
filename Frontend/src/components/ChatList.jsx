@@ -86,36 +86,36 @@ function ChatList() {
   }
 
   return (
-  <div className="w-full max-w-sm mx-auto py-5 px-3">
+  <div className="w-full max-w-sm mx-auto py-5 compact:py-4 px-3 text-[#111827] dark:text-zinc-100 transition-colors">
     
     {/* Channels */}
-    <div className="mb-6">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-semibold text-gray-800">
+    <div className="mb-6 compact:mb-5">
+      <div className="flex items-center justify-between mb-3 compact:mb-2.5">
+        <h2 className="text-lg font-semibold text-[#111827] dark:text-zinc-100">
           Channels
         </h2>
 
-        <button className="text-sm text-blue-600 hover:text-blue-700">
+        <button className="text-sm text-blue-600 dark:text-sky-400 hover:text-blue-700 dark:hover:text-sky-300 transition-colors">
           + New
         </button>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 compact:gap-1.5">
         {channelList.map((chat) => (
           <div
             key={chat._id}
             onClick={() => navigate(`/Chat/${chat._id}`)}
-            className="bg-white border border-gray-200 rounded-2xl px-4 py-3 cursor-pointer hover:bg-gray-50 transition"
+            className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl px-4 py-3 compact:px-3 compact:py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
           >
             <div className="flex items-center gap-3">
 
               {/* Channel Info */}
               <div className="flex flex-col">
-                <p className="text-sm font-semibold text-gray-800">
+                <p className="text-sm font-semibold text-[#111827] dark:text-zinc-100">
                   #{chat.channelName}
                 </p>
 
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-gray-400 dark:text-zinc-400">
                   {chat.lastMessage || "No messages"}
                 </p>
               </div>
@@ -127,46 +127,46 @@ function ChatList() {
 
     {/* Direct Messages */}
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-semibold text-gray-800">
+      <div className="flex items-center justify-between mb-3 compact:mb-2.5">
+        <h2 className="text-lg font-semibold text-[#111827] dark:text-zinc-100">
           Direct Messages
         </h2>
 
-        <button className="text-sm text-blue-600 hover:text-blue-700">
+        <button className="text-sm text-blue-600 dark:text-sky-400 hover:text-blue-700 dark:hover:text-sky-300 transition-colors">
           + New
         </button>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 compact:gap-1.5">
         {dmList.map((chat) => (
           <div
             key={chat._id}
             onClick={() => navigate(`/chat/${chat._id}`)}
-            className="bg-white border border-gray-200 rounded-2xl px-4 py-3 cursor-pointer hover:bg-gray-50 transition"
+            className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl px-4 py-3 compact:px-3 compact:py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
           >
             <div className="flex items-center justify-between">
               
               <div className="flex items-center gap-3">
 
                 {/* Avatar */}
-                <div className="w-9 h-9 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-semibold">
+                <div className="w-9 h-9 rounded-full bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-300 flex items-center justify-center font-semibold">
                   {chat.channelName?.charAt(0).toUpperCase()}
                 </div>
 
                 {/* User Info */}
                 <div className="flex flex-col">
-                  <p className="text-sm font-semibold text-gray-800">
+                  <p className="text-sm font-semibold text-[#111827] dark:text-zinc-100">
                     {chat.channelName}
                   </p>
 
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-400 dark:text-zinc-400">
                     {chat.lastMessage || "Start chatting"}
                   </p>
                 </div>
               </div>
 
               {/* Online Dot */}
-              <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-green-500 dark:bg-green-400" />
             </div>
           </div>
         ))}

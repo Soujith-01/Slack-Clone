@@ -1,56 +1,56 @@
 // src/styles/common.js
-// Minimal Clean Light Theme
+// Minimal Clean Theme
 
 // ─── Layout ───────────────────────────────────────────
-export const pageBackground = "bg-[#ffffff] min-h-screen";
-export const pageWrapper = "max-w-6xl mx-auto px-6 py-10";
-export const section = "mb-10";
+export const pageBackground = "bg-white dark:bg-zinc-950 min-h-screen transition-colors";
+export const pageWrapper = "max-w-6xl mx-auto px-6 py-10 compact:py-8";
+export const section = "mb-10 compact:mb-8";
 
 // ─── Cards ────────────────────────────────────────────
 export const cardClass =
-  "bg-[#ffffff] border border-[#e5e7eb] rounded-2xl p-6 hover:border-[#d1d5db] transition-all duration-200";
+  "bg-white dark:bg-zinc-900 border border-[#e5e7eb] dark:border-zinc-800 rounded-2xl p-6 compact:p-5 hover:border-[#d1d5db] dark:hover:border-zinc-700 transition-all duration-200";
 
 // ─── Typography ───────────────────────────────────────
 export const pageTitleClass =
-  "text-4xl font-bold text-[#111827] tracking-tight";
+  "text-4xl font-bold text-[#111827] dark:text-zinc-100 tracking-tight";
 
 export const headingClass =
-  "text-2xl font-semibold text-[#111827] tracking-tight";
+  "text-2xl font-semibold text-[#111827] dark:text-zinc-100 tracking-tight";
 
 export const subHeadingClass =
-  "text-lg font-medium text-[#111827]";
+  "text-lg font-medium text-[#111827] dark:text-zinc-100";
 
 export const bodyText =
-  "text-[#4b5563] leading-relaxed";
+  "text-[#4b5563] dark:text-zinc-300 leading-relaxed";
 
 export const mutedText =
-  "text-sm text-[#9ca3af]";
+  "text-sm text-[#9ca3af] dark:text-zinc-400";
 
 export const linkClass =
-  "text-[#2563eb] hover:text-[#1d4ed8] transition-colors";
+  "text-[#2563eb] dark:text-sky-400 hover:text-[#1d4ed8] dark:hover:text-sky-300 transition-colors";
 
 // ─── Buttons ──────────────────────────────────────────
 export const primaryBtn =
   "bg-[#2563eb] text-white px-5 py-2 rounded-xl hover:bg-[#1d4ed8] transition-colors text-sm font-medium";
 
 export const secondaryBtn =
-  "border border-[#d1d5db] bg-white text-[#111827] px-5 py-2 rounded-xl hover:bg-[#f9fafb] transition-colors text-sm font-medium";
+  "border border-[#d1d5db] bg-white text-[#111827] dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 px-5 py-2 rounded-xl hover:bg-[#f9fafb] dark:hover:bg-zinc-800 transition-colors text-sm font-medium";
 
 export const ghostBtn =
-  "text-[#2563eb] hover:text-[#1d4ed8] text-sm font-medium transition-colors";
+  "text-[#2563eb] dark:text-sky-400 hover:text-[#1d4ed8] dark:hover:text-sky-300 text-sm font-medium transition-colors";
 
 // ─── Forms ────────────────────────────────────────────
 export const formCard =
-  "bg-white border border-[#e5e7eb] rounded-2xl p-8";
+  "bg-white dark:bg-zinc-900 border border-[#e5e7eb] dark:border-zinc-800 rounded-2xl p-8 compact:p-6 transition-colors";
 
 export const formTitle =
-  "text-2xl font-semibold text-[#111827] text-center mb-6";
+  "text-2xl font-semibold text-[#111827] dark:text-zinc-100 text-center mb-6";
 
 export const labelClass =
-  "text-sm font-medium text-[#374151] mb-1 block";
+  "text-sm font-medium text-[#374151] dark:text-zinc-300 mb-1 block";
 
 export const inputClass =
-  "w-full border border-[#d1d5db] bg-white rounded-xl px-4 py-2.5 text-[#111827] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] transition";
+  "w-full border border-[#d1d5db] bg-white dark:border-zinc-700 dark:bg-zinc-950 rounded-xl px-4 py-2.5 compact:px-3 compact:py-2 text-[#111827] dark:text-zinc-100 placeholder:text-[#9ca3af] dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 dark:focus:ring-sky-400/20 focus:border-[#2563eb] dark:focus:border-sky-400 transition";
 
 export const formGroup = "mb-4";
 
@@ -59,22 +59,22 @@ export const submitBtn =
 
 // ─── Navbar ───────────────────────────────────────────
 export const navbarClass =
-  "bg-white border-b border-[#e5e7eb] px-6 h-[60px] flex items-center sticky top-0 z-50";
+  "bg-white dark:bg-zinc-950 border-b border-[#e5e7eb] dark:border-zinc-800 px-6 compact:px-4 h-[60px] compact:h-[52px] flex items-center sticky top-0 z-50 transition-colors";
 
 export const navContainerClass =
   "max-w-6xl mx-auto w-full flex items-center justify-between";
 
 export const navBrandClass =
-  "text-lg font-semibold text-[#111827]";
+  "text-lg font-semibold text-[#111827] dark:text-zinc-100";
 
 export const navLinksClass =
-  "flex items-center gap-6";
+  "flex items-center gap-6 compact:gap-4";
 
 export const navLinkClass =
-  "text-sm text-[#6b7280] hover:text-[#111827] transition-colors";
+  "text-sm text-[#6b7280] dark:text-zinc-400 hover:text-[#111827] dark:hover:text-zinc-100 transition-colors";
 
 export const navLinkActiveClass =
-  "text-sm text-[#2563eb] font-medium";
+  "text-sm text-[#2563eb] dark:text-sky-400 font-medium";
 
 // ─── Articles / Chat Cards ────────────────────────────
 export const articleGrid =
@@ -145,16 +145,16 @@ export const articleStatusDeleted =
 
 // ─── Feedback ─────────────────────────────────────────
 export const errorClass =
-  "bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm";
+  "bg-red-50 border border-red-200 text-red-600 dark:bg-red-950/40 dark:border-red-900 dark:text-red-200 rounded-xl px-4 py-3 text-sm";
 
 export const successClass =
   "bg-green-50 border border-green-200 text-green-600 rounded-xl px-4 py-3 text-sm";
 
 export const loadingClass =
-  "text-center text-[#6b7280] py-10 animate-pulse";
+  "text-center text-[#6b7280] dark:text-zinc-400 py-10 animate-pulse";
 
 export const emptyStateClass =
-  "text-center text-[#9ca3af] py-16";
+  "text-center text-[#9ca3af] dark:text-zinc-500 py-16";
 
 // ─── Comments ─────────────────────────────────────────
 export const commentsWrapper =

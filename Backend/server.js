@@ -11,8 +11,7 @@ import jwt from "jsonwebtoken"
 import { setupSocket } from "./sockets/socket.js";
 import { messageApp } from "./APIs/MessageAPI.js";
 import {fileTransferApp } from "./APIs/FileTransferAPI.js"
-
-
+import googleAuthRoute from './APIs/GoogleAPI.js'
 
 const app=exp()
 const server=createServer(app)
@@ -58,6 +57,7 @@ app.use('/user-api',userApp)
 app.use('/chat-api',chatApp)
 app.use("/message-api", messageApp);
 app.use("/fileTranser-api",fileTransferApp)
+app.use("/auth",googleAuthRoute)
 
 //socket server
 const io = new Server(server, {

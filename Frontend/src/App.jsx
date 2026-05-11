@@ -1,25 +1,36 @@
-import React from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router'
-import Home from './components/home'
-import RootLayout from './components/RootLayout'
-import Register from './components/Register'
-import Login from './components/Login'
-import ChatWindow from './components/ChatWindow'
-import UserProfile from './components/userProfile'
-import { useAuth } from "./store/authStore";
-import { useEffect } from 'react'
-import EditProfile from './components/EditProfile'
-import ChatList from './components/ChatList'
-import Chat from './components/Chat'
-RouterProvider
+import React, { useEffect } from "react";
+import {createBrowserRouter,RouterProvider} from "react-router";
+import Home from "./components/home";
+import RootLayout from "./components/RootLayout";
+import Register from "./components/Register";
+import Login from "./components/Login";
+import ChatWindow from "./components/ChatWindow";
+import UserProfile from "./components/userProfile";
+import EditProfile from "./components/EditProfile";
+import ChatList from "./components/ChatList";
+import Chat from "./components/Chat";
+import Settings from "./components/Settings";
 
+import { useAuth } from "./store/authStore";
 
 function App() {
-   const checkAuth = useAuth((state) => state.checkAuth);
+
+  const checkAuth = useAuth(
+    (state) => state.checkAuth
+  );
+  const currentUser = useAuth((state) => state.currentUser);
 
   useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    const darkMode = currentUser?.preferences?.darkMode ?? false;
+    const compactMode = currentUser?.preferences?.compactMode ?? false;
+
+    document.documentElement.classList.toggle("dark", darkMode);
+    document.documentElement.classList.toggle("compact", compactMode);
+  }, [currentUser]);
 
   const routerObj = createBrowserRouter([{
     path: "/",
@@ -53,6 +64,10 @@ function App() {
       path: "Chat",
       element: <Chat />,
     },
+    {
+      path: "settings",
+      element: <Settings />
+    }
   ],
 },
       {
@@ -65,12 +80,11 @@ function App() {
       }
     ]
   }])
+  
 
   return (
-    <div>
-      <RouterProvider router={routerObj} />
-    </div>
-  )
+    <RouterProvider router={routerObj} />
+  );
 }
 
-export default App
+export default App;

@@ -32,63 +32,55 @@ function App() {
     document.documentElement.classList.toggle("compact", compactMode);
   }, [currentUser]);
 
-  const routerObj = createBrowserRouter([
+  const routerObj = createBrowserRouter([{
+    path: "/",
+    element: <RootLayout />,
+    children: [
+      {
+        path: "",
+        element: <Home />
+      },
+      {
+        path: "register",
+        element: <Register/>
+      },
+      {
+        path: "login",
+        element: <Login/>
+      },
+      {
+  path: "chat-window",
+  element: <ChatWindow />,
+  children: [
     {
-      path: "/",
-      element: <RootLayout />,
-
-      children: [
-
-        {
-          path: "",
-          element: <Home />
-        },
-
-        {
-          path: "register",
-          element: <Register />
-        },
-
-        {
-          path: "login",
-          element: <Login />
-        },
-
-        {
-          path: "chat-window",
-          element: <ChatWindow />,
-
-          children: [
-            {
-              index: true,
-              element: <ChatList />
-            },
-
-            {
-              path: "messages",
-              element: <Chat />
-            }
-          ]
-        },
-
-        {
-          path: "user-profile",
-          element: <UserProfile />
-        },
-
-        {
-          path: "edit-profile",
-          element: <EditProfile />
-        },
-
-        {
-          path: "settings",
-          element: <Settings />
-        }
-
-      ]
+      index: true,
+      element: (
+        <div className="h-full flex items-center justify-center text-gray-400">
+          Select a chat
+        </div>
+      ),
+    },
+    {
+      path: "Chat",
+      element: <Chat />,
+    },
+  ],
+},
+      {
+        path: "user-profile",
+        element: <UserProfile/>
+      },
+      {
+        path: "edit-profile",
+        element: <EditProfile/>
+      },
+      {
+      path: "settings",
+      element: <Settings />
     }
-  ]);
+    ]
+  }])
+  
 
   return (
     <RouterProvider router={routerObj} />

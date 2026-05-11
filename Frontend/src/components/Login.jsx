@@ -18,6 +18,7 @@ import { useEffect, useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { GoogleLogin } from '@react-oauth/google'
 import axios from 'axios'
+import { connectSocket } from "../socket";
 
 function Login() {
   const {
@@ -41,10 +42,14 @@ function Login() {
         return;
       }
 
-      const res = await axios.post("http://localhost:3000/auth/google", {
-        credential: credentialResponse.credential
-      }, {
-        withCredentials: true
+    if (res.data?.success) {
+
+      connectSocket();
+      
+      useAuth.getState().setGoogleAuth({
+        name: res.data.user?.name,
+        email: res.data.user?.email,
+        profileImageUrl: res.data.user?.picture,
       });
 
       if (res.data?.success) {
@@ -87,9 +92,16 @@ function Login() {
   } = useAuth((state) => state);
 
   // On user login
-  const onUserLogin = (userCredObj) => {
-    login(userCredObj);
-  };
+  const onUserLogin = async (userCredObj) => {
+
+  const success = await login(userCredObj);
+
+  if (success) {
+
+    connectSocket();
+
+  }
+};
 
   // Handle account activation
   const handleActivation = async () => {

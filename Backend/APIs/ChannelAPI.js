@@ -72,7 +72,7 @@ chatApp.post('/chats/dm',verifyToken,async(req,res)=>{
 //get channel List
 chatApp.get('/chats/channels',verifyToken,async(req,res)=>{
     //get logged in userId
-    const userId = req.user.id
+    const userId = req.user.userId
     //get all channels
     const channelChats = await chatModel.find({type:"channel",members:userId})
     //send res

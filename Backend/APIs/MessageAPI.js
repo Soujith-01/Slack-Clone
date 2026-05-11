@@ -7,11 +7,11 @@ export const messageApp = exp.Router();
 
 
 // Get Channel Messages
-messageApp.get("/get-channel", verifyToken, async (req, res) => {
-    const { channelName } = req.body;
+messageApp.get("/get-channel/:chatId", verifyToken, async (req, res) => {
+    const {chatId}  = req.params;
 
     // check channel exists
-    const channel = await chatModel.findOne({channelName})
+    const channel = await chatModel.findById(chatId)
     if (!channel || channel.type !== "channel") {
       return res.status(404).json({ message: "Channel not found" });
     }
@@ -23,22 +23,20 @@ messageApp.get("/get-channel", verifyToken, async (req, res) => {
 
     // fetch messages
    const messages = await MessageModel.find({ channel: channel._id })
-  .select("content -_id")
+  .populate("sender", "username email")
   .sort({ createdAt: 1 });
 
-const onlyMessages = messages.map(msg => msg.content);
-
-res.status(200).json({
-  message: "Channel messages fetched",
-  payload: onlyMessages
-})
-
+  // const onlyMessages = messages.map(msg => msg.content);
+  res.status(200).json({
+    message: "Channel messages fetched",
+    payload: messages
+  })
 });
 
 
 // Get DM Messages
-messageApp.get("/get-dm", verifyToken, async (req, res) => {
-    const { chatId } = req.body;
+messageApp.get("/get-dm/:chatId", verifyToken, async (req, res) => {
+    const {chatId}  = req.params;
 
     const chat = await chatModel.findById(chatId);
 
@@ -167,7 +165,7 @@ messageApp.post("/thread", verifyToken, async (req, res) => {
   const reply = await MessageModel.create({
     sender: userId,
     content,
-    chat: chatId,
+    channel: chatId,
     parentMessage: parentMessageId
   });
 

@@ -31,58 +31,59 @@ function ChatList() {
   const [error, setError] = useState(null);
   
   useEffect(() => {
-  if (!user) return;
+    if (!user) return;
 
-  const fetchChats = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+    const getChannelList = async () => {
+     
+      try {
+        setLoading(true)
+       //read articles of current author
+       let res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/chat-api/chats/channels`,{withCredentials:true})
+       if(res.status === 200){
+        setchannelList(res.data.payload)
+       }
+       //update articles state
 
-      const [channelsRes, dmsRes] = await Promise.all([
-        axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/chat-api/chats/channels`,
-          { withCredentials: true }
-        ),
-
-        axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/chat-api/chats/dms`,
-          { withCredentials: true }
-        ),
-      ]);
-
-      if (channelsRes.status === 200) {
-        setchannelList(channelsRes.data.payload);
+      } catch (err) {
+        console.log(err);
+        setError(err.response?.data?.error || "Failed to fetch Users List");
+      } finally {
+        setLoading(false);
       }
+    };
 
-      if (dmsRes.status === 200) {
-        setdmList(dmsRes.data.payload);
+    getChannelList();
+
+    const getDmList = async () => {
+     
+      try {
+        setLoading(true)
+       //read articles of current author
+       let res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/chat-api/chats/dms`,{withCredentials:true})
+       if(res.status === 200){
+        setdmList(res.data.payload)
+       }
+       //update articles state
+
+      } catch (err) {
+        console.log(err);
+        setError(err.response?.data?.error || "Failed to fetch chat List");
+      } finally {
+        setLoading(false);
       }
+    };
 
-    } catch (err) {
-      console.log(err);
-
-      setError(
-        err.response?.data?.message ||
-        "Failed to fetch chats"
-      );
-
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchChats();
-
-}, [user]); 
+    getDmList();
+  }, [user]);
 
   
 
   if (loading) return <p className={loadingClass}>Loading users...</p>;
   if (error) return <p className={errorClass}>{error}</p>;
 
-  if (dmList.length === 0 && channelList.length === 0) {
-    return <div className={emptyStateClass}>No chats.</div>;
-  }
+  // if (dmList.length === 0 && channelList.length === 0) {
+  //   return <div className={emptyStateClass}>No chats.</div>;
+  // }
 
   return (
   <div className="w-full max-w-sm mx-auto py-5 compact:py-4 px-3 text-[#111827] dark:text-zinc-100 transition-colors">
@@ -99,12 +100,17 @@ function ChatList() {
         </button>
       </div>
 
-      <div className="flex flex-col gap-2 compact:gap-1.5">
-        {channelList.map((chat) => (
+      <div className="flex flex-col gap-2">
+        {channelList.length === 0 ? (
+          <div className={emptyStateClass}>
+            No channels yet
+          </div>
+        ) : (
+          channelList.map((chat) => (
           <div
             key={chat._id}
-            onClick={() => navigate(`/Chat/${chat._id}`)}
-            className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl px-4 py-3 compact:px-3 compact:py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
+            onClick={() => navigate(`/chat-window/Chat`,{state:{chat: chat}})}
+            className="bg-white border border-gray-200 rounded-2xl px-4 py-3 cursor-pointer hover:bg-gray-50 transition"
           >
             <div className="flex items-center gap-3">
 
@@ -120,7 +126,7 @@ function ChatList() {
               </div>
             </div>
           </div>
-        ))}
+        )))}
       </div>
     </div>
 
@@ -136,8 +142,13 @@ function ChatList() {
         </button>
       </div>
 
-      <div className="flex flex-col gap-2 compact:gap-1.5">
-        {dmList.map((chat) => (
+      <div className="flex flex-col gap-2">
+  {dmList.length === 0 ? (
+    <div className={emptyStateClass}>
+      No direct messages yet
+    </div>
+  ) : (
+    dmList.map((chat) => (
           <div
             key={chat._id}
             onClick={() => navigate(`/chat/${chat._id}`)}
@@ -168,7 +179,7 @@ function ChatList() {
               <div className="w-2.5 h-2.5 rounded-full bg-green-500 dark:bg-green-400" />
             </div>
           </div>
-        ))}
+        )))}
       </div>
     </div>
   </div>

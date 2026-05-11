@@ -14,7 +14,7 @@ import {
 } from "../styles/common";
 import { NavLink, useNavigate, useLocation } from "react-router";
 import { useAuth } from "../store/authStore";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { GoogleLogin } from '@react-oauth/google'
 import axios from 'axios'
@@ -33,29 +33,46 @@ function Login() {
   const [activationPassword, setActivationPassword] = useState("");
   const [activationPasswordError, setActivationPasswordError] = useState("");
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-  try {
-
-    const res = await axios.post("http://localhost:3000/auth/google",{
-        credential: credentialResponse.credential
-      },
-      {
-        withCredentials: true
+  // Memoize Google success handler to prevent unnecessary re-renders and multiple SDK initializations
+  const handleGoogleSuccess = useCallback(async (credentialResponse) => {
+    try {
+      if (!credentialResponse?.credential) {
+        toast.error("Invalid Google credential received");
+        return;
       }
-    )
 
-    if (res.data?.success) {
-      useAuth.getState().setGoogleAuth({
-        name: res.data.user?.name,
-        email: res.data.user?.email,
-        profileImageUrl: res.data.user?.picture,
+      const res = await axios.post("http://localhost:3000/auth/google", {
+        credential: credentialResponse.credential
+      }, {
+        withCredentials: true
       });
-      navigate("/chat-window");
+
+      if (res.data?.success) {
+        // Update auth state with user data from backend
+        useAuth.getState().setGoogleAuth({
+          _id: res.data.user?._id,
+          name: res.data.user?.name,
+          email: res.data.user?.email,
+          profileImageUrl: res.data.user?.profileImageUrl,
+        });
+        
+        toast.success("Google login successful!");
+        navigate("/chat-window");
+      } else {
+        toast.error(res.data?.message || "Google login failed");
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+      const errorMessage = error.response?.data?.message || error.message || "Google login failed";
+      toast.error(errorMessage);
     }
-  } catch (error) {
-    console.log(error)
-  }
-}
+  }, [navigate]);
+
+  // Memoize Google error handler
+  const handleGoogleError = useCallback(() => {
+    toast.error("Google Sign-In failed. Please try again.");
+    console.error("Google Login Error");
+  }, []);
 
   // Get state from auth store
   const {
@@ -234,7 +251,7 @@ function Login() {
           <div className="mt-4 flex justify-center">
               <GoogleLogin
               onSuccess={handleGoogleSuccess}
-              onError={() => console.log("Google Login Failed")}/>
+              onError={handleGoogleError}/>
           </div>
 
           {/* Submit */}

@@ -26,7 +26,7 @@ export const useAuth = create((set) => ({
   login: async (userCred) => {
     try {
       set({ loading: true, error: null });
-      
+      console.log(userCred)
       const res = await axios.post(
         `${backendUrl}/user-api/login`,
         userCred,

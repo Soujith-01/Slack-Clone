@@ -31,50 +31,49 @@ function ChatList() {
   const [error, setError] = useState(null);
   
   useEffect(() => {
-    if (!user) return;
+  if (!user) return;
 
-    const getChannelList = async () => {
-     
-      try {
-        setLoading(true)
-       //read articles of current author
-       let res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/chat-api/chats/channels`,{withCredentials:true})
-       if(res.status === 200){
-        setchannelList(res.data.payload)
-       }
-       //update articles state
+  const fetchChats = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-      } catch (err) {
-        console.log(err);
-        setError(err.response?.data?.error || "Failed to fetch Users List");
-      } finally {
-        setLoading(false);
+      const [channelsRes, dmsRes] = await Promise.all([
+        axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/chat-api/chats/channels`,
+          { withCredentials: true }
+        ),
+
+        axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/chat-api/chats/dms`,
+          { withCredentials: true }
+        ),
+      ]);
+
+      if (channelsRes.status === 200) {
+        setchannelList(channelsRes.data.payload);
       }
-    };
 
-    getChannelList();
-
-    const getDmList = async () => {
-     
-      try {
-        setLoading(true)
-       //read articles of current author
-       let res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/chat-api/chats/dms`,{withCredentials:true})
-       if(res.status === 200){
-        setdmList(res.data.payload)
-       }
-       //update articles state
-
-      } catch (err) {
-        console.log(err);
-        setError(err.response?.data?.error || "Failed to fetch Users List");
-      } finally {
-        setLoading(false);
+      if (dmsRes.status === 200) {
+        setdmList(dmsRes.data.payload);
       }
-    };
 
-    getDmList();
-  }, [user]);
+    } catch (err) {
+      console.log(err);
+
+      setError(
+        err.response?.data?.message ||
+        "Failed to fetch chats"
+      );
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchChats();
+
+}, [user]); 
 
   
 

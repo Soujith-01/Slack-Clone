@@ -329,7 +329,7 @@ chatApp.post('/chats/approve-request',verifyToken,async(req,res)=>{
             `Your request to join channel ${channel.channelName} has been approved.` :
             `Your request to join channel ${channel.channelName} has been rejected.`;
 
-        await MessageModel.create({
+        await MessageModel.create({         
             sender: adminId,
             receiver: userId,
             content: actionMessage,

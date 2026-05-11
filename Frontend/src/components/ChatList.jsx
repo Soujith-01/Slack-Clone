@@ -67,7 +67,7 @@ function ChatList() {
 
       } catch (err) {
         console.log(err);
-        setError(err.response?.data?.error || "Failed to fetch Users List");
+        setError(err.response?.data?.error || "Failed to fetch chat List");
       } finally {
         setLoading(false);
       }
@@ -81,9 +81,9 @@ function ChatList() {
   if (loading) return <p className={loadingClass}>Loading users...</p>;
   if (error) return <p className={errorClass}>{error}</p>;
 
-  if (dmList.length === 0 && channelList.length === 0) {
-    return <div className={emptyStateClass}>No chats.</div>;
-  }
+  // if (dmList.length === 0 && channelList.length === 0) {
+  //   return <div className={emptyStateClass}>No chats.</div>;
+  // }
 
   return (
   <div className="w-full max-w-sm mx-auto py-5 px-3">
@@ -101,10 +101,15 @@ function ChatList() {
       </div>
 
       <div className="flex flex-col gap-2">
-        {channelList.map((chat) => (
+        {channelList.length === 0 ? (
+          <div className={emptyStateClass}>
+            No channels yet
+          </div>
+        ) : (
+          channelList.map((chat) => (
           <div
             key={chat._id}
-            onClick={() => navigate(`/Chat/${chat._id}`)}
+            onClick={() => navigate(`/chat-window/Chat`,{state:{chat: chat}})}
             className="bg-white border border-gray-200 rounded-2xl px-4 py-3 cursor-pointer hover:bg-gray-50 transition"
           >
             <div className="flex items-center gap-3">
@@ -121,7 +126,7 @@ function ChatList() {
               </div>
             </div>
           </div>
-        ))}
+        )))}
       </div>
     </div>
 
@@ -138,7 +143,12 @@ function ChatList() {
       </div>
 
       <div className="flex flex-col gap-2">
-        {dmList.map((chat) => (
+  {dmList.length === 0 ? (
+    <div className={emptyStateClass}>
+      No direct messages yet
+    </div>
+  ) : (
+    dmList.map((chat) => (
           <div
             key={chat._id}
             onClick={() => navigate(`/chat/${chat._id}`)}
@@ -169,7 +179,7 @@ function ChatList() {
               <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
             </div>
           </div>
-        ))}
+        )))}
       </div>
     </div>
   </div>

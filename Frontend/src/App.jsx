@@ -38,19 +38,23 @@ function App() {
         element: <Login/>
       },
       {
-        path: "chat-window",
-        element: <ChatWindow/>,
-        children:[
-          {
-            index: true,
-            element: <ChatList/>
-          },
-          {
-            index: true,
-            element: <Chat/>
-          }
-        ]
-      },
+  path: "chat-window",
+  element: <ChatWindow />,
+  children: [
+    {
+      index: true,
+      element: (
+        <div className="h-full flex items-center justify-center text-gray-400">
+          Select a chat
+        </div>
+      ),
+    },
+    {
+      path: "Chat",
+      element: <Chat />,
+    },
+  ],
+},
       {
         path: "UserProfile",
         element: <UserProfile/>

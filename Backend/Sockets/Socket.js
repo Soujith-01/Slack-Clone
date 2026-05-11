@@ -13,6 +13,7 @@ export const setupSocket = (io) => {
 
   // Connection
   io.on("connection", (socket) => {
+    console.log("🔥 SOCKET CONNECTED"); // added remove later
     const userId = socket.user.userId;
 
     // track user
@@ -27,25 +28,56 @@ export const setupSocket = (io) => {
     });
 
     // Send Channel Message
-    socket.on("send-channel-message", async ({ channelId, content }) => {
-      try {
-        const message = await MessageModel.create({
+    socket.on(
+  "send-channel-message",
+  async ({ channelId, content }) => {
+
+    try {
+
+      console.log("MESSAGE RECEIVED");
+      console.log("USER:", userId);
+      console.log("CHANNEL:", channelId);
+      console.log("CONTENT:", content);
+
+      const message =
+        await MessageModel.create({
           sender: userId,
           channel: channelId,
           content,
         });
 
-        // update latest message
-        await chatModel.findByIdAndUpdate(channelId, {
+      console.log("MESSAGE SAVED:", message);
+
+      await chatModel.findByIdAndUpdate(
+        channelId,
+        {
           latestMessage: message._id,
-        });
+        }
+      );
 
-        io.to(channelId).emit("receive-channel-message", message);
+      const populatedMessage =
+        await MessageModel.findById(
+          message._id
+        ).populate(
+          "sender",
+          "username email"
+        );
 
-      } catch (err) {
-        console.log("Channel message error:", err);
-      }
-    });
+      io.to(channelId).emit(
+        "receive-channel-message",
+        populatedMessage
+      );
+
+    } catch (err) {
+
+      console.log(
+        "CHANNEL MESSAGE ERROR:"
+      );
+
+      console.log(err);
+    }
+  }
+);
 
     //Send DM
     socket.on("send-dm", async ({ receiverId, content, chatId }) => {
@@ -63,11 +95,12 @@ export const setupSocket = (io) => {
 
         const receiverSocket = onlineUsers[receiverId];
 
+        const populatedMessage = await MessageModel.findById(message._id)
+        .populate("sender", "username email");
         if (receiverSocket) {
-          io.to(receiverSocket).emit("receive-dm", message);
+          io.to(receiverSocket).emit("receive-dm",populatedMessage);
         }
-
-        socket.emit("receive-dm", message);
+        socket.emit("receive-dm", populatedMessage );
 
       } catch (err) {
         console.log("DM error:", err);
@@ -124,7 +157,7 @@ socket.on("send-thread-message", async ({ parentMessageId, content, chatId }) =>
   const reply = await MessageModel.create({
     sender: userId,
     content,
-    chat: chatId,
+    channel: chatId,
     parentMessage: parentMessageId
   });
 
@@ -138,7 +171,7 @@ socket.on("send-file", async ({ chatId, fileUrl, fileName, fileType }) => {
   try {
     const message = await MessageModel.create({
       sender: userId,
-      chat: chatId,
+      channel: chatId,
       attachments: [
         {
           url: fileUrl,

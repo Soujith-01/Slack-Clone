@@ -16,7 +16,7 @@ function Header() {
   // decide profile route
   const getProfile = () => {
     if (!user) return "/";
-    return "/UserProfile"
+    return "/user-profile"
     
   };
 

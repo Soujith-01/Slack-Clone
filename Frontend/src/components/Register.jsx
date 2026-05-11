@@ -13,7 +13,9 @@ import {
 import { useForm } from "react-hook-form";
 import { NavLink, useNavigate } from "react-router";
 import { useState } from "react";
+import { GoogleLogin } from '@react-oauth/google'
 import axios from "axios";
+import { useAuth } from "../store/authStore";
 
 
 function Register() {
@@ -26,6 +28,30 @@ function Register() {
   const [apiError, setApiError] = useState(null);
   const [preview, setPriview] = useState(null);
   const navigate = useNavigate();
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+  try {
+
+    const res = await axios.post("http://localhost:3000/auth/google",{
+        credential: credentialResponse.credential
+      },
+      {
+        withCredentials: true
+      }
+    )
+
+    if (res.data?.success) {
+      useAuth.getState().setGoogleAuth({
+        name: res.data.user?.name,
+        email: res.data.user?.email,
+        profileImageUrl: res.data.user?.picture,
+      });
+      navigate("/chat-window");
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
 
   //When user registration submitted
   const onUserRegister = async (userObj) => {
@@ -194,12 +220,19 @@ function Register() {
             <button type="submit" className={submitBtn}>
                 Create Account
             </button>
+            <p className="my-5 pl-35">OR</p>
+            <div className="mt-4 flex justify-center">
+              <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => console.log("Google Login Failed")}/>
+          </div>
         </form>
+
 
         {/* FOOTER */}
         <p className={`${mutedText} text-center mt-5`}>
           Already have an account?{" "}
-          <NavLink to="/login" className="text-[#0066cc] font-medium">
+          <NavLink to="/login" className="text-[#0066cc] dark:text-sky-400 font-medium">
             Sign in
           </NavLink>
         </p>

@@ -26,13 +26,46 @@ const UserSchema = new Schema({
         enum:['MALE','FEMALE','OTHERS'],
         required:[true,"gender required"]
     },
-    profileImage:{
+    profileImageUrl:{
         type:String
     },
     isUserActive:{ //for soft deleting 
         type:Boolean,
         default:true
-    }
+    },
+    preferences: {
+
+        darkMode: {
+            type: Boolean,
+            default: false
+        },
+
+        compactMode: {
+            type: Boolean,
+            default: false
+        }
+    },
+
+    notificationSettings: {
+        soundNotifications: { type: Boolean, default: true },
+        desktopNotifications: { type: Boolean, default: true }
+    },
+
+    privacySettings: {
+        showOnlineStatus: { type: Boolean, default: true },
+        readReceipts: { type: Boolean, default: true }
+    },
+
+    chatPreferences: {
+        enterToSend: { type: Boolean, default: true },
+        showTypingIndicators: { type: Boolean, default: true }
+    },
+
+    // Incrementing this value invalidates existing tokens when changed
+    tokenVersion: {
+        type: Number,
+        default: 0
+    },
 },{
     timestamps:true,
     versionKey:false,

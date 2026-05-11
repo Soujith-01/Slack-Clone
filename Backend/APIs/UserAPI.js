@@ -1,6 +1,5 @@
 import exp from 'express'
 import {hash,compare} from 'bcryptjs'
-import bcrypt from 'bcryptjs'
 import {UserModel} from '../models/UserModel.js'
 import jwt from 'jsonwebtoken'
 const {sign}=jwt
@@ -48,45 +47,93 @@ export const userApp = exp.Router()
    
 
 //user login
-    userApp.post('/login',async(req,res)=>{
-        //get user cred from req body
-        const {email,password}=req.body
-        //verify email
-        const user=await UserModel.findOne({email:email})
-        //if email doesnot exists
-        if(!user){
-            return res.status(400).json({message:'invalid email'})
-        }
-        //
-         if (!user.isUserActive) {
-        return res.status(403).json({
-            message: "Account is deactivated. Contact support or reactivate."
-        });
+userApp.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
     }
-        //valid password
-        let result=await compare(password,user.password)
-        //if password doesnot match
-        if(result==false){
-            return res.status(400).json({message:"invalid password"})
-        }
-        //if passwords matched
-            //create token(jsonwebtoken-jwt)
-            const signedToken=sign({userId:user._id,email:user.email,username:user.username,gender:user.gender},process.env.SECRET_KEY,{expiresIn:"1h"})//if time is give in "",then it is ms
-            //store token as http only cookie 
-            res.cookie("token",signedToken,{
-                httpOnly:true,  //will store cookie in httpOnly
-                sameSite:"lax",
-                secure:false 
-            })
-            //send res  
-            res.status(200).json({message:'login Success',payload: {
-                                _id: user._id,
-                                username: user.username,
-                                email: user.email,
-                                gender: user.gender,
-                                profileImageUrl: user.profileImageUrl
-                            }})
-    })
+    // Find user by email
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
+    // If user doesn't exist
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid email or password' });
+    }
+    // Compare password using bcrypt
+    const isPasswordMatch = await compare(password, user.password);
+    // If password doesn't match
+    if (!isPasswordMatch) {
+      return res.status(400).json({ message: 'Invalid email or password' });
+    }
+    // Check if account is deactivated
+    if (!user.isUserActive) {
+      return res.status(403).json({
+        message: 'Account is deactivated',
+        activateRequired: true,
+        email: user.email,
+      });
+    }
+    // Create JWT token
+    const signedToken = sign(
+      { userId: user._id, tokenVersion: user.tokenVersion || 0 },
+      process.env.SECRET_KEY,
+      { expiresIn: '1h' }
+    );
+    // Store token as HTTP-only cookie
+    res.cookie('token', signedToken, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+    });
+    // Send successful response
+    res.status(200).json({
+      message: 'Login successful',
+      payload: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        gender: user.gender,
+        profileImageUrl: user.profileImageUrl,
+        preferences: user.preferences,
+        notificationSettings: user.notificationSettings,
+        privacySettings: user.privacySettings,
+        chatPreferences: user.chatPreferences,
+      },
+    });
+});
+
+// Activate deactivated account
+userApp.post('/activate-account', async (req, res) => {
+    const { email, password } = req.body;
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+    // Find user by email
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
+    // If user doesn't exist
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    // Compare password using bcrypt
+    const isPasswordMatch = await compare(password, user.password);
+    // If password doesn't match
+    if (!isPasswordMatch) {
+      return res.status(401).json({ message: 'Invalid password' });
+    }
+    // Check if account is already active
+    if (user.isUserActive) {
+      return res.status(400).json({ message: 'Account is already active' });
+    }
+    // Activate account
+    user.isUserActive = true;
+    await user.save();
+    // Send success response
+    res.status(200).json({
+      message: 'Account activated successfully',
+      email: user.email,
+    });
+});
 
 //Route for Logout
 userApp.get("/logout", (req, res) => {
@@ -100,57 +147,75 @@ userApp.get("/logout", (req, res) => {
   res.status(200).json({ message: "Logout success" });
 });
 
+  // Logout from all devices - increments tokenVersion to invalidate existing tokens
+  userApp.post("/logout-all", verifyToken, async (req, res) => {
+    try {
+      const userId = req.user.userId;
+      await UserModel.findByIdAndUpdate(userId, { $inc: { tokenVersion: 1 } });
 
+      // clear cookie on this device as well
+      res.clearCookie("token", {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: false
+      });
 
+      res.status(200).json({ message: "Logged out from all devices" });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
 
-
-
-//update user by username
+//update user 
 userApp.put("/users", verifyToken, async (req, res) => {
   try {
-    const oldUsername = req.user.username; // 🔥 from token
+    const userIdFromToken = req.user.userId;
 
-    const { username, email, password, gender, profileImage } = req.body;
+    const { username, email, oldPassword, newPassword, gender, profileImageUrl } = req.body;
 
     const updates = {};
 
     //  Get current user first
-    const currentUser = await UserModel.findOne({ username: oldUsername });
+    const currentUser = await UserModel.findById(userIdFromToken);
 
     if (!currentUser) {
       return res.status(404).json({ msg: "User not found" });
     }
+    const isPasswordChangeRequested = typeof newPassword === "string" && newPassword.length > 0;
 
-    
+    if (isPasswordChangeRequested) {
+      if (typeof oldPassword !== "string" || oldPassword.length === 0) {
+        return res.status(400).json({message: "Old password is required"});
+      }
 
+      const isMatch = await compare(oldPassword, currentUser.password);
+
+      if (!isMatch) {
+        return res.status(400).json({message: "Old password is incorrect"});
+      }
+    }
     //  USERNAME
     if (username) {
       const userExists = await UserModel.findOne({ username });
-
       if (userExists && userExists._id.toString() !== currentUser._id.toString()) {
         return res.status(400).json({ msg: "Username already exists" });
       }
-
       updates.username = username.trim();
     }
-
     //  EMAIL
     if (email) {
       const emailLower = email.toLowerCase();
-
       const emailExists = await UserModel.findOne({ email: emailLower });
-
       if (emailExists && emailExists._id.toString() !== currentUser._id.toString()) {
         return res.status(400).json({ msg: "Email already exists" });
       }
-
       updates.email = emailLower.trim();
     }
 
     //  PASSWORD
-    if (password) {
-      updates.password = await bcrypt.hash(password, 10);
-    }
+    if (isPasswordChangeRequested) {
+      updates.password = await hash(newPassword, 10);
+    } 
 
     //  GENDER
     if (gender) {
@@ -158,8 +223,8 @@ userApp.put("/users", verifyToken, async (req, res) => {
     }
 
     //  PROFILE IMAGE
-    if (profileImage) {
-      updates.profileImage = profileImage;
+    if (profileImageUrl) {
+      updates.profileImageUrl = profileImageUrl;
     }
 
     //  UPDATE USER
@@ -167,7 +232,7 @@ userApp.put("/users", verifyToken, async (req, res) => {
       { _id: currentUser._id },
       { $set: updates },
       {
-        new: true,
+        returnDocument: "after",
         runValidators: true
       }
     ).select("-password");
@@ -191,7 +256,6 @@ userApp.put("/users", verifyToken, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 //Route to get user by username
 userApp.get("/find-user", async(req,res)=>{
@@ -251,11 +315,92 @@ userApp.delete("/delete-user",verifyToken,async (req, res) => {
       message: "Account deactivated successfully"
     });
 })
+import bcrypt from "bcrypt";
+
+userApp.put("/activate-user", async (req, res) => {
+    const { email, password } = req.body;
+    // find user
+    const userDocument = await UserModel
+      .findOne({ email })
+      .select("+password");
+    // check user exists
+    if (!userDocument) {
+      return res.status(404).json({message: "User not found"});
+    }
+
+    // compare password
+    const isMatch = await bcrypt.compare(password,userDocument.password);
+    //if passwords not matched
+    if (!isMatch) {
+      return res.status(400).json({message: "Invalid password"});
+    }
+    // already active
+    if (userDocument.isUserActive === true) {
+      return res.status(200).json({message: "User already active"});
+    }
+    // activate user
+    userDocument.isUserActive = true;
+
+    await userDocument.save();
+
+    res.status(200).json({message: "Account activated successfully"});
+
+});
 
 //page refresh
-userApp.get("/check-auth", verifyToken, (req, res) => {
-  res.status(200).json({
-    message: "authenticated",
-    payload: req.user,
-  });
+userApp.get("/check-auth", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    const user = await UserModel.findById(userId).select("_id username email gender profileImageUrl preferences notificationSettings privacySettings chatPreferences");
+
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    res.status(200).json({
+      message: "authenticated",
+      payload: user,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
+
+//to change appearance mode
+userApp.put("/preferences",verifyToken,async (req, res) => {
+      const userId = req.user.userId;
+        const {
+          darkMode,
+          compactMode,
+          soundNotifications,
+          desktopNotifications,
+          showOnlineStatus,
+          readReceipts,
+          enterToSend,
+          showTypingIndicators
+        } = req.body;
+
+        const updates = {};
+
+        if (typeof darkMode !== 'undefined') updates['preferences.darkMode'] = darkMode;
+        if (typeof compactMode !== 'undefined') updates['preferences.compactMode'] = compactMode;
+
+        if (typeof soundNotifications !== 'undefined') updates['notificationSettings.soundNotifications'] = soundNotifications;
+        if (typeof desktopNotifications !== 'undefined') updates['notificationSettings.desktopNotifications'] = desktopNotifications;
+
+        if (typeof showOnlineStatus !== 'undefined') updates['privacySettings.showOnlineStatus'] = showOnlineStatus;
+        if (typeof readReceipts !== 'undefined') updates['privacySettings.readReceipts'] = readReceipts;
+
+        if (typeof enterToSend !== 'undefined') updates['chatPreferences.enterToSend'] = enterToSend;
+        if (typeof showTypingIndicators !== 'undefined') updates['chatPreferences.showTypingIndicators'] = showTypingIndicators;
+
+        const updatedUser = await UserModel.findByIdAndUpdate(
+          userId,
+          { $set: updates },
+          { returnDocument: 'after' }
+        ).select('-password');
+
+        res.status(200).json({ message: 'Preferences updated', user: updatedUser });
 });

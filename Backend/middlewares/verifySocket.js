@@ -3,23 +3,59 @@ import { config } from "dotenv";
 
 config();
 
-export const verifysocket = (socket, next) => {
-  try {
-    // get token from client
-    const token = socket.handshake.auth?.token;
+export const verifysocket = (
+  socket,
+  next
+) => {
 
-    if (!token) {
-      return next(new Error("Unauthorized: No token"));
+  try {
+
+    const cookies =
+      socket.handshake.headers.cookie;
+
+    if (!cookies) {
+      return next(
+        new Error(
+          "Unauthorized: No cookie"
+        )
+      );
     }
 
-    // verify token
-    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    // extract token cookie
+    const token =
+      cookies
+        .split("; ")
+        .find((row) =>
+          row.startsWith("token=")
+        )
+        ?.split("=")[1];
 
-    // attach user data to socket
+    if (!token) {
+      return next(
+        new Error(
+          "Unauthorized: No token"
+        )
+      );
+    }
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
     socket.user = decoded;
 
     next();
+
   } catch (err) {
-    next(new Error("Unauthorized"));
+
+    console.log(
+      "SOCKET AUTH ERROR:",
+      err.message
+    );
+
+    next(
+      new Error("Unauthorized")
+    );
   }
 };

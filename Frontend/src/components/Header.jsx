@@ -80,7 +80,7 @@ function Header() {
                   isActive ? navLinkActiveClass : navLinkClass
                 }
               >
-                Profile
+                Dashboard
               </NavLink>
             </li>
           )}

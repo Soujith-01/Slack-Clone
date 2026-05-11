@@ -8,7 +8,7 @@ function RootLayout() {
   return (
     <div className='h-screen flex flex-col '>
         < Header/>
-        <div className ="flex-1 overflow-hidden">
+        <div className ="flex-1 overflow-y-auto">
             < Outlet/>
         </div>
     </div>

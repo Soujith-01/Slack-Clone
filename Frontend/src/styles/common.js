@@ -1,5 +1,7 @@
 // src/styles/common.js
 // Minimal Clean Light Theme
+//home page
+///export const homePageBackground = "bg-gay-800 min-h-screen";
 
 // ─── Layout ───────────────────────────────────────────
 export const pageBackground = "bg-[#ffffff] min-h-screen";
@@ -59,22 +61,22 @@ export const submitBtn =
 
 // ─── Navbar ───────────────────────────────────────────
 export const navbarClass =
-  "bg-white border-b border-[#e5e7eb] px-6 h-[60px] flex items-center sticky top-0 z-50";
+  "sticky top-0 z-50 bg-white/95 backdrop-blur-sm  px-6 h-[60px] flex items-center ";
 
 export const navContainerClass =
   "max-w-6xl mx-auto w-full flex items-center justify-between";
 
 export const navBrandClass =
-  "text-lg font-semibold text-[#111827]";
+  "text-2xl font-semibold text-[#111827]";
 
 export const navLinksClass =
   "flex items-center gap-6";
 
 export const navLinkClass =
-  "text-sm text-[#6b7280] hover:text-[#111827] transition-colors";
+  "text-lg font-medium text-black hover:text-[#111827] px-3 py-2 rounded-lg transition-colors";
 
 export const navLinkActiveClass =
-  "text-sm text-[#2563eb] font-medium";
+  "text-base font-semibold text-white bg-[#5b21b6] px-3 py-2 rounded-lg transition-colors hover:bg-[#4c1d95]";
 
 // ─── Articles / Chat Cards ────────────────────────────
 export const articleGrid =

@@ -42,17 +42,16 @@ function Login() {
         return;
       }
 
-    if (res.data?.success) {
-
-      connectSocket();
-      
-      useAuth.getState().setGoogleAuth({
-        name: res.data.user?.name,
-        email: res.data.user?.email,
-        profileImageUrl: res.data.user?.picture,
+      // Send credential to backend
+      const res = await axios.post("http://localhost:3000/auth/google", {
+        credential: credentialResponse.credential
+      }, {
+        withCredentials: true
       });
 
       if (res.data?.success) {
+        connectSocket();
+        
         // Update auth state with user data from backend
         useAuth.getState().setGoogleAuth({
           _id: res.data.user?._id,

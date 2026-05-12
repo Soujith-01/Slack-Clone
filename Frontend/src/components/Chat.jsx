@@ -35,9 +35,8 @@ function Chat() {
     useState(false);
 
 
-  // ======================================
+  
   // FETCH OLD MESSAGES
-  // ======================================
   useEffect(() => {
 
     if (!chat?._id) return;
@@ -83,9 +82,8 @@ function Chat() {
   }, [chat]);
 
 
-  // ======================================
+
   // SOCKET LISTENERS
-  // ======================================
   useEffect(() => {
 
   const socket = getSocket();

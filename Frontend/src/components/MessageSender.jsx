@@ -19,11 +19,8 @@ function MessageSender({
     e.preventDefault();
 
     if (!content.trim()) return;
-
-
-    // ======================================
+   
     // CHANNEL MESSAGE
-    // ======================================
     if (chat.type === "channel") {
 
   const socket = getSocket();
@@ -42,10 +39,7 @@ function MessageSender({
   );
 }
 
-
-    // ======================================
     // DM MESSAGE
-    // ======================================
     if (chat.type === "dm") {
 
   const receiverId =

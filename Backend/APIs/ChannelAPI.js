@@ -88,7 +88,7 @@ chatApp.get('/chats/dms',verifyToken,async(req,res)=>{
     res.status(200).json({message:"chats",payload:dmChats})
 })
 
-//get chgannel by channelId
+//get channel by channelId
 chatApp.get('/channels',verifyToken,async(req,res)=>{
     //get channelName from req
     const { channelName } = req.body

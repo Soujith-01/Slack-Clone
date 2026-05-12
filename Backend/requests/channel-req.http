@@ -15,7 +15,7 @@ Content-Type: application/json
 
 {
     "type":"dm",
-    "members":["69facfc71bbab2366216154b"]
+    "members":["69f989af77faeef6c0519c60"]
 }
 
 ### get all chats for a specific user

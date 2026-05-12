@@ -57,13 +57,13 @@ userApp.post('/login', async (req, res) => {
     const user = await UserModel.findOne({ email: email.toLowerCase() });
     // If user doesn't exist
     if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(400).json({ message: 'Invalid email' });
     }
     // Compare password using bcrypt
     const isPasswordMatch = await compare(password, user.password);
     // If password doesn't match
     if (!isPasswordMatch) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(400).json({ message: 'Invalid password' });
     }
     // Check if account is deactivated
     if (!user.isUserActive) {

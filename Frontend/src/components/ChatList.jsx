@@ -143,43 +143,55 @@ function ChatList() {
       </div>
 
       <div className="flex flex-col gap-2">
-  {dmList.length === 0 ? (
-    <div className={emptyStateClass}>
-      No direct messages yet
-    </div>
-  ) : (
-    dmList.map((chat) => (
-          <div
-            key={chat._id}
-            onClick={() => navigate(`/chat-window/Chat`)}
-            className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl px-4 py-3 compact:px-3 compact:py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
-          >
-            <div className="flex items-center justify-between">
-              
-              <div className="flex items-center gap-3">
+        {dmList.length === 0 ? (
+  <div className={emptyStateClass}>
+    No direct messages yet
+  </div>
+) : (
+  dmList.map((chat) => {
 
-                {/* Avatar */}
-                <div className="w-9 h-9 rounded-full bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-300 flex items-center justify-center font-semibold">
-                  {chat.channelName?.charAt(0).toUpperCase()}
-                </div>
+    // other user in DM
+    const otherUser = chat.members.find(
+      (member) => member._id !== user._id
+    );
+    return (
+      <div
+        key={chat._id}
+        onClick={() =>
+          navigate(`/chat-window/Chat`, {
+            state: { chat },
+          })
+        }
+        className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl px-4 py-3 compact:px-3 compact:py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
+      >
+        <div className="flex items-center justify-between">
 
-                {/* User Info */}
-                <div className="flex flex-col">
-                  <p className="text-sm font-semibold text-[#111827] dark:text-zinc-100">
-                    {chat.channelName}
-                  </p>
+          <div className="flex items-center gap-3">
 
-                  <p className="text-xs text-gray-400 dark:text-zinc-400">
-                    {chat.lastMessage || "Start chatting"}
-                  </p>
-                </div>
-              </div>
+            {/* Avatar */}
+            <div className="w-9 h-9 rounded-full bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-300 flex items-center justify-center font-semibold">
+              {otherUser?.username?.charAt(0).toUpperCase()}
+            </div>
 
-              {/* Online Dot */}
-              <div className="w-2.5 h-2.5 rounded-full bg-green-500 dark:bg-green-400" />
+            {/* User Info */}
+            <div className="flex flex-col">
+              <p className="text-sm font-semibold text-[#111827] dark:text-zinc-100">
+                {otherUser?.username}
+              </p>
+
+              <p className="text-xs text-gray-400 dark:text-zinc-400">
+                {chat.lastMessage || "Start chatting"}
+              </p>
             </div>
           </div>
-        )))}
+
+          {/* Online Dot */}
+          <div className="w-2.5 h-2.5 rounded-full bg-green-500 dark:bg-green-400" />
+        </div>
+      </div>
+    );
+  })
+)}
       </div>
     </div>
   </div>

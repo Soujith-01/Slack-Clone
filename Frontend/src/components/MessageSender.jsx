@@ -24,39 +24,52 @@ function MessageSender({
     // ======================================
     // CHANNEL MESSAGE
     // ======================================
-    if (chat.type ==="channel") {
-      console.log({channelId: chat._id,content});
-      const socket = getSocket();
-      socket.emit(
-        "send-channel-message",
-        {
-          channelId: chat._id,
-          content,
-        }
-      );
+    if (chat.type === "channel") {
+
+  const socket = getSocket();
+
+  if (!socket) {
+    console.log("Socket not connected");
+    return;
+  }
+
+  socket.emit(
+    "send-channel-message",
+    {
+      channelId: chat._id,
+      content,
     }
+  );
+}
 
 
     // ======================================
     // DM MESSAGE
     // ======================================
     if (chat.type === "dm") {
-      const receiverId =
-        chat.members.find(
-          (member) =>
-            member._id !==
-            currentUser._id
-        )?._id;
-        const socket = getSocket();
-      socket.emit(
-        "send-dm",
-        {
-          receiverId,
-          content,
-          chatId: chat._id,
-        }
-      );
+
+  const receiverId =
+    chat.members.find(
+      (member) =>
+        member._id !== currentUser._id
+    )?._id;
+
+  const socket = getSocket();
+
+  if (!socket) {
+    console.log("Socket not connected");
+    return;
+  }
+
+  socket.emit(
+    "send-dm",
+    {
+      receiverId,
+      content,
+      chatId: chat._id,
     }
+  );
+}
 
     setContent("");
   };

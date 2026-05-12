@@ -92,14 +92,7 @@ function Login() {
 
   // On user login
   const onUserLogin = async (userCredObj) => {
-
-  const success = await login(userCredObj);
-
-  if (success) {
-
-    connectSocket();
-
-  }
+  await login(userCredObj);
 };
 
   // Handle account activation
@@ -120,7 +113,8 @@ function Login() {
 
   useEffect(() => {
     // Navigation logic
-    if (isAuthenticated === true) {
+    if (isAuthenticated) {
+      connectSocket();
       toast.success("Login successful");
       navigate("/chat-window");
     }

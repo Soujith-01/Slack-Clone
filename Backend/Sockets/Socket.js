@@ -13,7 +13,7 @@ export const setupSocket = (io) => {
 
   // Connection
   io.on("connection", (socket) => {
-    console.log("🔥 SOCKET CONNECTED"); // added remove later
+    console.log("SOCKET CONNECTED"); // added remove later
     const userId = socket.user.userId;
 
     // track user

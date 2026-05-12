@@ -66,7 +66,7 @@ chatApp.post('/chats/dm',verifyToken,async(req,res)=>{
         members
     })
     //send res
-    res.status(400).json({message:"dm created successfully",payload:newDm})
+    res.status(200).json({message:"dm created successfully",payload:newDm})
 })
 
 //get channel List
@@ -83,7 +83,7 @@ chatApp.get('/chats/dms',verifyToken,async(req,res)=>{
     //get logged in userId
     const userId = req.user.userId
     //get all chats 
-    const dmChats = await chatModel.find({type:"dm",members:userId})
+    const dmChats = await chatModel.find({type:"dm",members:userId}).populate("members", "username email profileImage");
     //send res
     res.status(200).json({message:"chats",payload:dmChats})
 })

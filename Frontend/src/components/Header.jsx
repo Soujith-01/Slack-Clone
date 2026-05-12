@@ -25,7 +25,7 @@ function Header() {
       <div className={navContainerClass}>
 
         {/* LOGO */}
-        <NavLink to="/" className={navBrandClass}>
+        <NavLink to="/chat-window" className={navBrandClass}>
           Chat-App
         </NavLink>
 

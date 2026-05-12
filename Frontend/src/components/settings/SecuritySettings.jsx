@@ -41,11 +41,11 @@ function SecuritySettings() {
 
       <div className="space-y-4 compact:space-y-3">
 
-        <button onClick={handleDeactivate}  className="bg-red-500 text-white px-5 py-2 rounded-xl hover:bg-red-600 transition">
+        <button type="button" onClick={handleDeactivate}  className="bg-red-500 text-white px-5 py-2 rounded-xl hover:bg-red-600 transition">
           Deactivate Account
         </button>
 
-        <button onClick={handleLogoutAll} className="bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-2 rounded-xl hover:opacity-90 transition">
+        <button type="button" onClick={handleLogoutAll} className="bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-2 rounded-xl hover:opacity-90 transition">
           Logout From All Devices
         </button>
 

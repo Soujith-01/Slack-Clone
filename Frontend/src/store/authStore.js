@@ -110,21 +110,22 @@ export const useAuth = create((set) => ({
   },
   logout: async () => {
     try {
-      set({ loading: true });
+      set({
+        loading: true,
+        currentUser: null,
+        isAuthenticated: false,
+        error: null,
+        activationRequired: false,
+        activationEmail: null,
+      });
       const res = await axios.get(`${backendUrl}/user-api/logout`, {
         withCredentials: true,
       });
 
       if (res.status === 200) {
-        set({
-          currentUser: null,
-          isAuthenticated: false,
-          error: null,
-          loading: false,
-          activationRequired: false,
-          activationEmail: null,
-        });
+        set({ loading: false });
         toast.success("Logged out successfully");
+        return true;
       }
     } catch (err) {
       console.log(err.response?.data);
@@ -139,6 +140,7 @@ export const useAuth = create((set) => ({
           "Logout failed",
       });
       toast.error("Logout failed");
+      return false;
     }
   },
 

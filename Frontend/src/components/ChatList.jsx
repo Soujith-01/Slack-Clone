@@ -151,7 +151,7 @@ function ChatList() {
     dmList.map((chat) => (
           <div
             key={chat._id}
-            onClick={() => navigate(`/chat/${chat._id}`)}
+            onClick={() => navigate(`/chat-window/Chat`)}
             className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl px-4 py-3 compact:px-3 compact:py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
           >
             <div className="flex items-center justify-between">

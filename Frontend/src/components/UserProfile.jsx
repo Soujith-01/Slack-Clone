@@ -16,10 +16,11 @@ function UserProfile() {
 
   // logout
   const onLogout = async () => {
-
-    await logout();
-
-    navigate("/login");
+    try {
+      await logout();
+    } finally {
+      window.location.replace("/login");
+    }
   };
 
   if (loading) {
@@ -86,6 +87,7 @@ function UserProfile() {
 
           {/* LOGOUT */}
           <button
+            type="button"
             className="bg-[#ff3b30] text-white px-5 py-2 rounded-full hover:bg-[#d62c23] transition"
             onClick={onLogout}
           >

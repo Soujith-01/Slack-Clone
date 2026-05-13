@@ -8,7 +8,7 @@ export const connectSocket = () => {
 
     socket = io("http://localhost:3000", {
       withCredentials: true,
-      transports: ["websocket"],
+      
     });
 
     socket.on("connect", () => {

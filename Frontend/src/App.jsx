@@ -12,8 +12,12 @@ import Chat from "./components/Chat";
 import Settings from "./components/Settings";
 
 import { useAuth } from "./store/authStore";
-
+import { connectSocket } from "./socket";
 function App() {
+
+  const {
+    isAuthenticated,
+  } = useAuth();
 
   const checkAuth = useAuth(
     (state) => state.checkAuth
@@ -23,6 +27,14 @@ function App() {
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // reconnect socket
+  useEffect(() => {
+    if (isAuthenticated) {
+      connectSocket();
+    }
+
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const darkMode = currentUser?.preferences?.darkMode ?? false;

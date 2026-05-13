@@ -121,37 +121,25 @@ chatApp.get('/chats/dms',verifyToken,async(req,res)=>{
     res.status(200).json({message:"chats",payload:dmChats})
 })
 
-// search user by email
-chatApp.get("/users/search", verifyToken, async (req, res) => {
+//get channel by channelName
+chatApp.get('/channels/search',verifyToken,async(req,res)=>{
+    // get channelName from query string
+    const { name = "" } = req.query;
 
-  const email = req.query.email;
-
-  const user = await UserModel.findOne({ email });
-
-  if (!user) {
-    return res
-      .status(404)
-      .json({ message: "user not found" });
-  }
-
-  res.status(200).json({
-    payload: user,
-  });
-});
-
-//get channel by channelId
-chatApp.get('/channels',verifyToken,async(req,res)=>{
-    //get channelName from req
-    const { channelName } = req.body
-    //get channel
-    const channel=await chatModel.findOne({type:"channel",channelName:channelName})
-    //check if channel exists
-    if(!channel){
-        return res.status(400).json({messgae:"channel not found"})
+    if (!name.trim()) {
+        return res.status(200).json({ payload: [] });
     }
-    //send res
-    res.status(200).json({payload:channel})
+
+    // search channels by partial name match
+    const channels = await chatModel.find({
+        type: "channel",
+        channelName: { $regex: name, $options: "i" },
+    });
+
+    // send matching channels, or an empty list when none are found
+    res.status(200).json({ payload: channels })
 })
+
 
 //update channel name
 chatApp.patch('/channel',verifyToken,async(req,res)=>{

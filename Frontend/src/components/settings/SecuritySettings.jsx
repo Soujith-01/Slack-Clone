@@ -9,17 +9,23 @@ function SecuritySettings() {
   const logout = useAuth((state) => state.logout);
 
   const handleDeactivate = async () => {
-    try {
-      await axios.delete(`${backendUrl}/user-api/delete-user`, { withCredentials: true });
-      // clear client state
-      await logout();
-      alert("Account deactivated"); 
-      navigate("/");
-    } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Failed to deactivate account");
-    }
-  };
+  try {
+    await axios.delete(`${backendUrl}/user-api/delete-user`,{ withCredentials: true });
+
+    await logout();
+    alert("Account deactivated");
+    window.location.href = "/";
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert(
+      err.response?.data?.message ||
+      "Failed to deactivate account"
+    );
+  }
+};
 
   const handleLogoutAll = async () => {
     try {

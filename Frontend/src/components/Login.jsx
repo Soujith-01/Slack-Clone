@@ -253,7 +253,7 @@ function Login() {
             </a>
           </div>
 
-          <div className="mt-4 flex justify-center">
+          <div className="m-4 flex justify-center">
               <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleError}/>

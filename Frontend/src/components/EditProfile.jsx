@@ -30,39 +30,45 @@ function EditProfile({ currentUser, setEditMode }) {
   });
 
   // submit form
-  const onUpdateProfile = async (updatedUser) => {
+  const navigate = useNavigate();
 
-    try {
-      const navigate = useNavigate();
-      setApiError("");
+const onUpdateProfile = async (updatedUser) => {
 
-      const payload = {
-        ...updatedUser,
-        oldPassword: updatedUser.oldPassword?.trim() || "",
-        newPassword: updatedUser.newPassword?.trim() || "",
-      };
+  try {
 
-      const res = await axios.put(`${backendUrl}/user-api/users`,payload,{withCredentials: true,}
-      );
+    setApiError("");
 
-      // update zustand store
-      updateCurrentUser(res.data.user);
+    const payload = {
+      ...updatedUser,
+      oldPassword: updatedUser.oldPassword?.trim() || "",
+      newPassword: updatedUser.newPassword?.trim() || "",
+    };
 
-      // close edit form
-      setEditMode(false);
-      navigate("/user-profile");  
+    const res = await axios.put(
+      `${backendUrl}/user-api/users`,
+      payload,
+      {
+        withCredentials: true,
+      }
+    );
 
-    } catch (err) {
+    updateCurrentUser(res.data.user);
 
-      console.log(err);
+    setEditMode(false);
 
-      setApiError(
-        err.response?.data?.message ||
-        err.response?.data?.msg ||
-        "Update failed"
-      );
-    }
-  };
+    navigate("/user-profile");
+
+  } catch (err) {
+
+    console.log(err);
+
+    setApiError(
+      err.response?.data?.message ||
+      err.response?.data?.msg ||
+      "Update failed"
+    );
+  }
+};    
 
   return (
     <div className="bg-white dark:bg-zinc-900 border border-[#e8e8ed] dark:border-zinc-800 rounded-3xl p-6 compact:p-5 mt-6 shadow-sm text-[#111827] dark:text-zinc-100 transition-colors">

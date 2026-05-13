@@ -19,12 +19,12 @@ chatApp.post("/chats/channel",verifyToken,async (req, res) => {
     }
 
     // check members
-    if (!members || members.length === 0) {
-      return res.status(400).json({
-        message:
-          "minimum 1 members is required to create a channel",
-      });
-    }
+    // if (!members || members.length === 0) {
+    //   return res.status(400).json({
+    //     message:
+    //       "minimum 1 members is required to create a channel",
+    //   });
+    // }
 
     // admin id
     const adminId = req.user.userId;
@@ -121,18 +121,23 @@ chatApp.get('/chats/dms',verifyToken,async(req,res)=>{
     res.status(200).json({message:"chats",payload:dmChats})
 })
 
-//get channel by channelId
-chatApp.get('/channels',verifyToken,async(req,res)=>{
-    //get channelName from req
-    const { channelName } = req.body
-    //get channel
-    const channel=await chatModel.findOne({type:"channel",channelName:channelName})
-    //check if channel exists
-    if(!channel){
-        return res.status(400).json({messgae:"channel not found"})
+//get channel by channelName
+chatApp.get('/channels/search',verifyToken,async(req,res)=>{
+    // get channelName from query string
+    const { name = "" } = req.query;
+
+    if (!name.trim()) {
+        return res.status(200).json({ payload: [] });
     }
-    //send res
-    res.status(200).json({payload:channel})
+
+    // search channels by partial name match
+    const channels = await chatModel.find({
+        type: "channel",
+        channelName: { $regex: name, $options: "i" },
+    });
+
+    // send matching channels, or an empty list when none are found
+    res.status(200).json({ payload: channels })
 })
 
 //update channel name
@@ -265,65 +270,50 @@ chatApp.delete('/delete-members',verifyToken,async(req,res)=>{
     res.status(200).json({messgae:"user removed",payload:updatedChannel})
 })
 
-//route to get all members from a channel
-chatApp.get('/members',verifyToken,async(req,res)=>{
-    //get channel name from req body
-    const {channelName} = req.body
-    //find channel
-    const channel = await chatModel.findOne({channelName}).populate("members","username email")
-    //if channel not found
-    if(!channel){
-        return res.status(400).json({message:"channel not found"})
-    }
-    //if the channel is dm
-    if(channel.type==="dm"){
-        return res.status(400).json({message:"it is a dm chat"})
-    }
-    //send res
-    res.status(200).json({message:"members",payload:channel.members})
-})
+//join channel
+chatApp.post("/channels/join-request/:channelId",verifyToken,async (req, res) => {
+      const userId = req.user.userId;
+      // GET FROM PARAMS
+      const { channelId } = req.params;
+      if (!channelId) {
+        return res.status(400).json({message: "channelId is required",});
+      }
 
-//request to join a channel
-chatApp.post('/chats/join-request',verifyToken,async(req,res)=>{
-    try {
-        const userId = req.user.userId;
-        const { channelId } = req.body;
+      const channel = await chatModel.findOne({_id: channelId,type: "channel",
+      });
 
-        if (!channelId) {
-            return res.status(400).json({ message: 'channelId is required' });
-        }
+      if (!channel) {
+        return res.status(404).json({message: "channel not found",});
+      }
+    const alreadyMember = channel.members?.some(
+        (member) =>member.toString() === userId.toString()
+      );
 
-        const channel = await chatModel.findOne({ _id: channelId, type: 'channel' });
-        if (!channel) {
-            return res.status(404).json({ message: 'channel not found' });
-        }
-        if (channel.members?.some(member => member.toString() === userId.toString())) {
-            return res.status(400).json({ message: 'already a member of this channel' });
-        }
-        const pendingRequests = channel.joinRequests || [];
-        if (pendingRequests.some(req => req.user.toString() === userId.toString())) {
-            return res.status(400).json({ message: 'join request already pending' });
-        }
+      if (alreadyMember) {
+        return res.status(400).json({message: "already a member",});
+      }
 
-        channel.joinRequests = pendingRequests;
-        channel.joinRequests.push({ user: userId });
-        await channel.save();
+      if (!channel.joinRequests) {
+        channel.joinRequests = [];
+      }
 
-        const requester = await UserModel.findById(userId).select('username');
-        const requesterName = requester?.username || 'Unknown user';
+      const requestExists = channel.joinRequests.some(
+        (request) =>
+          request.user.toString() === userId.toString()
+      );
 
-        await MessageModel.create({
-            sender: userId,
-            receiver: channel.admin,
-            content: `User ${requesterName} has requested to join channel ${channel.channelName}.`,
-        });
+      if (requestExists) {
+        return res.status(400).json({message: "join request already pending",});
+      }
 
-        res.status(200).json({ message: 'join request sent to channel admin' });
-    } catch (err) {
-        console.error('Join request error:', err);
-        res.status(500).json({ message: 'server error creating join request', error: err.message });
-    }
-})
+      channel.joinRequests.push({
+        user: userId,
+        requestedAt: new Date(),
+      });
+      await channel.save();
+      res.status(200).json({message: "join request sent successfully",});
+});
+
 
 //approve or reject a pending join request
 chatApp.post('/chats/approve-request',verifyToken,async(req,res)=>{

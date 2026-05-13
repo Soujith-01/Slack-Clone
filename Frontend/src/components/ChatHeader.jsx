@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import Popup from "reactjs-popup";
+
 import { useAuth } from "../store/authStore";
 
 function ChatHeader({ chat }) {
@@ -106,8 +108,7 @@ function ChatHeader({ chat }) {
 
             </div>
           )}
-
-        </div>
+        </Popup>
 
       </div>
     </div>

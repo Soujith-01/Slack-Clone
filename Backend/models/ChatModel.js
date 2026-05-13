@@ -6,10 +6,13 @@ const chatSchema=new Schema({
         enum: ["channel", "dm"],
         required: true,
     },
-    channelName:{
-        type:String,
-        requried:[true,"channel name is required"],
-        unique:[true,"channel already Exists"],
+    channelName: {
+        type: String,
+        required: function () {
+            return this.type === "channel";
+        },
+        unique: true,
+        sparse: true
     },
     members:[{
         type:Types.ObjectId,

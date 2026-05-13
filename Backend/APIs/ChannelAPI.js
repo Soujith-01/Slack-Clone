@@ -8,30 +8,63 @@ import { userApp } from './UserAPI.js';
 export const chatApp=exp.Router()
 
 //create new channel
-chatApp.post('/chats/channel',verifyToken,async(req,res)=>{
-    //get channel details from req body
-    const {type,channelName,members} = req.body;
-    //check channel
-    if(!channelName){
-       return res.status(400).json({message:"channel name is required"})
-    }
-    //if no members are given
-    if(members.length===0){
-        return res.status(400).json({message:"minimum 1 members is required to create a channel"})
+chatApp.post("/chats/channel",verifyToken,async (req, res) => {
+    // get data from body
+    const { type, channelName, members } = req.body;
+    // check channel name
+    if (!channelName) {
+      return res.status(400).json({
+        message: "channel name is required",
+      });
     }
 
-    const adminId=req.user.userId
-    //create channel
-    const newChannel=await chatModel.create({
-        channelName,
-        type,
-        members:[...members,adminId],
-        admin:adminId
-    })
-    //send res
-    res.status(200).json({message:"channel successfully created",payload:newChannel})
-    
-})
+    // check members
+    if (!members || members.length === 0) {
+      return res.status(400).json({
+        message:
+          "minimum 1 members is required to create a channel",
+      });
+    }
+
+    // admin id
+    const adminId = req.user.userId;
+    // find users by email
+    const users = await UserModel.find({
+      email: { $in: members },
+    });
+    // check invalid emails
+    const foundEmails = users.map((user) => user.email);
+
+    const invalidEmails = members.filter(
+      (email) => !foundEmails.includes(email)
+    );
+
+    // if invalid emails exist
+    if (invalidEmails.length > 0) {
+      return res.status(400).json({
+        message: "some emails are invalid",
+        invalidEmails,
+      });
+    }
+
+    // extract user ids
+    const memberIds = users.map((user) => user._id);
+
+    // create channel
+    const newChannel = await chatModel.create({
+      channelName,
+      type,
+      members: [...memberIds, adminId],
+      admin: adminId,
+    });
+
+    // response
+    res.status(200).json({
+      message: "channel successfully created",
+      payload: newChannel,
+    });
+  }
+);
 
 //create new dm
 chatApp.post('/chats/dm',verifyToken,async(req,res)=>{

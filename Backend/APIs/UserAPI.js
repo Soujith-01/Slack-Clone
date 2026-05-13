@@ -245,7 +245,7 @@ userApp.put("/users", verifyToken, async (req, res) => {
   } catch (err) {
     console.log(err);
 
-    //  Duplicate key fallback (11000)
+    // Duplicate key fallback (11000)
     if (err.code === 11000) {
       return res.status(400).json({
         msg: "Duplicate value error",

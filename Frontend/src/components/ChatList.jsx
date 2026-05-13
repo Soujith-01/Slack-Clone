@@ -6,55 +6,193 @@ import Channels from "./Channels";
 import DMs from "./DMs";
 
 function ChatList() {
-  const user = useAuth((state) => state.currentUser);
 
-  const [channelList, setchannelList] = useState([]);
-  const [dmList, setdmList] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const user =
+    useAuth(
+      (state) => state.currentUser
+    );
+
+  const [channelList, setchannelList] =
+    useState([]);
+
+  const [dmList, setdmList] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState(null);
 
   useEffect(() => {
+
     if (!user) return;
 
-    const fetchChats = async () => {
-      try {
-        setLoading(true);
+    const fetchChats =
+      async () => {
 
-        const [channelsRes, dmsRes] = await Promise.all([
-          axios.get(
-            `${import.meta.env.VITE_BACKEND_URL}/chat-api/chats/channels`,
-            { withCredentials: true }
-          ),
+        try {
 
-          axios.get(
-            `${import.meta.env.VITE_BACKEND_URL}/chat-api/chats/dms`,
-            { withCredentials: true }
-          ),
-        ]);
+          setLoading(true);
 
-        setchannelList(channelsRes.data.payload);
-        setdmList(dmsRes.data.payload);
+          const [
+            channelsRes,
+            dmsRes,
+          ] = await Promise.all([
 
-      } catch (err) {
-        console.log(err);
-        setError(err.response?.data?.error || "Failed to fetch chats");
-      } finally {
-        setLoading(false);
-      }
-    };
+            axios.get(
+              `${import.meta.env.VITE_BACKEND_URL}/chat-api/chats/channels`,
+              {
+                withCredentials: true,
+              }
+            ),
+
+            axios.get(
+              `${import.meta.env.VITE_BACKEND_URL}/chat-api/chats/dms`,
+              {
+                withCredentials: true,
+              }
+            ),
+
+          ]);
+
+          setchannelList(
+            channelsRes.data.payload
+          );
+
+          setdmList(
+            dmsRes.data.payload
+          );
+
+        } catch (err) {
+
+          console.log(err);
+
+          setError(
+            err.response?.data?.error ||
+            "Failed to fetch chats"
+          );
+
+        } finally {
+
+          setLoading(false);
+
+        }
+      };
 
     fetchChats();
+
   }, [user]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+
+
+  // LOADING STATE
+  if (loading) {
+
+    return (
+
+      <div className="h-full flex flex-col items-center justify-center bg-[#111318]">
+
+        {/* SPINNER */}
+        <div className="w-12 h-12 rounded-full border-4 border-[#2B2F3A] border-t-[#4F8CFF] animate-spin mb-5"></div>
+
+        <p className="text-[#8B94A7] text-sm font-medium tracking-wide">
+          Loading conversations...
+        </p>
+
+      </div>
+    );
+  }
+
+
+
+  // ERROR STATE
+  if (error) {
+
+    return (
+
+      <div className="h-full flex items-center justify-center bg-[#111318] px-6">
+
+        <div className="bg-[#171A22] border border-red-500/20 rounded-3xl px-6 py-5 text-center shadow-xl">
+
+          <p className="text-red-400 font-medium">
+            {error}
+          </p>
+
+        </div>
+
+      </div>
+    );
+  }
+
+
 
   return (
-    <div className="w-full max-w-sm mx-auto py-5 px-3">
-      
-      <Channels channelList={channelList} setChannelList={setchannelList} />
 
-      <DMs dmList={dmList} user={user} />
+    <div className="h-full bg-[#111318] border-r border-[#2A2F3A] overflow-y-auto">
+      
+      {/* USER PROFILE */}
+      <div className="px-4 pt-5 pb-4">
+
+        <div className="bg-[#171A22] border border-[#2A2F3A] rounded-3xl px-4 py-4 shadow-lg">
+
+          <div className="flex items-center gap-3">
+
+            {/* AVATAR */}
+            <div className="relative">
+
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#4F8CFF] to-[#3B6FD8] text-white flex items-center justify-center font-black text-lg shadow-[0_0_20px_rgba(79,140,255,0.25)]">
+
+                {user?.username
+                  ?.charAt(0)
+                  ?.toUpperCase() || "U"}
+
+              </div>
+
+              {/* ONLINE DOT */}
+              <div className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-[#171A22]"></div>
+
+            </div>
+
+            {/* INFO */}
+            <div className="flex-1 min-w-0">
+
+              <h2 className="text-[15px] font-bold text-[#E7ECF5] truncate">
+
+                {user?.username}
+
+              </h2>
+
+              <p className="text-xs text-[#8B94A7] truncate">
+
+                {user?.email}
+
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      {/* CHAT LIST */}
+      <div className="px-3 pb-6">
+
+        <Channels
+          channelList={channelList}
+          setChannelList={setchannelList}
+        />
+
+        <DMs
+          dmList={dmList}
+          user={user}
+        />
+
+      </div>
 
     </div>
   );

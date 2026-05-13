@@ -35,7 +35,7 @@ function Chat() {
     useState(false);
 
 
-  
+
   // FETCH OLD MESSAGES
   useEffect(() => {
 
@@ -44,10 +44,14 @@ function Chat() {
     const getMessages =
       async () => {
         try {
+
           setLoading(true);
+
           let res;
+
           // CHANNEL
-          if ( chat.type === "channel") {
+          if (chat.type === "channel") {
+
             res = await axios.get(
               `http://localhost:3000/message-api/get-channel/${chat._id}`,
               {
@@ -58,6 +62,7 @@ function Chat() {
 
           // DM
           if (chat.type === "dm") {
+
             res = await axios.get(
               `http://localhost:3000/message-api/get-dm/${chat._id}`,
               {
@@ -71,9 +76,13 @@ function Chat() {
           );
 
         } catch (err) {
+
           console.log(err);
+
         } finally {
+
           setLoading(false);
+
         }
       };
 
@@ -86,101 +95,110 @@ function Chat() {
   // SOCKET LISTENERS
   useEffect(() => {
 
-  const socket = getSocket();
+    const socket = getSocket();
 
-  // IMPORTANT
-  if (!socket) return;
+    if (!socket) return;
 
-  if (!chat?._id) return;
+    if (!chat?._id) return;
 
-  // Join channel room
-  if (chat.type === "channel") {
+    // JOIN CHANNEL
+    if (chat.type === "channel") {
 
-    socket.emit(
-      "join-channel",
-      chat._id
+      socket.emit(
+        "join-channel",
+        chat._id
+      );
+    }
+
+    socket.on(
+      "receive-channel-message",
+      (message) => {
+
+        setMessages((prev) => [
+          ...prev,
+          message,
+        ]);
+      }
     );
-  }
 
-  socket.on(
-    "receive-channel-message",
-    (message) => {
+    socket.on(
+      "receive-dm",
+      (message) => {
 
-      setMessages((prev) => [
-        ...prev,
-        message,
-      ]);
-    }
-  );
+        setMessages((prev) => [
+          ...prev,
+          message,
+        ]);
+      }
+    );
 
-  socket.on(
-    "receive-dm",
-    (message) => {
+    socket.on(
+      "message-edited",
+      (updatedMessage) => {
 
-      setMessages((prev) => [
-        ...prev,
-        message,
-      ]);
-    }
-  );
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg._id === updatedMessage._id
+              ? updatedMessage
+              : msg
+          )
+        );
+      }
+    );
 
-  socket.on(
-    "message-edited",
-    (updatedMessage) => {
+    socket.on(
+      "reaction-updated",
+      (updatedMessage) => {
 
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg._id === updatedMessage._id
-            ? updatedMessage
-            : msg
-        )
-      );
-    }
-  );
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg._id === updatedMessage._id
+              ? updatedMessage
+              : msg
+          )
+        );
+      }
+    );
 
-  socket.on(
-    "reaction-updated",
-    (updatedMessage) => {
+    return () => {
 
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg._id === updatedMessage._id
-            ? updatedMessage
-            : msg
-        )
-      );
-    }
-  );
+      socket.off("receive-channel-message");
 
-  return () => {
+      socket.off("receive-dm");
 
-    socket.off("receive-channel-message");
+      socket.off("message-edited");
 
-    socket.off("receive-dm");
+      socket.off("reaction-updated");
+    };
 
-    socket.off("message-edited");
+  }, [chat]);
 
-    socket.off("reaction-updated");
-  };
-
-}, [chat]);
 
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col overflow-hidden bg-[#0F1117]">
 
-      {/* Header */}
-      <div className="shrink-0 border-b bg-white">
+      {/* HEADER */}
+      <div className="shrink-0 border-b border-[#2A2F3A] bg-[#171A22]/95 backdrop-blur-xl shadow-lg">
+
         <ChatHeader chat={chat} />
+
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-hidden">
+      {/* MESSAGES */}
+      <div className="flex-1 min-h-0 overflow-hidden bg-[#0F1117]">
 
         {loading ? (
 
-          <div className="h-full flex items-center justify-center">
-            Loading...
+          <div className="h-full flex flex-col items-center justify-center bg-[#0F1117]">
+
+            {/* LOADER */}
+            <div className="w-12 h-12 rounded-full border-4 border-[#2A2F3A] border-t-[#4F8CFF] animate-spin mb-5"></div>
+
+            <p className="text-[#8B94A7] text-sm font-medium tracking-wide">
+              Loading messages...
+            </p>
+
           </div>
 
         ) : (
@@ -191,18 +209,23 @@ function Chat() {
               currentUser?._id
             }
           />
+
         )}
+
       </div>
 
-      {/* Sender */}
-      <div className="shrink-0 border-t bg-white">
+      {/* SENDER */}
+      <div className="shrink-0 border-t border-[#2A2F3A] bg-[#171A22]/95 backdrop-blur-xl">
+
         <MessageSender
           chat={chat}
           currentUser={
             currentUser
           }
         />
+
       </div>
+
     </div>
   );
 }

@@ -27,7 +27,7 @@ function Channels({ channelList, setChannelList }) {
   // CREATE CHANNEL API
   const handleCreateChannel = async () => {
 
-    // clear previous errors
+    // CLEAR ERRORS
     setErrorMessage("");
     setInvalidEmails([]);
 
@@ -59,48 +59,65 @@ function Channels({ channelList, setChannelList }) {
       setChannelName("");
       setMembers("");
 
-      setChannelList((prev) => [...prev,response.data.payload,]);
+      setChannelList((prev) => [
+        ...prev,
+        response.data.payload,
+      ]);
 
     } catch (err) {
 
       console.log(err);
 
-      // backend message
       setErrorMessage(
         err?.response?.data?.message ||
         "Failed to create channel"
       );
 
-      // invalid emails
       if (err?.response?.data?.invalidEmails) {
         setInvalidEmails(
           err.response.data.invalidEmails
         );
       }
     }
+      
+
+
+
+
+
+
+
+
   };
 
   return (
-    <div className="mb-6 text-[#4a454b]">
+    <div className="mb-6 text-[#D6DCE5]">
 
-      {/* Header */}
-      <div className="flex items-center justify-between bg-[#d3d1d2] px-3 py-2 rounded-md mb-2">
+      {/* HEADER */}
+      <div className="flex items-center justify-between bg-[#171A22] border border-[#2A2F3A] px-4 py-3 rounded-2xl mb-3 shadow-lg">
+
         <div className="flex items-center gap-2">
-          <h2 className="text-[17px] font-medium">
+
+          <h2 className="text-[17px] font-bold uppercase tracking-wide text-[#E8ECF3]">
             Channels
           </h2>
+
         </div>
       </div>
 
-      {/* Channel List */}
+      {/* CHANNEL LIST */}
       <div className="flex flex-col gap-1">
 
         {channelList.length === 0 ? (
-          <div className="px-3 text-sm text-gray-500">
+
+          <div className="px-3 text-sm text-[#8B94A7]">
             No channels yet
           </div>
+
         ) : (
+
           channelList.map((chat) => (
+
             <div
               key={chat._id}
               onClick={() =>
@@ -108,21 +125,23 @@ function Channels({ channelList, setChannelList }) {
                   state: { chat },
                 })
               }
-              className={`flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer transition ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition-all duration-300 border ${
                 chat.channelName === "plan"
-                  ? "bg-[#3b373c] text-white"
-                  : "hover:bg-[#eceaea]"
+                  ? "bg-gradient-to-r from-[#4F8CFF] to-[#3B6FD8] border-[#5A8FFF]/30 text-white shadow-lg"
+                  : "border-transparent hover:border-[#2A2F3A] hover:bg-[#171A22] text-[#D6DCE5]"
               }`}
             >
+
               {chat.channelName === "plan" ? (
                 <Lock size={16} />
               ) : (
                 <Hash size={16} />
               )}
 
-              <p className="text-[15px] font-medium truncate">
+              <p className="text-[15px] font-semibold truncate tracking-wide">
                 {chat.channelName}
               </p>
+
             </div>
           ))
         )}
@@ -130,28 +149,32 @@ function Channels({ channelList, setChannelList }) {
         {/* ADD CHANNEL MENU */}
         <Popup
           trigger={
-            <button className="flex items-center gap-3 px-3 py-2 rounded-md text-[#4a454b] hover:bg-[#eceaea] transition w-full">
-              <Plus size={16} />
+            <button className="flex items-center gap-3 px-4 py-3 rounded-2xl text-[#D6DCE5] hover:bg-[#171A22] hover:border-[#2A2F3A] border border-transparent transition-all duration-300 w-full">
 
-              <span className="text-[15px] font-medium">
+              <Plus size={17} />
+
+              <span className="text-[15px] font-semibold tracking-wide">
                 Add channels
               </span>
+
             </button>
           }
           position="right top"
           arrow={false}
           closeOnDocumentClick
           contentStyle={{
-            width: "220px",
-            background: "#ffffff",
-            border: "1px solid #d4d4d4",
-            borderRadius: "10px",
-            padding: "8px",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+            width: "240px",
+            background: "#171A22",
+            border: "1px solid #2A2F3A",
+            borderRadius: "18px",
+            padding: "10px",
+            boxShadow:
+              "0 20px 40px rgba(0,0,0,0.45)",
+            backdropFilter: "blur(18px)",
           }}
         >
           {(close) => (
-            <div className="flex flex-col gap-1 text-[#3b373c]">
+            <div className="flex flex-col gap-1 text-[#D6DCE5]">
 
               {/* CREATE CHANNEL */}
               <button
@@ -159,13 +182,15 @@ function Channels({ channelList, setChannelList }) {
                   close();
                   setOpenCreatePopup(true);
                 }}
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#f1f1f1] transition text-left"
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-[#232734] transition-all duration-300 text-left"
               >
+
                 <Plus size={16} />
 
-                <span className="text-sm font-medium">
+                <span className="text-sm font-semibold">
                   Create new channel
                 </span>
+
               </button>
 
               {/* SEARCH CHANNEL */}
@@ -173,19 +198,22 @@ function Channels({ channelList, setChannelList }) {
                 onClick={() => {
                   close();
                 }}
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#f1f1f1] transition text-left"
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-[#232734] transition-all duration-300 text-left"
               >
+
                 <Search size={16} />
 
-                <span className="text-sm font-medium">
+                <span className="text-sm font-semibold">
                   Search channels
                 </span>
+
               </button>
+
             </div>
           )}
         </Popup>
 
-        {/* CREATE CHANNEL CENTER POPUP */}
+        {/* CREATE CHANNEL POPUP */}
         <Popup
           open={openCreatePopup}
           modal
@@ -193,7 +221,7 @@ function Channels({ channelList, setChannelList }) {
           onClose={() => setOpenCreatePopup(false)}
         >
           {(close) => (
-            <div className="bg-white w-[420px] rounded-2xl p-6 shadow-2xl relative">
+            <div className="bg-[#171A22] border border-[#2A2F3A] w-[430px] rounded-[28px] p-7 shadow-2xl relative text-[#E8ECF3]">
 
               {/* CLOSE BUTTON */}
               <button
@@ -201,50 +229,54 @@ function Channels({ channelList, setChannelList }) {
                   close();
                   setOpenCreatePopup(false);
                 }}
-                className="absolute top-4 right-4 text-gray-500 hover:text-black"
+                className="absolute top-5 right-5 text-[#8B94A7] hover:text-white transition"
               >
                 <X size={20} />
               </button>
 
               {/* TITLE */}
-              <h2 className="text-2xl font-semibold mb-2">
+              <h2 className="text-3xl font-black tracking-tight mb-2">
                 Create Channel
               </h2>
 
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-[#8B94A7] mb-7">
                 Create a new channel for your workspace
               </p>
 
-              {/* ERROR MESSAGE */}
+              {/* ERROR */}
               {errorMessage && (
-                <div className="mb-4 bg-red-100 text-red-600 px-4 py-3 rounded-lg text-sm">
+                <div className="mb-4 bg-red-500/10 border border-red-500/20 text-red-300 px-4 py-3 rounded-2xl text-sm">
                   {errorMessage}
                 </div>
               )}
 
               {/* INVALID EMAILS */}
               {invalidEmails.length > 0 && (
-                <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-sm font-medium text-red-600 mb-2">
+                <div className="mb-4 bg-red-500/5 border border-red-500/20 rounded-2xl p-4">
+
+                  <p className="text-sm font-semibold text-red-300 mb-3">
                     Invalid Emails:
                   </p>
 
                   <div className="flex flex-wrap gap-2">
+
                     {invalidEmails.map((email, index) => (
                       <span
                         key={index}
-                        className="bg-red-200 text-red-700 text-xs px-2 py-1 rounded-md"
+                        className="bg-red-500/10 text-red-300 text-xs px-3 py-1 rounded-xl border border-red-500/20"
                       >
                         {email}
                       </span>
                     ))}
+
                   </div>
                 </div>
               )}
 
               {/* CHANNEL NAME */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
+              <div className="mb-5">
+
+                <label className="block text-sm font-semibold mb-2 text-[#D6DCE5]">
                   Channel Name
                 </label>
 
@@ -255,13 +287,15 @@ function Channels({ channelList, setChannelList }) {
                   onChange={(e) =>
                     setChannelName(e.target.value)
                   }
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-black"
+                  className="w-full bg-[#0F1117] border border-[#2A2F3A] rounded-2xl px-4 py-3 outline-none focus:border-[#4F8CFF] text-[#E8ECF3] placeholder:text-[#6F7888] transition-all duration-300"
                 />
+
               </div>
 
               {/* MEMBERS */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">
+              <div className="mb-7">
+
+                <label className="block text-sm font-semibold mb-2 text-[#D6DCE5]">
                   Member Emails
                 </label>
 
@@ -272,12 +306,13 @@ function Channels({ channelList, setChannelList }) {
                   onChange={(e) =>
                     setMembers(e.target.value)
                   }
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-black"
+                  className="w-full bg-[#0F1117] border border-[#2A2F3A] rounded-2xl px-4 py-3 outline-none focus:border-[#4F8CFF] text-[#E8ECF3] placeholder:text-[#6F7888] transition-all duration-300"
                 />
 
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-[#8B94A7] mt-2">
                   Enter emails separated by commas
                 </p>
+
               </div>
 
               {/* BUTTONS */}
@@ -288,14 +323,14 @@ function Channels({ channelList, setChannelList }) {
                     close();
                     setOpenCreatePopup(false);
                   }}
-                  className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition"
+                  className="px-5 py-2.5 rounded-2xl border border-[#2A2F3A] bg-[#0F1117] hover:bg-[#232734] transition-all duration-300 text-[#D6DCE5] font-semibold"
                 >
                   Cancel
                 </button>
 
                 <button
                   onClick={handleCreateChannel}
-                  className="px-5 py-2 rounded-lg bg-black text-white hover:opacity-90 transition"
+                  className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#4F8CFF] to-[#3B6FD8] text-white hover:opacity-90 transition-all duration-300 font-semibold shadow-lg"
                 >
                   Create Channel
                 </button>
@@ -310,4 +345,4 @@ function Channels({ channelList, setChannelList }) {
   );
 }
 
-export default Channels;
+export default Channels; 

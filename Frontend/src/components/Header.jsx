@@ -1,5 +1,6 @@
 import { NavLink } from "react-router";
 import { useAuth } from "../store/authStore";
+import Notifications from "./Notifications";
 import {
   navbarClass,
   navContainerClass,
@@ -70,20 +71,27 @@ function Header() {
             </>
           )}
 
-          {/* LOGGED IN */}
-          {isAuthenticated && (
+         {/* LOGGED IN */}
+{isAuthenticated && (
+  <>
+    <li>
+      <NavLink
+        to={getProfile()}
+        className={({ isActive }) =>
+          isActive
+            ? navLinkActiveClass
+            : navLinkClass
+        }
+      >
+        Dashboard
+      </NavLink>
+    </li>
 
-            <li>
-              <NavLink
-                to={getProfile()}
-                className={({ isActive }) =>
-                  isActive ? navLinkActiveClass : navLinkClass
-                }
-              >
-                Dashboard
-              </NavLink>
-            </li>
-          )}
+    <li>
+      <Notifications />
+    </li>
+  </>
+)}
 
         </ul>
       </div>

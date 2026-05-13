@@ -1,107 +1,111 @@
 // src/styles/common.js
-// Minimal Clean Light Theme
-//home page
-///export const homePageBackground = "bg-gay-800 min-h-screen";
+// Black + Neon Blue Creative Theme
 
 // ─── Layout ───────────────────────────────────────────
-export const pageBackground = "bg-white dark:bg-zinc-950 min-h-screen transition-colors";
-export const pageWrapper = "max-w-6xl mx-auto px-6 py-10 compact:py-8";
-export const section = "mb-10 compact:mb-8";
+export const pageBackground =
+  "bg-[#050505] min-h-screen text-white transition-colors";
+
+export const pageWrapper =
+  "max-w-6xl mx-auto px-6 py-10 compact:py-8";
+
+export const section =
+  "mb-10 compact:mb-8";
 
 // ─── Cards ────────────────────────────────────────────
 export const cardClass =
-  "bg-white dark:bg-zinc-900 border border-[#e5e7eb] dark:border-zinc-800 rounded-2xl p-6 compact:p-5 hover:border-[#d1d5db] dark:hover:border-zinc-700 transition-all duration-200";
+  "bg-[#0d0d0d] border border-[#1f1f1f] rounded-3xl p-6 compact:p-5 hover:border-[#11A8E8]/40 shadow-[0_0_30px_rgba(17,168,232,0.06)] transition-all duration-300";
 
 // ─── Typography ───────────────────────────────────────
 export const pageTitleClass =
-  "text-4xl font-bold text-[#111827] dark:text-zinc-100 tracking-tight";
+  "text-4xl font-black text-white tracking-tight uppercase";
 
 export const headingClass =
-  "text-2xl font-semibold text-[#111827] dark:text-zinc-100 tracking-tight";
+  "text-2xl font-bold text-white tracking-tight uppercase";
 
 export const subHeadingClass =
-  "text-lg font-medium text-[#111827] dark:text-zinc-100";
+  "text-lg font-semibold text-[#d4d4d4]";
 
 export const bodyText =
-  "text-[#4b5563] dark:text-zinc-300 leading-relaxed";
+  "text-[#9b9b9b] leading-relaxed";
 
 export const mutedText =
-  "text-sm text-[#9ca3af] dark:text-zinc-400";
+  "text-sm text-[#737373]";
 
 export const linkClass =
-  "text-[#2563eb] dark:text-sky-400 hover:text-[#1d4ed8] dark:hover:text-sky-300 transition-colors";
+  "text-[#11A8E8] hover:text-[#38BDF8] transition-colors";
 
 // ─── Buttons ──────────────────────────────────────────
 export const primaryBtn =
-  "bg-[#2563eb] text-white px-5 py-2 rounded-xl hover:bg-[#1d4ed8] transition-colors text-sm font-medium";
+  "bg-[#11A8E8] text-white px-5 py-2.5 rounded-2xl hover:bg-[#38BDF8] transition-all duration-300 text-sm font-semibold shadow-[0_0_25px_rgba(17,168,232,0.20)]";
 
 export const secondaryBtn =
-  "border border-[#d1d5db] bg-white text-[#111827] dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 px-5 py-2 rounded-xl hover:bg-[#f9fafb] dark:hover:bg-zinc-800 transition-colors text-sm font-medium";
+  "border border-[#1f1f1f] bg-[#0d0d0d] text-white px-5 py-2.5 rounded-2xl hover:border-[#11A8E8]/40 hover:bg-[#111111] transition-all duration-300 text-sm font-medium";
 
 export const ghostBtn =
-  "text-[#2563eb] dark:text-sky-400 hover:text-[#1d4ed8] dark:hover:text-sky-300 text-sm font-medium transition-colors";
+  "text-[#11A8E8] hover:text-[#38BDF8] text-sm font-medium transition-colors";
 
 // ─── Forms ────────────────────────────────────────────
 export const formCard =
-  "bg-white dark:bg-zinc-900 border border-[#e5e7eb] dark:border-zinc-800 rounded-2xl p-8 compact:p-6 transition-colors";
+  "bg-[#0b0b0b] border border-[#1f1f1f] rounded-3xl p-8 compact:p-6 shadow-[0_0_50px_rgba(17,168,232,0.08)] transition-all duration-300";
 
 export const formTitle =
-  "text-2xl font-semibold text-[#111827] dark:text-zinc-100 text-center mb-6";
+  "text-3xl font-black text-white text-center mb-6 tracking-tight uppercase";
 
 export const labelClass =
-  "text-sm font-medium text-[#374151] dark:text-zinc-300 mb-1 block";
+  "text-sm font-semibold text-[#d4d4d4] mb-2 block uppercase tracking-wide";
 
 export const inputClass =
-  "w-full border border-[#d1d5db] bg-white dark:border-zinc-700 dark:bg-zinc-950 rounded-xl px-4 py-2.5 compact:px-3 compact:py-2 text-[#111827] dark:text-zinc-100 placeholder:text-[#9ca3af] dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 dark:focus:ring-sky-400/20 focus:border-[#2563eb] dark:focus:border-sky-400 transition";
+  "w-full border border-[#232323] bg-[#0d0d0d] rounded-2xl px-4 py-3 text-white placeholder:text-[#666666] focus:outline-none focus:ring-2 focus:ring-[#11A8E8]/20 focus:border-[#11A8E8] transition-all duration-300";
 
-export const formGroup = "mb-4";
+export const formGroup =
+  "mb-4";
 
 export const submitBtn =
-  "w-full bg-[#2563eb] text-white py-2.5 rounded-xl hover:bg-[#1d4ed8] transition-colors font-medium";
+  "w-full bg-[#11A8E8] text-white py-3 rounded-2xl hover:bg-[#38BDF8] transition-all duration-300 font-semibold shadow-[0_0_30px_rgba(17,168,232,0.20)]";
 
 // ─── Navbar ───────────────────────────────────────────
 export const navbarClass =
-  "sticky top-0 z-50 bg-white/95 backdrop-blur-sm  px-6 h-[60px] flex items-center ";
+  "sticky top-0 z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-[#111111] px-6 h-[70px] flex items-center";
 
 export const navContainerClass =
   "max-w-6xl mx-auto w-full flex items-center justify-between";
 
 export const navBrandClass =
-  "text-2xl font-semibold text-[#111827]";
+  "text-2xl font-black text-[#11A8E8] tracking-tight uppercase";
 
 export const navLinksClass =
   "flex items-center gap-6 compact:gap-4";
 
 export const navLinkClass =
-  "text-lg font-medium text-black hover:text-[#111827] px-3 py-2 rounded-lg transition-colors";
+  "text-sm font-semibold uppercase tracking-wide text-[#d4d4d4] hover:text-[#11A8E8] px-3 py-2 rounded-xl transition-all duration-300";
 
 export const navLinkActiveClass =
-  "text-base font-semibold text-white bg-[#5b21b6] px-3 py-2 rounded-lg transition-colors hover:bg-[#4c1d95]";
+  "text-sm font-semibold uppercase tracking-wide text-white bg-[#11A8E8] px-4 py-2 rounded-xl transition-all duration-300 hover:bg-[#38BDF8]";
 
 // ─── Articles / Chat Cards ────────────────────────────
 export const articleGrid =
   "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5";
 
 export const articleCardClass =
-  "bg-white border border-[#e5e7eb] rounded-2xl p-5 hover:border-[#d1d5db] transition-all duration-200";
+  "bg-[#0d0d0d] border border-[#1f1f1f] rounded-3xl p-5 hover:border-[#11A8E8]/40 shadow-[0_0_25px_rgba(17,168,232,0.05)] transition-all duration-300";
 
 export const articleTitle =
-  "text-lg font-semibold text-[#111827]";
+  "text-lg font-bold text-white";
 
 export const articleExcerpt =
-  "text-sm text-[#6b7280] leading-relaxed";
+  "text-sm text-[#8a8a8a] leading-relaxed";
 
 export const articleMeta =
-  "text-xs text-[#9ca3af]";
+  "text-xs text-[#666666]";
 
 export const articleBody =
-  "text-[#374151] leading-relaxed";
+  "text-[#b3b3b3] leading-relaxed";
 
 export const timestampClass =
-  "text-xs text-[#9ca3af]";
+  "text-xs text-[#666666]";
 
 export const tagClass =
-  "text-xs font-semibold uppercase tracking-wide text-[#2563eb]";
+  "text-xs font-bold uppercase tracking-wide text-[#11A8E8]";
 
 // ─── Article Page ─────────────────────────────────────
 export const articlePageWrapper =
@@ -111,94 +115,94 @@ export const articleHeader =
   "mb-8 flex flex-col gap-4";
 
 export const articleCategory =
-  "text-xs font-semibold uppercase tracking-wide text-[#2563eb]";
+  "text-xs font-bold uppercase tracking-wide text-[#11A8E8]";
 
 export const articleMainTitle =
-  "text-4xl font-bold text-[#111827] leading-tight";
+  "text-4xl font-black text-white leading-tight uppercase";
 
 export const articleAuthorRow =
-  "flex items-center justify-between border-y border-[#e5e7eb] py-4 text-sm text-[#6b7280]";
+  "flex items-center justify-between border-y border-[#1f1f1f] py-4 text-sm text-[#737373]";
 
 export const authorInfo =
-  "flex items-center gap-2 font-medium text-[#111827]";
+  "flex items-center gap-2 font-semibold text-white";
 
 export const articleContent =
-  "text-[#374151] leading-8 text-[1rem] whitespace-pre-line mt-8";
+  "text-[#b3b3b3] leading-8 text-[1rem] whitespace-pre-line mt-8";
 
 export const articleFooter =
-  "border-t border-[#e5e7eb] mt-10 pt-5 text-sm text-[#9ca3af]";
+  "border-t border-[#1f1f1f] mt-10 pt-5 text-sm text-[#666666]";
 
 // ─── Actions ──────────────────────────────────────────
 export const articleActions =
   "flex gap-3 mt-5";
 
 export const editBtn =
-  "bg-[#2563eb] text-white px-4 py-2 rounded-xl hover:bg-[#1d4ed8] transition";
+  "bg-[#11A8E8] text-white px-4 py-2 rounded-2xl hover:bg-[#38BDF8] transition-all duration-300";
 
 export const deleteBtn =
-  "bg-[#ef4444] text-white px-4 py-2 rounded-xl hover:bg-[#dc2626] transition";
+  "bg-[#dc2626] text-white px-4 py-2 rounded-2xl hover:bg-[#ef4444] transition-all duration-300";
 
 // ─── Status Badges ────────────────────────────────────
 export const articleStatusActive =
-  "absolute top-3 right-3 text-xs font-medium px-2 py-1 rounded-full bg-green-100 text-green-700";
+  "absolute top-3 right-3 text-xs font-semibold px-3 py-1 rounded-full bg-[#0f172a] text-[#38BDF8] border border-[#11A8E8]/30";
 
 export const articleStatusDeleted =
-  "absolute top-3 right-3 text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-700";
+  "absolute top-3 right-3 text-xs font-semibold px-3 py-1 rounded-full bg-[#2b0b0b] text-[#ef4444] border border-[#ef4444]/30";
 
 // ─── Feedback ─────────────────────────────────────────
 export const errorClass =
-  "bg-red-50 border border-red-200 text-red-600 dark:bg-red-950/40 dark:border-red-900 dark:text-red-200 rounded-xl px-4 py-3 text-sm";
+  "bg-[#2b0b0b] border border-[#7f1d1d] text-[#f87171] rounded-2xl px-4 py-3 text-sm mt-2";
 
 export const successClass =
-  "bg-green-50 border border-green-200 text-green-600 rounded-xl px-4 py-3 text-sm";
+  "bg-[#052e16] border border-[#166534] text-[#4ade80] rounded-2xl px-4 py-3 text-sm";
 
 export const loadingClass =
-  "text-center text-[#6b7280] dark:text-zinc-400 py-10 animate-pulse";
+  "text-center text-[#737373] py-10 animate-pulse";
 
 export const emptyStateClass =
-  "text-center text-[#9ca3af] dark:text-zinc-500 py-16";
+  "text-center text-[#666666] py-16";
 
 // ─── Comments ─────────────────────────────────────────
 export const commentsWrapper =
   "mt-10 flex flex-col gap-5";
 
 export const commentCard =
-  "bg-white border border-[#e5e7eb] rounded-2xl p-5";
+  "bg-[#0d0d0d] border border-[#1f1f1f] rounded-3xl p-5";
 
 export const commentHeader =
   "flex items-center justify-between mb-2";
 
 export const commentUser =
-  "text-sm font-semibold text-[#111827]";
+  "text-sm font-semibold text-white";
 
 export const commentTime =
-  "text-xs text-[#9ca3af]";
+  "text-xs text-[#666666]";
 
 export const commentText =
-  "text-sm text-[#374151] leading-relaxed";
+  "text-sm text-[#b3b3b3] leading-relaxed";
 
 export const avatar =
-  "w-10 h-10 rounded-full bg-[#eff6ff] text-[#2563eb] flex items-center justify-center font-semibold";
+  "w-10 h-10 rounded-full bg-[#0f172a] text-[#11A8E8] flex items-center justify-center font-bold";
 
 export const commentUserRow =
   "flex items-center gap-3";
 
 // ─── Divider ──────────────────────────────────────────
 export const divider =
-  "border-t border-[#e5e7eb] my-8";
+  "border-t border-[#1f1f1f] my-8";
 
 // ─── User List / Chat List ────────────────────────────
 export const userInfoContainer =
   "flex items-center justify-between";
 
 export const userNameText =
-  "text-base font-medium text-[#111827]";
+  "text-base font-semibold text-white";
 
 export const userActionBtnBase =
-  "px-4 py-1.5 rounded-lg text-sm font-medium transition";
+  "px-4 py-1.5 rounded-xl text-sm font-medium transition-all duration-300";
 
 export const userActionBtnActive =
-  "bg-red-50 text-red-600 hover:bg-red-100";
+  "bg-[#2b0b0b] text-[#ef4444] hover:bg-[#3b1010]";
 
 export const userActionBtnInactive =
-  "bg-green-50 text-green-600 hover:bg-green-100";
+  "bg-[#0f172a] text-[#38BDF8] hover:bg-[#172554]";

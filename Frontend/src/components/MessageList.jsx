@@ -49,6 +49,7 @@ function MessageList({ messages = [], currentUserId }) {
                     "Unknown User"}
                 </p>
               )}
+              
 
               {/* Message */}
               {message.content && (

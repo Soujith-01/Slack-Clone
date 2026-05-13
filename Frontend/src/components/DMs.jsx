@@ -1,10 +1,71 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import Popup from "reactjs-popup";
-import { ChevronDown, Plus, MoreVertical, Search, X } from "lucide-react";
+import axios from "axios";
+
+import {
+  ChevronDown,
+  Plus,
+  Search,
+  X,
+} from "lucide-react";
 
 function DMs({ dmList, user }) {
+
   const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Create DM
+  const createDm = async (close) => {
+    try {
+
+      setLoading(true);
+      setError("");
+
+      // find user by email
+      const userRes = await axios.get(
+        `http://localhost:3000/chat-api/users/search?email=${email}`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      const selectedUser = userRes.data.payload;
+
+      // create dm
+      const res = await axios.post(
+        "http://localhost:3000/chat-api/chats/dm",
+        {
+          members: selectedUser._id,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
+      const chat = res.data.payload;
+
+      close();
+
+      navigate("/chat-window/Chat", {
+        state: { chat },
+      });
+
+    } catch (err) {
+
+      console.log(err);
+
+      setError(
+        err.response?.data?.message || "Failed to create DM"
+      );
+
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="text-[#4a454b]">
@@ -64,74 +125,109 @@ function DMs({ dmList, user }) {
             );
           })
         )}
-
       </div>
-      <div className="flex items-center gap-3">
 
-          {/* Invite People Popup */}
-          <Popup
-            modal
-            trigger={
-              <button className="flex items-center gap-3 px-3 py-2 rounded-md text-[#4a454b] hover:bg-[#eceaea] transition w-full">
-                            <Plus size={16} />
-              
-                            <span className="text-[15px] font-medium">
-                              Inivte people
-                            </span>
-                          </button>
-            }
-            overlayStyle={{
-              background: "rgba(0,0,0,0.45)",
-            }}
-            contentStyle={{
-              width: "420px",
-              borderRadius: "14px",
-              padding: "0",
-              border: "none",
-              overflow: "hidden",
-            }}
-          >
-            {(close) => (
-              <div className="bg-white">
+      {/* Invite People */}
+      <div className="mt-2">
 
-                {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b">
+        <Popup
+          modal
+          trigger={
+            <button className="flex items-center gap-3 px-3 py-2 rounded-md text-[#4a454b] hover:bg-[#eceaea] transition w-full">
+              <Plus size={16} />
 
-                  <div>
-                    <h2 className="text-lg font-semibold text-[#1d1c1d]">
-                      Invite people
-                    </h2>
+              <span className="text-[15px] font-medium">
+                Invite people
+              </span>
+            </button>
+          }
+          overlayStyle={{
+            background: "rgba(0,0,0,0.45)",
+          }}
+          contentStyle={{
+            width: "420px",
+            borderRadius: "14px",
+            padding: "0",
+            border: "none",
+            overflow: "hidden",
+          }}
+        >
+          {(close) => (
+            <div className="bg-white">
 
-                    <p className="text-sm text-gray-500 mt-1">
-                      Search for people to start a conversation
-                    </p>
-                  </div>
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b">
+
+                <div>
+                  <h2 className="text-lg font-semibold text-[#1d1c1d]">
+                    Invite people
+                  </h2>
+
+                  <p className="text-sm text-gray-500 mt-1">
+                    Search for people to start a conversation
+                  </p>
+                </div>
+
+                <button
+                  onClick={close}
+                  className="p-1 rounded hover:bg-gray-100 transition"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-5">
+
+                {/* Search Input */}
+                <div className="flex items-center gap-3 border rounded-lg px-3 py-3 focus-within:border-[#1264a3]">
+
+                  <Search
+                    size={18}
+                    className="text-gray-400"
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="name@email.com"
+                    value={email}
+                    onChange={(e) =>
+                      setEmail(e.target.value)
+                    }
+                    className="w-full outline-none text-sm"
+                  />
+                </div>
+
+                {/* Error */}
+                {error && (
+                  <p className="text-red-500 text-sm mt-3">
+                    {error}
+                  </p>
+                )}
+
+                {/* Buttons */}
+                <div className="flex justify-end gap-3 mt-5">
 
                   <button
                     onClick={close}
-                    className="p-1 rounded hover:bg-gray-100 transition"
+                    className="px-4 py-2 rounded-lg border text-sm hover:bg-gray-100"
                   >
-                    <X size={18} />
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={() => createDm(close)}
+                    disabled={loading || !email}
+                    className="px-4 py-2 rounded-lg bg-[#1264a3] text-white text-sm hover:bg-[#0f5488] disabled:opacity-50"
+                  >
+                    {loading ? "Creating..." : "Start Chat"}
                   </button>
                 </div>
-
-                {/* Search */}
-                <div className="p-5">
-
-                  <div className="flex items-center gap-3 border rounded-lg px-3 py-3 focus-within:border-[#1264a3]">
-                    <Search size={18} className="text-gray-400" />
-
-                    <input
-                      type="text"
-                      placeholder="name@email.com"
-                      className="w-full outline-none text-sm"
-                    />
-                  </div>
-                </div>
               </div>
-            )}
-          </Popup>
-        </div>
+            </div>
+          )}
+        </Popup>
+      </div>
     </div>
   );
 }

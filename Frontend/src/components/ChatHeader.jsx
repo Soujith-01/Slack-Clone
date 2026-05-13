@@ -1,12 +1,15 @@
 import React, { useState } from "react";
+import Popup from "reactjs-popup";
+
 import { useAuth } from "../store/authStore";
 
 function ChatHeader({ chat }) {
 
-  const [open, setOpen] = useState(false);
   const currentUser = useAuth((state) => state.currentUser);
+
   // check admin
-  const isAdmin = chat?.admin?.toString() === currentUser?._id?.toString();
+  const isAdmin =
+    chat?.admin?.toString() === currentUser?._id?.toString();
 
   return (
     <div className="border-b border-gray-200 bg-white px-6 py-4 relative">
@@ -32,33 +35,48 @@ function ChatHeader({ chat }) {
         </div>
 
         {/* Right */}
-        <div className="relative">
+        <Popup
+          trigger={
+            <button
+              className="w-9 h-9 rounded-lg hover:bg-gray-100 text-xl text-gray-600 flex items-center justify-center"
+            >
+              ⋮
+            </button>
+          }
+          position="bottom right"
+          closeOnDocumentClick
+          arrow={false}
+        >
+          {(close) => (
+            <div className="w-48 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden py-1">
 
-          {/* Dropdown Button */}
-          <button
-            onClick={() => setOpen(!open)}
-            className="w-9 h-9 rounded-lg hover:bg-gray-100 text-xl text-gray-600 flex items-center justify-center"
-          >
-            ⋮
-          </button>
-
-          {/* Dropdown Menu */}
-          {open && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50">
-
-              <button className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm">
+              <button
+                onClick={() => close()}
+                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm"
+              >
                 View Details
               </button>
-              <button className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm">
+
+              <button
+                onClick={() => close()}
+                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm"
+              >
                 Search
               </button>
+
               {chat?.type === "channel" && (
                 isAdmin ? (
-                  <button className="w-full text-left px-4 py-3 hover:bg-red-50 text-sm text-red-600">
+                  <button
+                    onClick={() => close()}
+                    className="w-full text-left px-4 py-3 hover:bg-red-50 text-sm text-red-600"
+                  >
                     Delete Channel
                   </button>
                 ) : (
-                  <button className="w-full text-left px-4 py-3 hover:bg-yellow-50 text-sm text-yellow-600">
+                  <button
+                    onClick={() => close()}
+                    className="w-full text-left px-4 py-3 hover:bg-yellow-50 text-sm text-yellow-600"
+                  >
                     Leave Channel
                   </button>
                 )
@@ -66,8 +84,7 @@ function ChatHeader({ chat }) {
 
             </div>
           )}
-
-        </div>
+        </Popup>
 
       </div>
 

@@ -121,6 +121,24 @@ chatApp.get('/chats/dms',verifyToken,async(req,res)=>{
     res.status(200).json({message:"chats",payload:dmChats})
 })
 
+// search user by email
+chatApp.get("/users/search", verifyToken, async (req, res) => {
+
+  const email = req.query.email;
+
+  const user = await UserModel.findOne({ email });
+
+  if (!user) {
+    return res
+      .status(404)
+      .json({ message: "user not found" });
+  }
+
+  res.status(200).json({
+    payload: user,
+  });
+});
+
 //get channel by channelId
 chatApp.get('/channels',verifyToken,async(req,res)=>{
     //get channelName from req

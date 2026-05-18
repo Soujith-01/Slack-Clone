@@ -121,17 +121,6 @@ chatApp.get('/chats/dms',verifyToken,async(req,res)=>{
     res.status(200).json({message:"chats",payload:dmChats})
 })
 
-<<<<<<< HEAD
-//get channel by channelname
-chatApp.get('/channels',verifyToken,async(req,res)=>{
-    //get channelName from req
-    const { channelName } = req.body
-    //get channel
-    const channel=await chatModel.findOne({type:"channel",channelName:channelName})
-    //check if channel exists
-    if(!channel){
-        return res.status(400).json({messgae:"channel not found"})
-=======
 //get channel by channelName
 chatApp.get('/channels/search',verifyToken,async(req,res)=>{
     // get channelName from query string
@@ -139,7 +128,6 @@ chatApp.get('/channels/search',verifyToken,async(req,res)=>{
 
     if (!name.trim()) {
         return res.status(200).json({ payload: [] });
->>>>>>> f746356892a18785045f7ae3cf9b727ad0273ec3
     }
 
     // search channels by partial name match

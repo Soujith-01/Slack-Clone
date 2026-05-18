@@ -108,7 +108,7 @@ function ChatHeader({ chat }) {
 
             </div>
           )}
-        </Popup>
+        </div>
 
       </div>
     </div>

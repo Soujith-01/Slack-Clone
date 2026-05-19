@@ -1,8 +1,4 @@
-// MessageSender.jsx
-
-import React, {
-  useState,
-} from "react";
+import React, { useState } from "react";
 
 import {
   Send,
@@ -11,26 +7,22 @@ import {
 } from "lucide-react";
 
 import { getSocket } from "../socket";
+import Popup from "reactjs-popup";
 
-function MessageSender({
-  chat,
-  currentUser,
-}) {
+function MessageSender({chat,currentUser}) {
 
-  const [content, setContent] =
-    useState("");
+  const [content, setContent] = useState("");
 
-
-
-  const handleSendMessage = (
-    e
-  ) => {
-
+  // CUSTOM EMOJIS
+  const emojis = [
+    "😀","😂","😍","🔥",
+    "👍","🎉","😎","😭",
+    "❤️","😅","👏","🤝",
+  ];
+  const handleSendMessage = (e) => {
     e.preventDefault();
 
     if (!content.trim()) return;
-
-
 
     // CHANNEL MESSAGE
     if (chat.type === "channel") {
@@ -38,14 +30,9 @@ function MessageSender({
       const socket = getSocket();
 
       if (!socket) {
-
-        console.log(
-          "Socket not connected"
-        );
-
+        console.log("Socket not connected");
         return;
       }
-
       socket.emit(
         "send-channel-message",
         {
@@ -55,31 +42,21 @@ function MessageSender({
       );
     }
 
-
-
     // DM MESSAGE
     if (chat.type === "dm") {
 
       const receiverId =
-        chat.members.find(
-          (member) =>
-            member._id !==
-            currentUser._id
+        chat.members.find((member) =>
+            member._id !== currentUser._id
         )?._id;
 
       const socket = getSocket();
 
       if (!socket) {
-
-        console.log(
-          "Socket not connected"
-        );
-
+        console.log("Socket not connected");
         return;
       }
-
-      socket.emit(
-        "send-dm",
+      socket.emit( "send-dm",
         {
           receiverId,
           content,
@@ -87,24 +64,14 @@ function MessageSender({
         }
       );
     }
-
     setContent("");
   };
-
-
-
   return (
-
-    <form
-      onSubmit={handleSendMessage}
-      className="p-5 bg-[#171A22]/95 backdrop-blur-xl"
-    >
-
-      <div className="flex items-end gap-3 bg-[#111318] border border-[#2A2F3A] rounded-3xl px-4 py-3 shadow-[0_0_25px_rgba(0,0,0,0.25)] focus-within:border-[#4F8CFF] focus-within:shadow-[0_0_30px_rgba(79,140,255,0.15)] transition-all duration-300">
-
+  <form onSubmit={handleSendMessage} className="p-5 bg-[#171A22]/95 backdrop-blur-xl relative overflow-visible">
+      <div className="flex items-end gap-3 bg-[#111318] border border-[#2A2F3A] rounded-3xl px-4 py-3 shadow-[0_0_25px_rgba(0,0,0,0.25)] focus-within:border-[#4F8CFF] focus-within:shadow-[0_0_30px_rgba(79,140,255,0.15)] transition-all duration-300 overflow-visible">
         {/* LEFT ACTIONS */}
-        <div className="flex items-center gap-2 pb-1">
-
+        <div className="flex items-center gap-2 pb-1 relative overflow-visible">
+          {/* ATTACH */}
           <button
             type="button"
             className="w-10 h-10 rounded-2xl bg-[#171A22] hover:bg-[#232734] text-[#9AA4B2] hover:text-[#4F8CFF] flex items-center justify-center transition-all duration-300"
@@ -114,14 +81,58 @@ function MessageSender({
 
           </button>
 
+
+
+          {/* EMOJI BUTTON */}
+<div className="relative">
+
+  <Popup
+  trigger={
+    <button
+      type="button"
+      className="w-10 h-10 rounded-2xl bg-[#171A22] hover:bg-[#232734] text-[#9AA4B2] hover:text-[#4F8CFF] flex items-center justify-center transition-all duration-300"
+    >
+      <SmilePlus size={18} />
+    </button>
+  }
+  position="top left"
+  closeOnDocumentClick
+  arrow={false}
+>
+  {(close) => (
+    <div className="bg-[#1B1F27] border border-[#2A2F3A] shadow-2xl rounded-2xl p-3 w-64">
+
+      <div className="grid grid-cols-6 gap-2">
+
+        {emojis.map((emoji) => (
+
           <button
+            key={emoji}
             type="button"
-            className="w-10 h-10 rounded-2xl bg-[#171A22] hover:bg-[#232734] text-[#9AA4B2] hover:text-[#4F8CFF] flex items-center justify-center transition-all duration-300"
+            onClick={() => {
+
+              setContent(
+                (prev) =>
+                  prev + emoji
+              );
+
+              close();
+            }}
+            className="text-2xl hover:scale-125 transition-transform duration-200 p-1 rounded-lg hover:bg-[#2A2F3A]"
           >
 
-            <SmilePlus size={18} />
+            {emoji}
 
           </button>
+        ))}
+
+      </div>
+
+    </div>
+  )}
+</Popup>
+
+</div>
 
         </div>
 

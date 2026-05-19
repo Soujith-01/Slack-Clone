@@ -11,6 +11,7 @@ import { useLocation } from "react-router";
 import ChatHeader from "./ChatHeader";
 import MessageList from "./MessageList";
 import MessageSender from "./MessageSender";
+import ThreadPanel from "./ThreadPanel";
 
 import { getSocket } from "../socket";
 
@@ -28,37 +29,30 @@ function Chat() {
         state.currentUser
     );
 
-  const [messages, setMessages] =
-    useState([]);
+  const [messages, setMessages] = useState([]);
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
+  const [selectedThread, setSelectedThread] = useState(null);
 
 
   // FETCH OLD MESSAGES
   useEffect(() => {
-
     if (!chat?._id) return;
+    const getMessages = async () => {
+      try {
+        setLoading(true);
+        let res;
+        // CHANNEL
+        if (chat.type === "channel") {
 
-    const getMessages =
-      async () => {
-        try {
-
-          setLoading(true);
-
-          let res;
-
-          // CHANNEL
-          if (chat.type === "channel") {
-
-            res = await axios.get(
-              `http://localhost:3000/message-api/get-channel/${chat._id}`,
-              {
+          res = await axios.get(
+            `http://localhost:3000/message-api/get-channel/${chat._id}`,
+            {
                 withCredentials: true,
-              }
-            );
-          }
+            }
+          );
+        }
 
           // DM
           if (chat.type === "dm") {
@@ -160,6 +154,28 @@ function Chat() {
       }
     );
 
+    socket.on(
+  "receive-thread-message",
+  (reply) => {
+
+    setMessages((prev) =>
+      prev.map((msg) =>
+
+        msg._id?.toString() ===
+        reply.parentMessage?.toString()
+
+          ? {
+              ...msg,
+              threadCount:
+                (msg.threadCount || 0) + 1,
+            }
+
+          : msg
+      )
+    );
+  }
+);
+
     return () => {
 
       socket.off("receive-channel-message");
@@ -169,6 +185,8 @@ function Chat() {
       socket.off("message-edited");
 
       socket.off("reaction-updated");
+
+      socket.off("receive-thread-message");
     };
 
   }, [chat]);
@@ -176,20 +194,17 @@ function Chat() {
 
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-[#0F1117]">
+  <div className="h-full flex overflow-hidden bg-[#0F1117]">
+    {/* MAIN CHAT */}
+    <div className="flex-1 flex flex-col overflow-hidden">
 
       {/* HEADER */}
       <div className="shrink-0 border-b border-[#2A2F3A] bg-[#171A22]/95 backdrop-blur-xl shadow-lg">
-
         <ChatHeader chat={chat} />
-
       </div>
-
       {/* MESSAGES */}
       <div className="flex-1 min-h-0 overflow-hidden bg-[#0F1117]">
-
         {loading ? (
-
           <div className="h-full flex flex-col items-center justify-center bg-[#0F1117]">
 
             {/* LOADER */}
@@ -198,15 +213,17 @@ function Chat() {
             <p className="text-[#8B94A7] text-sm font-medium tracking-wide">
               Loading messages...
             </p>
-
           </div>
-
         ) : (
 
           <MessageList
             messages={messages}
             currentUserId={
               currentUser?._id
+            }
+
+            openThread={
+              setSelectedThread
             }
           />
 
@@ -227,7 +244,24 @@ function Chat() {
       </div>
 
     </div>
-  );
+
+    {/* THREAD PANEL */}
+    {selectedThread && (
+
+      <ThreadPanel
+        thread={selectedThread}
+        chat={chat}
+        currentUser={
+          currentUser
+        }
+        onClose={() =>
+          setSelectedThread(null)
+        }/>
+
+    )}
+
+  </div>
+);
 }
 
 export default Chat;

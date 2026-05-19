@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import {
+  MessageSquare,
   Pencil,
   SmilePlus,
 } from "lucide-react";
@@ -7,6 +8,7 @@ import {
 function MessageList({
   messages = [],
   currentUserId,
+  openThread,
 }) {
   const bottomRef = useRef(null);
 
@@ -62,6 +64,9 @@ function MessageList({
 
                 </button>
 
+                <button onClick={() => openThread(message)} className="hover:bg-[#232734] p-2 rounded-xl text-[#C8D1DC] hover:text-[#6EA4FF] transition-all duration-300">
+                  <MessageSquare size={16} />
+                </button>
                 <button className="hover:bg-[#232734] p-2 rounded-xl text-[#C8D1DC] hover:text-[#6EA4FF] transition-all duration-300">
                   ⋮
                 </button>
@@ -137,22 +142,76 @@ function MessageList({
 
                 {/* MESSAGE TEXT */}
                 {message.content && (
-                  <div
-                    className={`px-4 py-3 rounded-2xl border ${
-                      isMe
-                        ? "bg-gradient-to-br from-[#4F8CFF] to-[#3B6FD8] text-white border-[#5A8FFF]/20 shadow-lg"
-                        : "bg-[#171A22] text-[#D6DCE5] border-[#2A2F3A]"
-                    }`}
-                  >
 
-                    <p className="text-[15px] whitespace-pre-wrap leading-7 font-medium tracking-[0.01em]">
+  <div>
 
-                      {message.content}
+    {/* MESSAGE */}
+    <div
+      className={`px-4 py-3 rounded-2xl border ${
+        isMe
+          ? "bg-gradient-to-br from-[#4F8CFF] to-[#3B6FD8] text-white border-[#5A8FFF]/20 shadow-lg"
+          : "bg-[#171A22] text-[#D6DCE5] border-[#2A2F3A]"
+      }`}
+    >
 
-                    </p>
+      <p className="text-[15px] whitespace-pre-wrap leading-7 font-medium tracking-[0.01em]">
 
-                  </div>
-                )}
+        {message.content}
+
+      </p>
+
+    </div>
+
+
+
+    {/* THREAD PREVIEW */}
+    {message.threadCount > 0 && (
+
+      <button
+        onClick={() =>
+          openThread(message)
+        }
+
+        className="mt-2 flex items-center gap-2 hover:bg-[#171A22] px-2 py-1 rounded-xl transition-all duration-200"
+      >
+
+        {/* SMALL AVATAR */}
+        <div className="w-6 h-6 rounded-md bg-[#4F8CFF] text-white flex items-center justify-center text-xs font-bold">
+
+          {
+            message.sender?.username
+              ?.charAt(0)
+              ?.toUpperCase()
+          }
+
+        </div>
+
+        {/* REPLY COUNT */}
+        <span className="text-[#6EA4FF] text-sm font-medium">
+
+          {message.threadCount} reply
+
+        </span>
+
+        {/* TIME */}
+        <span className="text-[#8B94A7] text-xs">
+
+          Today at{" "}
+
+          {new Date(
+            message.createdAt
+          ).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+
+        </span>
+
+      </button>
+    )}
+
+  </div>
+)}
 
               </div>
             </div>

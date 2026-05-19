@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import Popup from "reactjs-popup";
-<<<<<<< HEAD
-=======
 import axios from "axios";
->>>>>>> f746356892a18785045f7ae3cf9b727ad0273ec3
 
 import {
   ChevronDown,

@@ -7,65 +7,115 @@ export const messageApp = exp.Router();
 
 
 // Get Channel Messages
+// Get Channel Messages
 messageApp.get("/get-channel/:chatId", verifyToken, async (req, res) => {
-    const {chatId}  = req.params;
+
+    const {chatId} = req.params;
 
     // check channel exists
-    const channel = await chatModel.findById(chatId)
+    const channel = await chatModel.findById(chatId);
+
     if (!channel || channel.type !== "channel") {
-      return res.status(404).json({ message: "Channel not found" });
+
+      return res.status(404).json({
+        message: "Channel not found"
+      });
     }
 
     // check if user is part of channel
     if (!channel.members.includes(req.user.userId)) {
-      return res.status(403).json({ message: "Access denied" });
+
+      return res.status(403).json({
+        message: "Access denied"
+      });
     }
 
-    // fetch messages
-   const messages = await MessageModel.find({ channel: channel._id })
-  .populate("sender", "username email")
-  .sort({ createdAt: 1 });
+    // fetch only main messages
+    const messages = await MessageModel.find({
+      channel: channel._id,
+      parentMessage: null,
+    })
 
-  // const onlyMessages = messages.map(msg => msg.content);
-  res.status(200).json({
-    message: "Channel messages fetched",
-    payload: messages
-  })
+    .populate("sender", "username email")
+
+    .sort({
+      createdAt: 1
+    })
+
+    .lean();
+
+    // thread count
+    for (const msg of messages) {
+
+      msg.threadCount =
+        await MessageModel.countDocuments({
+          parentMessage: msg._id
+        });
+    }
+
+    res.status(200).json({
+      message: "Channel messages fetched",
+      payload: messages
+    });
 });
 
 
 // Get DM Messages
+// Get DM Messages
 messageApp.get("/get-dm/:chatId", verifyToken, async (req, res) => {
-    const {chatId}  = req.params;
+
+    const {chatId} = req.params;
 
     const chat = await chatModel.findById(chatId);
 
     if (!chat || chat.type !== "dm") {
-      return res.status(404).json({ message: "it is not a DM" });
+
+      return res.status(404).json({
+        message: "it is not a DM"
+      });
     }
 
     // check if user is part of DM
     if (!chat.members.includes(req.user.userId)) {
-      return res.status(403).json({ message: "Access denied" });
+
+      return res.status(403).json({
+        message: "Access denied"
+      });
     }
 
     const [user1, user2] = chat.members;
 
+    // fetch only main messages
     const messages = await MessageModel.find({
       $or: [
         { sender: user1, receiver: user2 },
         { sender: user2, receiver: user1 }
-      ]
+      ],
+
+      parentMessage: null,
     })
-      .populate("sender", "username email")
-      .sort({ createdAt: 1 });
+
+    .populate("sender", "username email")
+
+    .sort({
+      createdAt: 1
+    })
+
+    .lean();
+
+    // thread count
+    for (const msg of messages) {
+
+      msg.threadCount =
+        await MessageModel.countDocuments({
+          parentMessage: msg._id
+        });
+    }
 
     res.status(200).json({
       message: "DM messages fetched",
       payload: messages
     });
-
-  
 });
 
 
@@ -157,9 +207,11 @@ messageApp.post("/react", verifyToken, async (req, res) => {
   });
 });
 
-//thread replies
+// SEND THREAD REPLY
 messageApp.post("/thread", verifyToken, async (req, res) => {
+
   const { parentMessageId, content, chatId } = req.body;
+
   const userId = req.user.userId;
 
   const reply = await MessageModel.create({
@@ -173,5 +225,23 @@ messageApp.post("/thread", verifyToken, async (req, res) => {
     message: "Reply added",
     payload: reply
   });
+});
+
+
+
+// GET THREAD REPLIES
+messageApp.get("/thread/:messageId", verifyToken, async (req, res) => {
+
+  const replies = await MessageModel.find({
+    parentMessage: req.params.messageId,
+  })
+
+  .populate("sender", "username email")
+
+  .sort({
+    createdAt: 1,
+  });
+
+  res.status(200).json(replies);
 });
 

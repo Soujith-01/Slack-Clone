@@ -1,142 +1,319 @@
 import React, { useState } from "react";
 
+import axios from "axios";
+
+import { toast } from "react-hot-toast";
+
 import {
   Send,
   SmilePlus,
-  Paperclip,
 } from "lucide-react";
 
 import { getSocket } from "../socket";
+
 import Popup from "reactjs-popup";
 
-function MessageSender({chat,currentUser}) {
+import FileTransfer from "./FileTransfer";
 
-  const [content, setContent] = useState("");
+function MessageSender({
+  chat,
+  currentUser,
+}) {
+
+  const [content, setContent] =
+    useState("");
+
+  const [selectedFiles, setSelectedFiles] =
+    useState([]);
+
+  const [sending, setSending] =
+    useState(false);
+
+  const backendUrl =
+    import.meta.env.VITE_BACKEND_URL ||
+    "http://localhost:3000";
 
   // CUSTOM EMOJIS
   const emojis = [
-    "😀","😂","😍","🔥",
-    "👍","🎉","😎","😭",
-    "❤️","😅","👏","🤝",
+    "😀", "😂", "😍", "🔥",
+    "👍", "🎉", "😎", "😭",
+    "❤️", "😅", "👏", "🤝",
   ];
-  const handleSendMessage = (e) => {
-    e.preventDefault();
 
-    if (!content.trim()) return;
+  // FILE UPLOAD
+  const uploadSelectedFiles =
+    async () => {
 
-    // CHANNEL MESSAGE
-    if (chat.type === "channel") {
+      if (
+        selectedFiles.length === 0
+      ) return [];
+
+      const formData =
+        new FormData();
+
+      if (
+        selectedFiles.length === 1
+      ) {
+
+        formData.append(
+          "file",
+          selectedFiles[0]
+        );
+
+      } else {
+
+        selectedFiles.forEach(
+          (file) =>
+            formData.append(
+              "files",
+              file
+            )
+        );
+      }
+
+      const url =
+        selectedFiles.length === 1
+          ? `${backendUrl}/fileTranser-api`
+          : `${backendUrl}/fileTranser-api/multiple`;
+
+      const res = await axios.post(
+        url,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type":
+              "multipart/form-data",
+          },
+        }
+      );
+
+      if (!res.data?.success) {
+
+        throw new Error(
+          res.data?.message ||
+          "Upload failed"
+        );
+      }
+
+      return selectedFiles.length === 1
+        ? [res.data.file]
+        : res.data.files;
+    };
+
+  const handleSendMessage =
+    async (e) => {
+
+      e.preventDefault();
+
+      if (
+        !content.trim() &&
+        selectedFiles.length === 0
+      ) return;
 
       const socket = getSocket();
 
       if (!socket) {
-        console.log("Socket not connected");
+
+        console.log(
+          "Socket not connected"
+        );
+
         return;
       }
-      socket.emit(
-        "send-channel-message",
-        {
-          channelId: chat._id,
-          content,
-        }
-      );
-    }
-
-    // DM MESSAGE
-    if (chat.type === "dm") {
 
       const receiverId =
-        chat.members.find((member) =>
-            member._id !== currentUser._id
-        )?._id;
+        chat.type === "dm"
+          ? chat.members.find(
+              (member) =>
+                member._id !==
+                currentUser._id
+            )?._id
+          : undefined;
 
-      const socket = getSocket();
+      // TEXT MESSAGE
+      const sendTextMessage =
+        () => {
 
-      if (!socket) {
-        console.log("Socket not connected");
-        return;
-      }
-      socket.emit( "send-dm",
-        {
-          receiverId,
-          content,
-          chatId: chat._id,
+          if (
+            !content.trim()
+          ) return;
+
+          if (
+            chat.type === "channel"
+          ) {
+
+            socket.emit(
+              "send-channel-message",
+              {
+                channelId:
+                  chat._id,
+                content,
+              }
+            );
+          }
+
+          if (
+            chat.type === "dm"
+          ) {
+
+            socket.emit(
+              "send-dm",
+              {
+                receiverId,
+                content,
+                chatId:
+                  chat._id,
+              }
+            );
+          }
+        };
+
+      try {
+
+        setSending(true);
+
+        // FILE MESSAGE
+        if (
+          selectedFiles.length > 0
+        ) {
+
+          const uploadedFiles =
+            await uploadSelectedFiles();
+
+          const attachments =
+            uploadedFiles.map(
+              (file) => ({
+                url: file.url,
+                name:
+                  file.fileName,
+                type: file.type,
+              })
+            );
+
+          socket.emit(
+            "send-file",
+            {
+              chatId:
+                chat._id,
+              chatType:
+                chat.type,
+              receiverId,
+              content:
+                content.trim(),
+              attachments,
+            }
+          );
+
+        } else {
+
+          sendTextMessage();
         }
-      );
-    }
-    setContent("");
-  };
+
+        setContent("");
+        setSelectedFiles([]);
+
+      } catch (err) {
+
+        console.error(err);
+
+        toast.error(
+          err.response?.data
+            ?.message ||
+          err.message ||
+          "Send failed"
+        );
+
+      } finally {
+
+        setSending(false);
+      }
+    };
+
   return (
-  <form onSubmit={handleSendMessage} className="p-5 bg-[#171A22]/95 backdrop-blur-xl relative overflow-visible">
-      <div className="flex items-end gap-3 bg-[#111318] border border-[#2A2F3A] rounded-3xl px-4 py-3 shadow-[0_0_25px_rgba(0,0,0,0.25)] focus-within:border-[#4F8CFF] focus-within:shadow-[0_0_30px_rgba(79,140,255,0.15)] transition-all duration-300 overflow-visible">
-        {/* LEFT ACTIONS */}
-        <div className="flex items-center gap-2 pb-1 relative overflow-visible">
-          {/* ATTACH */}
-          <button
-            type="button"
-            className="w-10 h-10 rounded-2xl bg-[#171A22] hover:bg-[#232734] text-[#9AA4B2] hover:text-[#4F8CFF] flex items-center justify-center transition-all duration-300"
-          >
 
-            <Paperclip size={18} />
-
-          </button>
-
-
-
-          {/* EMOJI BUTTON */}
-<div className="relative">
-
-  <Popup
-  trigger={
-    <button
-      type="button"
-      className="w-10 h-10 rounded-2xl bg-[#171A22] hover:bg-[#232734] text-[#9AA4B2] hover:text-[#4F8CFF] flex items-center justify-center transition-all duration-300"
+    <form
+      onSubmit={
+        handleSendMessage
+      }
+      className="p-5 bg-[#171A22]/95 backdrop-blur-xl relative overflow-visible"
     >
-      <SmilePlus size={18} />
-    </button>
-  }
-  position="top left"
-  closeOnDocumentClick
-  arrow={false}
->
-  {(close) => (
-    <div className="bg-[#1B1F27] border border-[#2A2F3A] shadow-2xl rounded-2xl p-3 w-64">
 
-      <div className="grid grid-cols-6 gap-2">
+      <div className="flex items-end gap-3 bg-[#111318] border border-[#2A2F3A] rounded-3xl px-4 py-3 shadow-[0_0_25px_rgba(0,0,0,0.25)] focus-within:border-[#4F8CFF] focus-within:shadow-[0_0_30px_rgba(79,140,255,0.15)] transition-all duration-300 overflow-visible">
 
-        {emojis.map((emoji) => (
+        {/* LEFT ACTIONS */}
+        <div className="flex items-center gap-2 pb-1">
 
-          <button
-            key={emoji}
-            type="button"
-            onClick={() => {
+          {/* FILE TRANSFER */}
+          <FileTransfer
+            selectedFiles={
+              selectedFiles
+            }
+            onFilesChange={
+              setSelectedFiles
+            }
+          />
 
-              setContent(
-                (prev) =>
-                  prev + emoji
-              );
+          {/* EMOJI */}
+          <div className="relative">
 
-              close();
-            }}
-            className="text-2xl hover:scale-125 transition-transform duration-200 p-1 rounded-lg hover:bg-[#2A2F3A]"
-          >
+            <Popup
+              trigger={
+                <button
+                  type="button"
+                  className="w-10 h-10 rounded-2xl bg-[#171A22] hover:bg-[#232734] text-[#9AA4B2] hover:text-[#4F8CFF] flex items-center justify-center transition-all duration-300"
+                >
+                  <SmilePlus
+                    size={18}
+                  />
+                </button>
+              }
+              position="top left"
+              closeOnDocumentClick
+              arrow={false}
+            >
 
-            {emoji}
+              {(close) => (
 
-          </button>
-        ))}
+                <div className="bg-[#1B1F27] border border-[#2A2F3A] shadow-2xl rounded-2xl p-3 w-64">
 
-      </div>
+                  <div className="grid grid-cols-6 gap-2">
 
-    </div>
-  )}
-</Popup>
+                    {emojis.map(
+                      (emoji) => (
 
-</div>
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => {
+
+                            setContent(
+                              (prev) =>
+                                prev +
+                                emoji
+                            );
+
+                            close();
+                          }}
+                          className="text-2xl hover:scale-125 transition-transform duration-200 p-1 rounded-lg hover:bg-[#2A2F3A]"
+                        >
+
+                          {emoji}
+
+                        </button>
+                      )
+                    )}
+
+                  </div>
+
+                </div>
+              )}
+
+            </Popup>
+
+          </div>
 
         </div>
-
-
 
         {/* INPUT */}
         <textarea
@@ -151,7 +328,8 @@ function MessageSender({chat,currentUser}) {
           }
 
           placeholder={`Message ${
-            chat?.type === "channel"
+            chat?.type ===
+            "channel"
               ? `#${chat?.channelName}`
               : chat?.channelName
           }`}
@@ -167,20 +345,29 @@ function MessageSender({chat,currentUser}) {
 
               e.preventDefault();
 
-              handleSendMessage(e);
+              handleSendMessage(
+                e
+              );
             }
           }}
         />
-
-
 
         {/* SEND BUTTON */}
         <button
           type="submit"
 
+          disabled={
+            sending ||
+            (
+              !content.trim() &&
+              selectedFiles.length === 0
+            )
+          }
+
           className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-lg ${
-            content.trim()
-              ? "bg-gradient-to-br from-[#4F8CFF] to-[#3B6FD8] text-white hover:scale-105 shadow-[0_0_25px_rgba(79,140,255,0.35)]"
+            content.trim() ||
+            selectedFiles.length > 0
+              ? "bg-[linear-gradient(135deg,#4F8CFF,#3B6FD8)] text-white hover:scale-105 shadow-[0_0_25px_rgba(79,140,255,0.35)]"
               : "bg-[#232734] text-[#6F7887] cursor-not-allowed"
           }`}
         >

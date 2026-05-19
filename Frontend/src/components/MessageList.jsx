@@ -213,6 +213,35 @@ function MessageList({
   </div>
 )}
 
+                {/* ATTACHMENTS */}
+                {message.attachments && message.attachments.length > 0 && (
+                  <div className="mt-2 flex flex-col gap-2">
+                    {message.attachments.map((att, i) => {
+                      const isImage = att.type?.startsWith?.("image");
+                      return (
+                        <div key={i}>
+                          {isImage ? (
+                            <img
+                              src={att.url}
+                              alt={att.name || "attachment"}
+                              className="max-w-[300px] rounded-xl border border-[#2A2F3A]"
+                            />
+                          ) : (
+                            <a
+                              href={att.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-block px-3 py-2 bg-[#0E1114] rounded-xl text-sm text-[#9AA4B2] border border-[#2A2F3A]"
+                            >
+                              {att.name || att.url}
+                            </a>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
               </div>
             </div>
           </div>

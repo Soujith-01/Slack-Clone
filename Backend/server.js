@@ -41,6 +41,7 @@ app.use('/chat-api',chatApp)
 app.use("/message-api", messageApp);
 app.use("/fileTranser-api",fileTransferApp)
 app.use("/auth",googleAuthRoute)
+app.use("/uploads", exp.static("uploads"));
 
 //socket server
 const io = new Server(server, {

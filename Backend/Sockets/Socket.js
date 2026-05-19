@@ -225,4 +225,101 @@ export const setupSocket = (io) => {
       );
     });
   });
+
+  //Edit message
+  socket.on("edit-message", async ({ messageId, newContent }) => {
+  const userId = socket.user.userId;
+
+  const message = await MessageModel.findById(messageId);
+
+  if (message.sender.toString() !== userId) return;
+
+  message.content = newContent;
+  message.isEdited = true;
+  message.editedAt = new Date();
+
+  await message.save();
+
+  io.emit("message-edited", message);
+});
+
+
+//thread replies
+socket.on("send-thread-message", async ({ parentMessageId, content, chatId }) => {
+  const userId = socket.user.userId;
+
+  const reply = await MessageModel.create({
+    sender: userId,
+    content,
+    channel: chatId,
+    parentMessage: parentMessageId
+  });
+
+  io.to(chatId).emit("receive-thread-message", reply);
+});
+
+//file transfer
+socket.on(
+  "send-file",
+  async ({ chatId, chatType, receiverId, attachments, content, fileUrl, fileName, fileType }) => {
+    const userId = socket.user.userId;
+
+    try {
+      // Support both older payload shape (fileUrl/fileName/fileType)
+      // and newer payload that sends an `attachments` array from frontend.
+      const effectiveAttachments =
+        Array.isArray(attachments) && attachments.length > 0
+          ? attachments.map((a) => ({ url: a.url, name: a.name || a.fileName, type: a.type }))
+          : fileUrl
+          ? [
+              {
+                url: fileUrl,
+                name: fileName,
+                type: fileType,
+              },
+            ]
+          : [];
+
+      const messageData = {
+        sender: userId,
+        content: content || "",
+        attachments: effectiveAttachments,
+      };
+
+      if (chatType === "dm") {
+        messageData.receiver = receiverId;
+      } else {
+        messageData.channel = chatId;
+      }
+      console.log(messageData)
+      const message = await MessageModel.create(messageData);
+
+      // update latest message
+      await chatModel.findByIdAndUpdate(chatId, {
+        latestMessage: message._id,
+      });
+
+      const populatedMessage = await MessageModel.findById(message._id).populate("sender", "username email");
+
+      // send to the correct room/event
+      if (chatType === "dm") {
+        const receiverSocket = onlineUsers[receiverId];
+        if (receiverSocket) {
+          io.to(receiverSocket).emit("receive-dm", populatedMessage);
+        }
+
+        socket.emit("receive-dm", populatedMessage);
+      } else {
+        io.to(chatId).emit("receive-channel-message", populatedMessage);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+);
+    // Disconnect
+socket.on("disconnect", () => {
+    delete onlineUsers[userId];
+    console.log("User disconnected:", userId);
+  });
 };

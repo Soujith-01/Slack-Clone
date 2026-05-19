@@ -116,6 +116,17 @@ function Chat() {
     );
 
     socket.on(
+      "receive-message",
+      (message) => {
+
+        setMessages((prev) => [
+          ...prev,
+          message,
+        ]);
+      }
+    );
+
+    socket.on(
       "receive-dm",
       (message) => {
 
@@ -181,6 +192,8 @@ function Chat() {
       socket.off("receive-channel-message");
 
       socket.off("receive-dm");
+
+      socket.off("receive-message");
 
       socket.off("message-edited");
 

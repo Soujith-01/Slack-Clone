@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../store/authStore";
 
 const backendUrl =
-  import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+  import.meta.env.VITE_BACKEND_URL ||
+  "http://localhost:3000";
 
 function AppearanceSettings() {
 
@@ -15,26 +16,27 @@ function AppearanceSettings() {
     (state) => state.updateCurrentUser
   );
 
-  const [darkMode, setDarkMode] = useState(
-    currentUser?.preferences?.darkMode || false
-  );
-
   const [compactMode, setCompactMode] = useState(
     currentUser?.preferences?.compactMode ?? false
   );
 
   useEffect(() => {
-    setDarkMode(currentUser?.preferences?.darkMode ?? false);
-    setCompactMode(currentUser?.preferences?.compactMode ?? false);
+
+    setCompactMode(
+      currentUser?.preferences?.compactMode ?? false
+    );
+
   }, [currentUser]);
 
-  // apply dark mode instantly
+  // apply compact mode instantly
   useEffect(() => {
 
-    document.documentElement.classList.toggle("dark", darkMode);
-    document.documentElement.classList.toggle("compact", compactMode);
+    document.documentElement.classList.toggle(
+      "compact",
+      compactMode
+    );
 
-  }, [darkMode, compactMode]);
+  }, [compactMode]);
 
   // update preferences
   const updatePreferences = async (
@@ -65,19 +67,6 @@ function AppearanceSettings() {
     }
   };
 
-  // dark mode toggle
-  const handleDarkMode = async () => {
-
-    const updatedValue = !darkMode;
-
-    setDarkMode(updatedValue);
-
-    await updatePreferences({
-      darkMode: updatedValue,
-      compactMode,
-    });
-  };
-
   // compact mode toggle
   const handleCompactMode = async () => {
 
@@ -86,67 +75,68 @@ function AppearanceSettings() {
     setCompactMode(updatedValue);
 
     await updatePreferences({
-      darkMode,
       compactMode: updatedValue,
     });
   };
 
   return (
-  <div className="bg-white dark:bg-zinc-900 border border-[#e5e7eb] dark:border-zinc-800 rounded-3xl p-6 compact:p-5 shadow-sm text-black dark:text-zinc-100 transition-colors">
+    <div className="bg-[#171A22] border border-[#2A2F3A] rounded-[28px] p-7 shadow-2xl text-[#E8ECF3] transition-all duration-300">
 
-    <h2 className="text-2xl font-semibold mb-6 compact:mb-5 text-[#111827] dark:text-zinc-100">
-      Appearance Settings
-    </h2>
+      {/* TITLE */}
+      <div className="mb-7">
 
-    <div className="space-y-6 compact:space-y-4">
+        <h2 className="text-2xl font-black tracking-tight">
+          Appearance Settings
+        </h2>
 
-      {/* DARK MODE */}
-      <div className="flex items-center justify-between">
-
-        <div>
-          <p className="font-medium text-[#111827] dark:text-zinc-100">
-            Dark Mode
-          </p>
-
-          <p className="text-sm text-gray-500 dark:text-zinc-400">
-            Switch between light and dark theme
-          </p>
-        </div>
-
-        <input
-          type="checkbox"
-          checked={darkMode}
-          onChange={handleDarkMode}
-          className="w-5 h-5 accent-sky-600"
-        />
+        <p className="text-sm text-[#8B94A7] mt-2">
+          Customize your workspace appearance
+        </p>
 
       </div>
 
-      {/* COMPACT MODE */}
-      <div className="flex items-center justify-between">
+      <div className="space-y-5">
 
-        <div>
-          <p className="font-medium text-[#111827] dark:text-zinc-100">
-            Compact Mode
-          </p>
+        {/* COMPACT MODE */}
+        <div className="flex items-center justify-between bg-[#0F1117] border border-[#2A2F3A] rounded-2xl px-5 py-4">
 
-          <p className="text-sm text-gray-500 dark:text-zinc-400">
-            Reduce spacing in chats and UI
-          </p>
+          <div>
+
+            <p className="font-semibold text-[#E8ECF3]">
+              Compact Mode
+            </p>
+
+            <p className="text-sm text-[#8B94A7] mt-1">
+              Reduce spacing in chats and UI
+            </p>
+
+          </div>
+
+          <button
+            onClick={handleCompactMode}
+            className={`relative w-14 h-8 rounded-full transition-all duration-300 ${
+              compactMode
+                ? "bg-gradient-to-r from-[#4F8CFF] to-[#3B6FD8]"
+                : "bg-[#2A2F3A]"
+            }`}
+          >
+
+            <div
+              className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all duration-300 ${
+                compactMode
+                  ? "translate-x-7"
+                  : "translate-x-1"
+              }`}
+            />
+
+          </button>
+
         </div>
-
-        <input
-          type="checkbox"
-          checked={compactMode}
-          onChange={handleCompactMode}
-          className="w-5 h-5 accent-sky-600"
-        />
 
       </div>
 
     </div>
-  </div>
-);
+  );
 }
 
 export default AppearanceSettings;

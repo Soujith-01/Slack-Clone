@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import Popup from "reactjs-popup";
-<<<<<<< HEAD
-=======
 import axios from "axios";
->>>>>>> f746356892a18785045f7ae3cf9b727ad0273ec3
 
 import {
   ChevronDown,
@@ -221,7 +218,7 @@ function DMs({ dmList, user }) {
 
                 <button
                   onClick={close}
-                  className="p-1 rounded hover:bg-gray-100 transition"
+                  className="p-1 rounded hover:bg-gracleary-100 transition"
                 >
                   <X size={18} />
                 </button>

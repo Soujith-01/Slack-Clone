@@ -39,7 +39,7 @@ app.use(cookieParser())
 app.use('/user-api',userApp)
 app.use('/chat-api',chatApp)
 app.use("/message-api", messageApp);
-app.use("/fileTranser-api",fileTransferApp)
+app.use("/fileTransfer-api",fileTransferApp)
 app.use("/auth",googleAuthRoute)
 app.use("/uploads", exp.static("uploads"));
 

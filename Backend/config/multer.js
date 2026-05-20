@@ -9,10 +9,15 @@ export const upload = multer({
   },
   //for security validation
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+    const allowedTypes = ["image/jpeg","image/png","application/pdf", "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ];
+    if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      const err = new Error("Only JPG and PNG allowed");
+      const err = new Error("Unsupported file type");
       err.status = 400;
       cb(err, false);
     }

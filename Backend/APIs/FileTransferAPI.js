@@ -73,7 +73,10 @@ fileTransferApp.post("/",verifyToken,upload.single("file"),async (req, res) => {
             cloudinary.uploader.upload_stream(
               {
                 folder: "slack-clone-files",
-                resource_type: "auto",
+                 resource_type:
+                 file.mimetype === "application/pdf"
+                 ? "raw"
+                 : "auto",
               },
               (error, result) => {
                 if (error) {
@@ -122,7 +125,10 @@ fileTransferApp.post("/multiple",verifyToken,upload.array("files", 5),async (req
               cloudinary.uploader.upload_stream(
                 {
                   folder: "slack-clone-files",
-                  resource_type: "auto",
+                  resource_type:
+                  file.mimetype === "application/pdf"
+                  ? "raw"
+                  : "auto",
                 },
                 (error, result) => {
                   if (error) {

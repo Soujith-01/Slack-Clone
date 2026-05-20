@@ -10,7 +10,6 @@ const chatSchema = new Schema(
 
     channelName: {
       type: String,
-      required: [true, "channel name is required"],
       unique: true,
     },
 

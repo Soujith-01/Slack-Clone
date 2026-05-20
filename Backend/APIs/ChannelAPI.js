@@ -164,6 +164,47 @@ chatApp.get('/channels/search',verifyToken,async(req,res)=>{
     })
 })
 
+// SEARCH USER BY EMAIL
+chatApp.get(
+  "/users/search",
+  verifyToken,
+  async (req, res, next) => {
+
+      const { email } = req.query;
+
+      if (!email) {
+
+        const err = new Error(
+          "Email is required"
+        );
+
+        err.status = 400;
+
+        return next(err);
+      }
+
+      const user = await UserModel
+        .findOne({ email })
+        .select("-password");
+
+      if (!user) {
+
+        const err = new Error(
+          "User not found"
+        );
+
+        err.status = 404;
+
+        return next(err);
+      }
+
+      res.status(200).json({
+        success: true,
+        payload: user,
+      });
+  }
+);
+
 //update channel name
 chatApp.patch('/channel', verifyToken, async (req, res) => {
 

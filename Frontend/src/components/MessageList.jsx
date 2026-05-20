@@ -273,44 +273,51 @@ function MessageList({messages = [], currentUserId,openThread,}) {
             </a>
           )}
 
-          {/* PDF PREVIEW */}
+
           {/* PDF PREVIEW */}
 {isPDF && (
 
   <div className="flex flex-col gap-2">
 
-    <a
-      href={att.url}
-      target="_blank"
-      rel="noreferrer"
-      className="w-[320px] h-[180px] rounded-2xl border border-[#2A2F3A] bg-[#171A22] flex flex-col items-center justify-center hover:bg-[#232734] transition-all"
-    >
+    {/* PDF PREVIEW */}
+    <iframe
+      src={`${att.url}#toolbar=0`}
+      title={att.name}
+      className="w-[320px] h-[420px] rounded-2xl border border-[#2A2F3A] bg-white"
+    />
 
-      <div className="text-5xl">
-        📕
-      </div>
+    {/* ACTIONS */}
+    <div className="flex gap-2">
 
-      <p className="mt-3 text-sm text-[#E7ECF5] font-medium text-center px-4 break-all">
-        {att.name}
-      </p>
+      <a
+        href={att.url}
+        target="_blank"
+        rel="noreferrer"
+        className="px-4 py-2 bg-[#171A22] border border-[#2A2F3A] rounded-xl text-white text-sm"
+      >
+        Open
+      </a>
 
-      <span className="mt-2 text-xs text-[#6EA4FF]">
-        Click to Open PDF
-      </span>
+      <a
+        href={
+          att.url.includes("/raw/upload/")
+            ? att.url.replace(
+                "/raw/upload/",
+                "/raw/upload/fl_attachment/"
+              )
+            : att.url.replace(
+                "/upload/",
+                "/upload/fl_attachment/"
+              )
+        }
+        target="_blank"
+        rel="noreferrer"
+        className="px-4 py-2 bg-[#4F8CFF] rounded-xl text-white text-sm"
+      >
+        Download
+      </a>
 
-    </a>
-
-    <a
-      href={att.url.replace(
-        "/upload/",
-        "/upload/fl_attachment/"
-      )}
-      target="_blank"
-      rel="noreferrer"
-      className="px-4 py-2 bg-[#4F8CFF] text-white rounded-xl text-sm w-fit hover:scale-105 transition-all"
-    >
-      Download PDF
-    </a>
+    </div>
 
   </div>
 )}
@@ -336,7 +343,17 @@ function MessageList({messages = [], currentUserId,openThread,}) {
               </div>
 
               <a
-                href={att.url}
+                href={
+  att.url.includes("/raw/upload/")
+    ? att.url.replace(
+        "/raw/upload/",
+        "/raw/upload/fl_attachment/"
+      )
+    : att.url.replace(
+        "/upload/",
+        "/upload/fl_attachment/"
+      )
+}
                 target="_blank"
                 rel="noreferrer"
                 download

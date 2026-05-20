@@ -47,12 +47,17 @@ const messageSchema = new Schema(
    //file or image attachments
     attachments: [
       {
-        url: String,
-        type: String,
-        name: String,
+        url: {
+          type: String,
+        },
+        type: {
+          type: String,
+        },
+        name: {
+          type: String,
+        },
       },
     ],
-
     //editing messages
     isEdited: {
       type: Boolean,

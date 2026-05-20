@@ -1,97 +1,120 @@
-// MessageSender.jsx
-
-import React, {
-  useState,
-} from "react";
-
-import {
-  Send,
-  SmilePlus,
-  Paperclip,
-} from "lucide-react";
-
+import React, { useState } from "react";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+import { Send, SmilePlus } from "lucide-react";
 import { getSocket } from "../socket";
+import FileTransfer from "./FileTransfer";
 
 function MessageSender({
   chat,
   currentUser,
 }) {
 
-  const [content, setContent] =
-    useState("");
+  const [content, setContent] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [sending, setSending] = useState(false);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
+  const uploadSelectedFiles = async () => {
+    if (selectedFiles.length === 0) return [];
 
+    const formData = new FormData();
+    if (selectedFiles.length === 1) {
+      formData.append("file", selectedFiles[0]);
+    } else {
+      selectedFiles.forEach((file) => formData.append("files", file));
+    }
+
+    const url =
+      selectedFiles.length === 1
+        ? `${backendUrl}/fileTranser-api`
+        : `${backendUrl}/fileTranser-api/multiple`;
+
+    const res = await axios.post(url, formData, {
+      withCredentials: true,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    if (!res.data?.success) {
+      throw new Error(res.data?.message || "Upload failed");
+    }
+
+    return selectedFiles.length === 1 ? [res.data.file] : res.data.files;
+  };
 
   const handleSendMessage = (
     e
   ) => {
-
     e.preventDefault();
+    if (!content.trim() && selectedFiles.length === 0) return;
 
-    if (!content.trim()) return;
-
-
-
-    // CHANNEL MESSAGE
-    if (chat.type === "channel") {
-
-      const socket = getSocket();
-
-      if (!socket) {
-
-        console.log(
-          "Socket not connected"
-        );
-
-        return;
-      }
-
-      socket.emit(
-        "send-channel-message",
-        {
-          channelId: chat._id,
-          content,
-        }
-      );
+    const socket = getSocket();
+    if (!socket) {
+      console.log("Socket not connected");
+      return;
     }
 
+    const receiverId =
+      chat.type === "dm"
+        ? chat.members.find(
+            (member) => member._id !== currentUser._id
+          )?._id
+        : undefined;
 
+    const sendTextMessage = () => {
+      if (!content.trim()) return;
 
-    // DM MESSAGE
-    if (chat.type === "dm") {
-
-      const receiverId =
-        chat.members.find(
-          (member) =>
-            member._id !==
-            currentUser._id
-        )?._id;
-
-      const socket = getSocket();
-
-      if (!socket) {
-
-        console.log(
-          "Socket not connected"
-        );
-
-        return;
+      if (chat.type === "channel") {
+        socket.emit("send-channel-message", {
+          channelId: chat._id,
+          content,
+        });
       }
 
-      socket.emit(
-        "send-dm",
-        {
+      if (chat.type === "dm") {
+        socket.emit("send-dm", {
           receiverId,
           content,
           chatId: chat._id,
+        });
+      }
+    };
+
+    const submitMessage = async () => {
+      try {
+        setSending(true);
+
+        if (selectedFiles.length > 0) {
+          const uploadedFiles = await uploadSelectedFiles();
+          const attachments = uploadedFiles.map((file) => ({
+            url: file.url,
+            name: file.fileName,
+            type: file.type,
+          }));
+
+          socket.emit("send-file", {
+            chatId: chat._id,
+            chatType: chat.type,
+            receiverId,
+            content: content.trim(),
+            attachments,
+          });
+        } else {
+          sendTextMessage();
         }
-      );
-    }
 
-    setContent("");
+        setContent("");
+        setSelectedFiles([]);
+      } catch (err) {
+        console.error(err);
+        toast.error(err.response?.data?.message || err.message || "Send failed");
+      } finally {
+        setSending(false);
+      }
+    };
+
+    submitMessage();
   };
-
-
 
   return (
 
@@ -104,15 +127,10 @@ function MessageSender({
 
         {/* LEFT ACTIONS */}
         <div className="flex items-center gap-2 pb-1">
-
-          <button
-            type="button"
-            className="w-10 h-10 rounded-2xl bg-[#171A22] hover:bg-[#232734] text-[#9AA4B2] hover:text-[#4F8CFF] flex items-center justify-center transition-all duration-300"
-          >
-
-            <Paperclip size={18} />
-
-          </button>
+          <FileTransfer
+            selectedFiles={selectedFiles}
+            onFilesChange={setSelectedFiles}
+          />
 
           <button
             type="button"
@@ -125,8 +143,6 @@ function MessageSender({
 
         </div>
 
-
-
         {/* INPUT */}
         <textarea
           rows={1}
@@ -138,7 +154,6 @@ function MessageSender({
               e.target.value
             )
           }
-
           placeholder={`Message ${
             chat?.type === "channel"
               ? `#${chat?.channelName}`
@@ -166,10 +181,11 @@ function MessageSender({
         {/* SEND BUTTON */}
         <button
           type="submit"
+          disabled={sending || (!content.trim() && selectedFiles.length === 0)}
 
           className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-lg ${
-            content.trim()
-              ? "bg-gradient-to-br from-[#4F8CFF] to-[#3B6FD8] text-white hover:scale-105 shadow-[0_0_25px_rgba(79,140,255,0.35)]"
+            content.trim() || selectedFiles.length > 0
+              ? "bg-[linear-gradient(135deg,#4F8CFF,#3B6FD8)] text-white hover:scale-105 shadow-[0_0_25px_rgba(79,140,255,0.35)]"
               : "bg-[#232734] text-[#6F7887] cursor-not-allowed"
           }`}
         >

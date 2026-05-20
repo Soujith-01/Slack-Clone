@@ -165,34 +165,64 @@ socket.on("send-thread-message", async ({ parentMessageId, content, chatId }) =>
 });
 
 //file transfer
-socket.on("send-file", async ({ chatId, fileUrl, fileName, fileType }) => {
-  const userId = socket.user.userId;
+socket.on(
+  "send-file",
+  async ({ chatId, chatType, receiverId, attachments, content, fileUrl, fileName, fileType }) => {
+    const userId = socket.user.userId;
 
-  try {
-    const message = await MessageModel.create({
-      sender: userId,
-      channel: chatId,
-      attachments: [
-        {
-          url: fileUrl,
-          name: fileName,
-          type: fileType
+    try {
+      // Support both older payload shape (fileUrl/fileName/fileType)
+      // and newer payload that sends an `attachments` array from frontend.
+      const effectiveAttachments =
+        Array.isArray(attachments) && attachments.length > 0
+          ? attachments.map((a) => ({ url: a.url, name: a.name || a.fileName, type: a.type }))
+          : fileUrl
+          ? [
+              {
+                url: fileUrl,
+                name: fileName,
+                type: fileType,
+              },
+            ]
+          : [];
+
+      const messageData = {
+        sender: userId,
+        content: content || "",
+        attachments: effectiveAttachments,
+      };
+
+      if (chatType === "dm") {
+        messageData.receiver = receiverId;
+      } else {
+        messageData.channel = chatId;
+      }
+      console.log(messageData)
+      const message = await MessageModel.create(messageData);
+
+      // update latest message
+      await chatModel.findByIdAndUpdate(chatId, {
+        latestMessage: message._id,
+      });
+
+      const populatedMessage = await MessageModel.findById(message._id).populate("sender", "username email");
+
+      // send to the correct room/event
+      if (chatType === "dm") {
+        const receiverSocket = onlineUsers[receiverId];
+        if (receiverSocket) {
+          io.to(receiverSocket).emit("receive-dm", populatedMessage);
         }
-      ]
-    });
 
-    // update latest message
-    await chatModel.findByIdAndUpdate(chatId, {
-      latestMessage: message._id
-    });
-
-    // send to channel
-    io.to(chatId).emit("receive-message", message);
-
-  } catch (err) {
-    console.log("File send error:", err.message);
+        socket.emit("receive-dm", populatedMessage);
+      } else {
+        io.to(chatId).emit("receive-channel-message", populatedMessage);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   }
-});
+);
     // Disconnect
 socket.on("disconnect", () => {
     delete onlineUsers[userId];

@@ -142,15 +142,13 @@ chatApp.get('/chats/dms', verifyToken, async (req, res) => {
     })
 })
 
-//search channels
-chatApp.get('/channels/search', verifyToken, async (req, res) => {
-
+//get channel by channelName
+chatApp.get('/channels/search',verifyToken,async(req,res)=>{
+    // get channelName from query string
     const { name = "" } = req.query;
 
     if (!name.trim()) {
-        return res.status(200).json({
-            payload: []
-        });
+        return res.status(200).json({ payload: [] });
     }
 
     const channels = await chatModel.find({

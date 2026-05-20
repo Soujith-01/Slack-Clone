@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 
-function Channels({ channelList, setChannelList }) {
+function Channels({ channelList, setChannelList, unreadChatIds, clearUnread }) {
 
   const navigate = useNavigate();
 
@@ -234,11 +234,12 @@ function Channels({ channelList, setChannelList }) {
 
             <div
               key={chat._id}
-              onClick={() =>
+              onClick={() => {
+                clearUnread(chat._id);
                 navigate("/chat-window/Chat", {
                   state: { chat },
-                })
-              }
+                });
+              }}
               className={`flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition-all duration-300 border ${
                 chat.channelName === "plan"
                   ? "bg-gradient-to-r from-[#4F8CFF] to-[#3B6FD8] border-[#5A8FFF]/30 text-white shadow-lg"
@@ -252,9 +253,15 @@ function Channels({ channelList, setChannelList }) {
                 <Hash size={16} />
               )}
 
-              <p className="text-[15px] font-semibold truncate tracking-wide">
-                {chat.channelName}
-              </p>
+              <div className="flex items-center gap-2 min-w-0">
+                <p className="text-[15px] font-semibold truncate tracking-wide">
+                  {chat.channelName}
+                </p>
+
+                {unreadChatIds[chat._id] && (
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#4F8CFF] shadow-[0_0_0_4px_rgba(79,140,255,0.18)]"></span>
+                )}
+              </div>
 
             </div>
           ))
@@ -469,7 +476,7 @@ function Channels({ channelList, setChannelList }) {
         >
           {(close) => (
 
-            <div className="bg-white w-[500px] rounded-2xl p-6 shadow-2xl relative">
+            <div className="bg-[#171A22] w-[500px] rounded-2xl p-6 shadow-2xl relative text-[#D6DCE5] border border-[#2A2F3A]">
 
               {/* CLOSE BUTTON */}
               <button
@@ -485,22 +492,22 @@ function Channels({ channelList, setChannelList }) {
               </button>
 
               {/* TITLE */}
-              <h2 className="text-2xl font-semibold mb-2">
+              <h2 className="text-2xl font-semibold mb-2 text-[#E8ECF3]">
                 Search Channels
               </h2>
 
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-[#8B94A7] mb-6">
                 Search and join channels in your workspace
               </p>
 
               {/* SEARCH INPUT */}
               <div className="mb-5">
 
-                <div className="flex items-center gap-3 border border-gray-300 rounded-xl px-4 py-3 focus-within:border-black transition">
+                <div className="flex items-center gap-3 border border-[#2A2F3A] rounded-xl bg-[#0F1117] px-4 py-3 focus-within:border-[#4F8CFF] transition">
 
                   <Search
                     size={18}
-                    className="text-gray-400"
+                    className="text-[#8B94A7]"
                   />
 
                   <input
@@ -511,7 +518,7 @@ function Channels({ channelList, setChannelList }) {
                     onChange={(e) =>
                       setSearchTerm(e.target.value)
                     }
-                    className="w-full outline-none text-sm"
+                    className="w-full outline-none text-sm bg-transparent text-[#E8ECF3] placeholder:text-[#6F7888]"
                   />
                 </div>
               </div>
@@ -519,7 +526,7 @@ function Channels({ channelList, setChannelList }) {
               {/* LOADING */}
               {searchLoading && (
 
-                <div className="text-sm text-gray-500 mb-4">
+                <div className="text-sm text-[#8B94A7] mb-4">
                   Searching channels...
                 </div>
               )}
@@ -529,7 +536,7 @@ function Channels({ channelList, setChannelList }) {
                 searchTerm &&
                 searchResults.length === 0 && (
 
-                <div className="text-sm text-gray-500 text-center py-8">
+                <div className="text-sm text-[#8B94A7] text-center py-8">
                   No channels found
                 </div>
               )}
@@ -541,7 +548,7 @@ function Channels({ channelList, setChannelList }) {
 
                   <div
                     key={channel._id}
-                    className="border border-gray-200 rounded-xl px-4 py-3 hover:bg-gray-50 transition"
+                    className="border border-[#2A2F3A] rounded-xl px-4 py-3 hover:bg-[#232734] transition"
                   >
 
                     <div className="flex items-center justify-between">
@@ -549,19 +556,19 @@ function Channels({ channelList, setChannelList }) {
                       {/* LEFT */}
                       <div className="flex items-center gap-3">
 
-                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-[#0F1117] border border-[#2A2F3A] flex items-center justify-center">
 
-                          <Hash size={18} />
+                          <Hash size={18} className="text-[#8B94A7]" />
 
                         </div>
 
                         <div>
 
-                          <p className="font-medium text-[15px]">
+                          <p className="font-medium text-[15px] text-[#E8ECF3]">
                             #{channel.channelName}
                           </p>
 
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-[#8B94A7]">
                             {channel.members?.length || 0}
                             {" members"}
                           </p>
@@ -578,7 +585,7 @@ function Channels({ channelList, setChannelList }) {
                         onClick={() =>
                           handleJoinChannel(channel._id)
                         }
-                        className="px-4 py-2 rounded-lg bg-black text-white text-sm hover:opacity-90 transition disabled:opacity-50"
+                        className="px-4 py-2 rounded-lg bg-[#4F8CFF] text-white text-sm hover:opacity-90 transition disabled:opacity-50"
                       >
                         {joining === channel._id
                           ? "Sending..."
@@ -602,7 +609,7 @@ function Channels({ channelList, setChannelList }) {
                     setSearchResults([]);
                     setSearchTerm("");
                   }}
-                  className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition"
+                  className="px-4 py-2 rounded-lg border border-[#2A2F3A] text-[#D6DCE5] hover:bg-[#232734] transition"
                 >
                   Close
                 </button>

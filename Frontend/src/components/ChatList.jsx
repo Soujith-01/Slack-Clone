@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useLocation } from "react-router";
 import { useAuth } from "../store/authStore";
+import { getSocket } from "../socket";
 
 import Channels from "./Channels";
 import DMs from "./DMs";
@@ -23,6 +25,14 @@ function ChatList() {
 
   const [error, setError] =
     useState(null);
+
+  const [unreadChatIds, setUnreadChatIds] =
+    useState({});
+
+  const location = useLocation();
+
+  const activeChatId =
+    location.state?.chat?._id;
 
   useEffect(() => {
 
@@ -84,7 +94,60 @@ function ChatList() {
 
   }, [user]);
 
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
 
+    const handleDm = (message) => {
+      const senderId = message.sender?._id;
+      if (!senderId) return;
+
+      const matchingChat = dmList.find((chat) =>
+        chat.members.some(
+          (member) =>
+            member._id === senderId &&
+            member._id !== user?._id
+        )
+      );
+
+      if (!matchingChat) return;
+      if (matchingChat._id === activeChatId) return;
+
+      setUnreadChatIds((prev) => ({
+        ...prev,
+        [matchingChat._id]: true,
+      }));
+    };
+
+    const handleChannel = (message) => {
+      const channelId = message.channel;
+      if (!channelId) return;
+      if (channelId === activeChatId) return;
+      setUnreadChatIds((prev) => ({
+        ...prev,
+        [channelId]: true,
+      }));
+    };
+
+    socket.on("receive-dm", handleDm);
+    socket.on("receive-channel-message", handleChannel);
+    socket.on("receive-message", handleChannel);
+
+    return () => {
+      socket.off("receive-dm", handleDm);
+      socket.off("receive-channel-message", handleChannel);
+      socket.off("receive-message", handleChannel);
+    };
+  }, [activeChatId, dmList, user?._id]);
+
+  const clearUnread = (chatId) => {
+    if (!chatId) return;
+    setUnreadChatIds((prev) => {
+      const next = { ...prev };
+      delete next[chatId];
+      return next;
+    });
+  };
 
   // LOADING STATE
   if (loading) {
@@ -185,11 +248,15 @@ function ChatList() {
         <Channels
           channelList={channelList}
           setChannelList={setchannelList}
+          unreadChatIds={unreadChatIds}
+          clearUnread={clearUnread}
         />
 
         <DMs
           dmList={dmList}
           user={user}
+          unreadChatIds={unreadChatIds}
+          clearUnread={clearUnread}
         />
 
       </div>

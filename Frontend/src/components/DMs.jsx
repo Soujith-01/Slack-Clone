@@ -10,7 +10,7 @@ import {
   X,
 } from "lucide-react";
 
-function DMs({ dmList, user }) {
+function DMs({ dmList, user, unreadChatIds, clearUnread }) {
 
   const navigate = useNavigate();
 
@@ -117,22 +117,22 @@ function DMs({ dmList, user }) {
             return (
 
               <div
-                key={chat._id}
+                  key={chat._id}
 
-                onClick={() =>
-                  navigate(
-                    "/chat-window/Chat",
-                    {
-                      state: { chat },
-                    }
-                  )
-                }
+                  onClick={() => {
+                    clearUnread(chat._id);
+                    navigate(
+                      "/chat-window/Chat",
+                      {
+                        state: { chat },
+                      }
+                    );
+                  }}
+                  className="group flex items-center justify-between px-4 py-3 rounded-2xl cursor-pointer border border-transparent hover:border-[#2A2F3A] hover:bg-[#171A22] transition-all duration-300"
+                >
 
-                className="group flex items-center justify-between px-4 py-3 rounded-2xl cursor-pointer border border-transparent hover:border-[#2A2F3A] hover:bg-[#171A22] transition-all duration-300"
-              >
-
-                {/* LEFT */}
-                <div className="flex items-center gap-3 min-w-0">
+                  {/* LEFT */}
+                  <div className="flex items-center gap-3 min-w-0">
 
                   {/* AVATAR */}
                   <div className="relative">
@@ -166,9 +166,11 @@ function DMs({ dmList, user }) {
                     </p>
 
                   </div>
-
                 </div>
 
+                {unreadChatIds[chat._id] && (
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#4F8CFF] shadow-[0_0_0_4px_rgba(79,140,255,0.18)]"></span>
+                )}
               </div>
             );
           })
@@ -181,7 +183,7 @@ function DMs({ dmList, user }) {
         <Popup
           modal
           trigger={
-            <button className="flex items-center gap-3 px-3 py-2 rounded-md text-[#4a454b] hover:bg-[#eceaea] transition w-full">
+            <button className="flex items-center gap-3 px-3 py-2 rounded-md text-[#D6DCE5] bg-[#171A22] border border-[#2A2F3A] hover:bg-[#232734] transition w-full">
               <Plus size={16} />
 
               <span className="text-[15px] font-medium">
@@ -196,31 +198,32 @@ function DMs({ dmList, user }) {
             width: "420px",
             borderRadius: "14px",
             padding: "0",
-            border: "none",
+            border: "1px solid #2A2F3A",
+            background: "#171A22",
             overflow: "hidden",
           }}
         >
           {(close) => (
-            <div className="bg-white">
+            <div className="bg-[#171A22] border border-[#2A2F3A] rounded-[18px] overflow-hidden text-[#D6DCE5]">
 
               {/* Header */}
-              <div className="flex items-center justify-between px-5 py-4 border-b">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-[#2A2F3A]">
 
                 <div>
-                  <h2 className="text-lg font-semibold text-[#1d1c1d]">
+                  <h2 className="text-lg font-semibold text-[#E8ECF3]">
                     Invite people
                   </h2>
 
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-[#8B94A7] mt-1">
                     Search for people to start a conversation
                   </p>
                 </div>
 
                 <button
                   onClick={close}
-                  className="p-1 rounded hover:bg-gracleary-100 transition"
+                  className="p-1 rounded hover:bg-[#232734] transition"
                 >
-                  <X size={18} />
+                  <X size={18} className="text-[#D6DCE5]" />
                 </button>
               </div>
 
@@ -228,11 +231,11 @@ function DMs({ dmList, user }) {
               <div className="p-5">
 
                 {/* Search Input */}
-                <div className="flex items-center gap-3 border rounded-lg px-3 py-3 focus-within:border-[#1264a3]">
+                <div className="flex items-center gap-3 border border-[#2A2F3A] rounded-lg bg-[#0F1117] px-3 py-3 focus-within:border-[#4F8CFF] transition">
 
                   <Search
                     size={18}
-                    className="text-gray-400"
+                    className="text-[#8B94A7]"
                   />
 
                   <input
@@ -242,7 +245,7 @@ function DMs({ dmList, user }) {
                     onChange={(e) =>
                       setEmail(e.target.value)
                     }
-                    className="w-full outline-none text-sm"
+                    className="w-full outline-none text-sm bg-transparent text-[#E8ECF3] placeholder:text-[#6F7888]"
                   />
                 </div>
 
@@ -258,7 +261,7 @@ function DMs({ dmList, user }) {
 
                   <button
                     onClick={close}
-                    className="px-4 py-2 rounded-lg border text-sm hover:bg-gray-100"
+                    className="px-4 py-2 rounded-lg border border-[#2A2F3A] text-sm text-[#D6DCE5] hover:bg-[#232734]"
                   >
                     Cancel
                   </button>
@@ -266,7 +269,7 @@ function DMs({ dmList, user }) {
                   <button
                     onClick={() => createDm(close)}
                     disabled={loading || !email}
-                    className="px-4 py-2 rounded-lg bg-[#1264a3] text-white text-sm hover:bg-[#0f5488] disabled:opacity-50"
+                    className="px-4 py-2 rounded-lg bg-[#4F8CFF] text-white text-sm hover:bg-[#3E74DB] disabled:opacity-50"
                   >
                     {loading ? "Creating..." : "Start Chat"}
                   </button>

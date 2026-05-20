@@ -1,10 +1,6 @@
 import { useState } from "react";
 import ProfileSettings from "../components/settings/ProfileSettings";
 import SecuritySettings from "../components/settings/SecuritySettings";
-import AppearanceSettings from "../components/settings/AppearanceSettings";
-import NotificationSettings from "../components/settings/NotificationSettings";
-import PrivacySettings from "../components/settings/PrivacySettings";
-import ChatPreferences from "../components/settings/ChatPreferences";
 
 function Settings() {
 
@@ -44,35 +40,6 @@ function Settings() {
               className={tabClass("security")}
             >
               Security
-            </button>
-
-            
-
-            <button
-              onClick={() =>
-                setActiveTab("notifications")
-              }
-              className={tabClass("notifications")}
-            >
-              Notifications
-            </button>
-
-            <button
-              onClick={() =>
-                setActiveTab("privacy")
-              }
-              className={tabClass("privacy")}
-            >
-              Privacy
-            </button>
-
-            <button
-              onClick={() =>
-                setActiveTab("chat")
-              }
-              className={tabClass("chat")}
-            >
-              Chat Preferences
             </button>
 
           </div>

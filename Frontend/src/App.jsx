@@ -37,10 +37,10 @@ function App() {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    const darkMode = currentUser?.preferences?.darkMode ?? false;
+    if (typeof window === "undefined") return;
+
     const compactMode = currentUser?.preferences?.compactMode ?? false;
 
-    document.documentElement.classList.toggle("dark", darkMode);
     document.documentElement.classList.toggle("compact", compactMode);
   }, [currentUser]);
 

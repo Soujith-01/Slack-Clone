@@ -41,7 +41,7 @@ function UserProfile() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10 text-[#D6DCE5]">
+    <div className=" max-w-5xl mx-auto px-6 py-10 text-[#D6DCE5]">
 
       {/* PROFILE CARD */}
       <div className="bg-[#171A22] border border-[#2A2F3A] rounded-[28px] p-7 shadow-2xl flex items-center justify-between transition-all duration-300">

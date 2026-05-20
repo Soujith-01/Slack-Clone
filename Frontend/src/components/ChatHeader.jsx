@@ -10,6 +10,28 @@ function ChatHeader({ chat }) {
   const currentUser =
     useAuth((state) => state.currentUser);
 
+  const isDM = chat?.type === "dm";
+
+  const otherUser =
+    chat?.members?.find(
+      (member) =>
+        member._id !== currentUser?._id
+    );
+
+  const displayTitle = isDM
+    ? otherUser?.username || "Direct Message"
+    : `# ${chat?.channelName}`;
+
+  const displaySubtitle = isDM
+    ? "Direct Message"
+    : `${chat?.members?.length} members`;
+
+  const iconLabel = isDM
+    ? otherUser?.username
+        ?.charAt(0)
+        ?.toUpperCase()
+    : "#";
+
   // CHECK ADMIN
   const isAdmin =
     chat?.admin?.toString() ===
@@ -26,11 +48,7 @@ function ChatHeader({ chat }) {
           {/* ICON */}
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#4F8CFF] to-[#3B6FD8] flex items-center justify-center text-white font-black text-lg shadow-lg">
 
-            {chat?.type === "channel"
-              ? "#"
-              : chat?.channelName
-                  ?.charAt(0)
-                  ?.toUpperCase()}
+            {iconLabel}
 
           </div>
 
@@ -39,15 +57,13 @@ function ChatHeader({ chat }) {
 
             <h1 className="text-[18px] font-bold tracking-wide text-[#E8ECF3]">
 
-              {chat?.type === "channel"
-                ? `# ${chat?.channelName}`
-                : chat?.channelName}
+              {displayTitle}
 
             </h1>
 
             <p className="text-sm text-[#8B94A7] font-medium">
 
-              {chat?.members?.length} members
+              {displaySubtitle}
 
             </p>
 

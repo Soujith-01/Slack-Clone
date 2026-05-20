@@ -218,7 +218,7 @@ function DMs({ dmList, user }) {
 
                 <button
                   onClick={close}
-                  className="p-1 rounded hover:bg-gray-100 transition"
+                  className="p-1 rounded hover:bg-gracleary-100 transition"
                 >
                   <X size={18} />
                 </button>

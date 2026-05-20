@@ -13,6 +13,8 @@ import {
   UserPlus2,
 } from "lucide-react";
 
+import toast from "react-hot-toast";
+
 function Notifications() {
 
   const [open, setOpen] =
@@ -20,6 +22,9 @@ function Notifications() {
 
   const [requests, setRequests] =
     useState([]);
+
+  const [loading, setLoading] =
+    useState(false);
 
   const dropdownRef = useRef(null);
 
@@ -90,6 +95,7 @@ function Notifications() {
     );
 
     return () => {
+
       document.removeEventListener(
         "mousedown",
         handleClickOutside
@@ -108,24 +114,66 @@ function Notifications() {
 
       try {
 
-        await axios.post(
-          `${BACKEND}/chat-api/chats/approve-request`,
-          {
-            channelId,
-            userId,
-            approve,
-          },
-          {
-            withCredentials: true,
-          }
+        setLoading(true);
+
+        const response =
+          await axios.post(
+            `${BACKEND}/chat-api/chats/approve-request`,
+            {
+              channelId,
+              userId,
+              approve,
+            },
+            {
+              withCredentials: true,
+            }
+          );
+
+        toast.success(
+          response.data.message
         );
 
-        // REFRESH
-        fetchRequests();
+        // REMOVE REQUEST FROM UI
+        setRequests((prev) =>
+          prev
+            .map((channel) => {
+
+              if (
+                channel._id !== channelId
+              ) {
+                return channel;
+              }
+
+              return {
+                ...channel,
+                joinRequests:
+                  channel.joinRequests.filter(
+                    (request) =>
+                      request.user?._id !==
+                      userId
+                  ),
+              };
+            })
+            .filter(
+              (channel) =>
+                channel.joinRequests
+                  .length > 0
+            )
+        );
 
       } catch (err) {
 
         console.log(err);
+
+        toast.error(
+          err?.response?.data
+            ?.message ||
+          "Something went wrong"
+        );
+
+      } finally {
+
+        setLoading(false);
       }
     };
 
@@ -286,6 +334,9 @@ function Notifications() {
 
                               {/* ACCEPT */}
                               <button
+                                disabled={
+                                  loading
+                                }
                                 onClick={() =>
                                   handleRequest(
                                     channel._id,
@@ -295,7 +346,7 @@ function Notifications() {
                                     true
                                   )
                                 }
-                                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-[#4F8CFF] to-[#3B6FD8] text-white font-semibold text-sm hover:opacity-90 transition-all duration-300"
+                                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-[#4F8CFF] to-[#3B6FD8] text-white font-semibold text-sm hover:opacity-90 transition-all duration-300 disabled:opacity-50"
                               >
 
                                 <Check
@@ -308,6 +359,9 @@ function Notifications() {
 
                               {/* REJECT */}
                               <button
+                                disabled={
+                                  loading
+                                }
                                 onClick={() =>
                                   handleRequest(
                                     channel._id,
@@ -317,7 +371,7 @@ function Notifications() {
                                     false
                                   )
                                 }
-                                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0F1117] border border-[#2A2F3A] text-[#D6DCE5] font-semibold text-sm hover:bg-[#232734] transition-all duration-300"
+                                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0F1117] border border-[#2A2F3A] text-[#D6DCE5] font-semibold text-sm hover:bg-[#232734] transition-all duration-300 disabled:opacity-50"
                               >
 
                                 <X

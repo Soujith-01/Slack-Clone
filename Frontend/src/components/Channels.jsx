@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import Popup from "reactjs-popup";
 import axios from "axios";
 import toast from "react-hot-toast";
+
 import {
   Hash,
   Plus,
@@ -35,7 +36,12 @@ function Channels({ channelList, setChannelList }) {
   const [searchLoading, setSearchLoading] = useState(false);
 
   // JOIN LOADING
-  const [joining, setJoining] = useState(false);
+  const [joining, setJoining] = useState("");
+
+  const BACKEND =
+    import.meta.env.VITE_BACKEND_URL ||
+    "http://localhost:3000";
+
   // SEARCH CHANNELS
   const searchChannels = async (value) => {
 
@@ -49,25 +55,27 @@ function Channels({ channelList, setChannelList }) {
       setSearchLoading(true);
 
       const res = await axios.get(
-        `http://localhost:3000/chat-api/channels/search?name=${encodeURIComponent(value)}`,
+        `${BACKEND}/chat-api/channels/search?name=${encodeURIComponent(value)}`,
         {
           withCredentials: true,
         }
       );
 
       if (res.status === 200) {
+
         setSearchResults(
           Array.isArray(res.data.payload)
             ? res.data.payload
-            : res.data.payload
-              ? [res.data.payload]
-              : []
+            : []
         );
       }
 
     } catch (err) {
+
       console.log(err);
+
     } finally {
+
       setSearchLoading(false);
     }
   };
@@ -78,8 +86,11 @@ function Channels({ channelList, setChannelList }) {
     const timer = setTimeout(() => {
 
       if (searchTerm.trim()) {
+
         searchChannels(searchTerm);
+
       } else {
+
         setSearchResults([]);
       }
 
@@ -94,11 +105,13 @@ function Channels({ channelList, setChannelList }) {
 
     try {
 
-      setJoining(true);
+      setJoining(channelId);
 
       const res = await axios.post(
-        `http://localhost:3000/chat-api/channels/join-request/${channelId}`,
-        {},
+        `${BACKEND}/chat-api/chats/join-request`,
+        {
+          channelId,
+        },
         {
           withCredentials: true,
         }
@@ -106,24 +119,34 @@ function Channels({ channelList, setChannelList }) {
 
       if (res.status === 200) {
 
-       toast.success("Join request sent");
+        toast.success("Join request sent to admin");
 
-        setOpenSearchPopup(false);
-
-        setSearchResults([]);
-        setSearchTerm("");
+        setSearchResults((prev) =>
+          prev.map((channel) =>
+            channel._id === channelId
+              ? {
+                  ...channel,
+                  requested: true,
+                }
+              : channel
+          )
+        );
       }
 
     } catch (err) {
 
       console.log(err);
 
+      toast.error(
+        err?.response?.data?.message ||
+        "Failed to send request"
+      );
+
     } finally {
 
-      setJoining(false);
+      setJoining("");
     }
   };
-
 
   // CREATE CHANNEL
   const handleCreateChannel = async () => {
@@ -144,7 +167,7 @@ function Channels({ channelList, setChannelList }) {
     try {
 
       const response = await axios.post(
-        "http://localhost:3000/chat-api/chats/channel",
+        `${BACKEND}/chat-api/chats/channel`,
         payload,
         {
           withCredentials: true,
@@ -160,6 +183,8 @@ function Channels({ channelList, setChannelList }) {
         ...prev,
         response.data.payload,
       ]);
+
+      toast.success("Channel created");
 
     } catch (err) {
 
@@ -177,15 +202,6 @@ function Channels({ channelList, setChannelList }) {
         );
       }
     }
-      
-
-
-
-
-
-
-
-
   };
 
   return (
@@ -547,22 +563,28 @@ function Channels({ channelList, setChannelList }) {
 
                           <p className="text-xs text-gray-500">
                             {channel.members?.length || 0}
-                            {" / "}
-                            {channel.maxMembers || 50}
-                            {" "}members
+                            {" members"}
                           </p>
+
                         </div>
                       </div>
 
                       {/* JOIN BUTTON */}
                       <button
-                        disabled={joining}
+                        disabled={
+                          joining === channel._id ||
+                          channel.requested
+                        }
                         onClick={() =>
                           handleJoinChannel(channel._id)
                         }
                         className="px-4 py-2 rounded-lg bg-black text-white text-sm hover:opacity-90 transition disabled:opacity-50"
                       >
-                        {joining ? "Joining..." : "Join"}
+                        {joining === channel._id
+                          ? "Sending..."
+                          : channel.requested
+                          ? "Requested"
+                          : "Join"}
                       </button>
 
                     </div>
@@ -589,9 +611,10 @@ function Channels({ channelList, setChannelList }) {
             </div>
           )}
         </Popup>
+
       </div>
     </div>
   );
 }
 
-export default Channels; 
+export default Channels;

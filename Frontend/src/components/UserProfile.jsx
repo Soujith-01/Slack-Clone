@@ -4,7 +4,9 @@ import { useState } from "react";
 
 function UserProfile() {
 
-  const logout = useAuth((state) => state.logout);
+  const logout = useAuth(
+    (state) => state.logout
+  );
 
   const currentUser = useAuth(
     (state) => state.currentUser
@@ -12,42 +14,55 @@ function UserProfile() {
 
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
   // logout
   const onLogout = async () => {
+
     try {
+
       await logout();
+
     } finally {
-      window.location.replace("/login");
+
+      window.location.replace(
+        "/login"
+      );
     }
   };
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <p className="text-[#D6DCE5]">
+        Loading...
+      </p>
+    );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10 compact:py-8 text-[#111827] dark:text-zinc-100">
+    <div className=" max-w-5xl mx-auto px-6 py-10 text-[#D6DCE5]">
 
       {/* PROFILE CARD */}
-      <div className="bg-white dark:bg-blue-900 border border-[#e8e8ed] dark:border-zinc-800 rounded-3xl p-6 compact:p-5 mb-8 shadow-sm flex items-center justify-between transition-colors">
+      <div className="bg-[#171A22] border border-[#2A2F3A] rounded-[28px] p-7 shadow-2xl flex items-center justify-between transition-all duration-300">
 
         {/* LEFT */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-5">
 
           {/* AVATAR */}
           {currentUser?.profileImageUrl ? (
 
             <img
-              src={currentUser.profileImageUrl}
-              className="w-16 h-16 rounded-full object-cover border border-[#e8e8ed] dark:border-zinc-700"
+              src={
+                currentUser.profileImageUrl
+              }
+              className="w-20 h-20 rounded-full object-cover border-2 border-[#2A2F3A] shadow-lg"
               alt="profile"
             />
 
           ) : (
 
-            <div className="w-16 h-16 rounded-full bg-[#0066cc]/10 text-[#0066cc] flex items-center justify-center text-xl font-semibold">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-r from-[#4F8CFF] to-[#3B6FD8] flex items-center justify-center text-2xl font-bold text-white shadow-xl">
 
               {currentUser?.username
                 ?.charAt(0)
@@ -59,28 +74,33 @@ function UserProfile() {
           {/* USER INFO */}
           <div>
 
-            <p className="text-sm text-[#6e6e73] dark:text-zinc-400">
+            <p className="text-sm text-[#8B94A7] tracking-wide">
               Welcome back
             </p>
 
-            <h2 className="text-xl font-semibold text-[#1d1d1f] dark:text-zinc-100">
-              {currentUser?.username}
+            <h2 className="text-2xl font-black tracking-tight text-[#E8ECF3] mt-1">
+              {
+                currentUser?.username
+              }
             </h2>
 
-            <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
+            <p className="text-sm text-[#8B94A7] mt-2">
               {currentUser?.email}
             </p>
 
           </div>
+
         </div>
 
         {/* BUTTONS */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
 
           {/* SETTINGS */}
           <button
-            onClick={() => navigate("/settings")}
-            className="bg-[#0066cc] text-white px-5 py-2 rounded-full hover:bg-[#0052a3] transition"
+            onClick={() =>
+              navigate("/settings")
+            }
+            className="px-5 py-2.5 rounded-2xl bg-[#0F1117] border border-[#2A2F3A] text-[#D6DCE5] font-semibold hover:bg-[#232734] transition-all duration-300"
           >
             Settings
           </button>
@@ -88,13 +108,14 @@ function UserProfile() {
           {/* LOGOUT */}
           <button
             type="button"
-            className="bg-[#ff3b30] text-white px-5 py-2 rounded-full hover:bg-[#d62c23] transition"
+            className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#4F8CFF] to-[#3B6FD8] text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg"
             onClick={onLogout}
           >
             Logout
           </button>
 
         </div>
+
       </div>
     </div>
   );

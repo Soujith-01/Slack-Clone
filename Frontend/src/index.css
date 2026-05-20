@@ -1,12 +1,7 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
 @custom-variant compact (&:where(.compact, .compact *));
 
 body {
-  @apply bg-white text-black transition-colors dark:bg-zinc-950 dark:text-zinc-100;
-}
-
-.dark body {
-  @apply bg-black text-white;
+  @apply bg-[#050505] text-white transition-colors;
 }

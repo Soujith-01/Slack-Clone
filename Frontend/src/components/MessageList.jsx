@@ -4,13 +4,15 @@ import {
   Pencil,
   SmilePlus,
 } from "lucide-react";
+import Popup from "reactjs-popup";
 
-function MessageList({
-  messages = [],
-  currentUserId,
-  openThread,
-}) {
+function MessageList({messages = [], currentUserId,openThread,}) {
   const bottomRef = useRef(null);
+  const emojis = [
+    "😀", "😂", "😍", "🔥",
+    "👍", "🎉", "😎", "😭",
+    "❤️", "😅", "👏", "🤝",
+  ];
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({
@@ -54,15 +56,41 @@ function MessageList({
 
               <div className="flex items-center gap-1 bg-[#171A22]/95 border border-[#2A2F3A] rounded-2xl shadow-xl px-2 py-1 backdrop-blur-xl">
 
-                <button className="hover:bg-[#232734] p-2 rounded-xl text-[#C8D1DC] hover:text-[#6EA4FF] transition-all duration-300 flex items-center gap-1">
+                <Popup
+  trigger={
+    <button className="hover:bg-[#232734] p-2 rounded-xl text-[#C8D1DC] hover:text-[#6EA4FF] transition-all duration-300 flex items-center gap-1">
+      <SmilePlus size={16} />
 
-                  <SmilePlus size={16} />
+      <span className="text-sm font-medium">
+        React
+      </span>
+    </button>
+  }
+  position="bottom center"
+  arrow={false}
+  closeOnDocumentClick
+  repositionOnResize
+  keepTooltipInside="body"
+  contentStyle={{
+    background: "transparent",
+    border: "none",
+    padding: 0,
+  }}
+>
+  <div className="bg-[#171A22] border border-[#2A2F3A] rounded-2xl p-3 shadow-2xl flex gap-2 flex-wrap w-[220px]">
 
-                  <span className="text-sm font-medium">
-                    React
-                  </span>
+    {emojis.map((emoji, index) => (
+      <button
+        key={index}
+        onClick={() => console.log(emoji)}
+        className="text-2xl hover:scale-125 transition-all duration-200"
+      >
+        {emoji}
+      </button>
+    ))}
 
-                </button>
+  </div>
+</Popup>
 
                 <button onClick={() => openThread(message)} className="hover:bg-[#232734] p-2 rounded-xl text-[#C8D1DC] hover:text-[#6EA4FF] transition-all duration-300">
                   <MessageSquare size={16} />
@@ -214,33 +242,118 @@ function MessageList({
 )}
 
                 {/* ATTACHMENTS */}
-                {message.attachments && message.attachments.length > 0 && (
-                  <div className="mt-2 flex flex-col gap-2">
-                    {message.attachments.map((att, i) => {
-                      const isImage = att.type?.startsWith?.("image");
-                      return (
-                        <div key={i}>
-                          {isImage ? (
-                            <img
-                              src={att.url}
-                              alt={att.name || "attachment"}
-                              className="max-w-[300px] rounded-xl border border-[#2A2F3A]"
-                            />
-                          ) : (
-                            <a
-                              href={att.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-block px-3 py-2 bg-[#0E1114] rounded-xl text-sm text-[#9AA4B2] border border-[#2A2F3A]"
-                            >
-                              {att.name || att.url}
-                            </a>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+{message.attachments?.length > 0 && (
+  <div className="mt-3 flex flex-col gap-3">
+
+    {message.attachments.map((att, i) => {
+
+      const fileType = att.type || "";
+      const isImage = fileType.startsWith("image/");
+      const isPDF = fileType === "application/pdf";
+
+      return (
+
+        <div key={i}>
+
+          {/* IMAGE PREVIEW */}
+          {isImage && (
+
+            <a
+              href={att.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+
+              <img
+                src={att.url}
+                alt={att.name || "image"}
+                className="max-w-[320px] rounded-2xl border border-[#2A2F3A] hover:opacity-90 transition-all cursor-pointer"
+              />
+
+            </a>
+          )}
+
+          {/* PDF PREVIEW */}
+          {/* PDF PREVIEW */}
+{isPDF && (
+
+  <div className="flex flex-col gap-2">
+
+    <a
+      href={att.url}
+      target="_blank"
+      rel="noreferrer"
+      className="w-[320px] h-[180px] rounded-2xl border border-[#2A2F3A] bg-[#171A22] flex flex-col items-center justify-center hover:bg-[#232734] transition-all"
+    >
+
+      <div className="text-5xl">
+        📕
+      </div>
+
+      <p className="mt-3 text-sm text-[#E7ECF5] font-medium text-center px-4 break-all">
+        {att.name}
+      </p>
+
+      <span className="mt-2 text-xs text-[#6EA4FF]">
+        Click to Open PDF
+      </span>
+
+    </a>
+
+    <a
+      href={att.url.replace(
+        "/upload/",
+        "/upload/fl_attachment/"
+      )}
+      target="_blank"
+      rel="noreferrer"
+      className="px-4 py-2 bg-[#4F8CFF] text-white rounded-xl text-sm w-fit hover:scale-105 transition-all"
+    >
+      Download PDF
+    </a>
+
+  </div>
+)}
+          {/* OTHER FILES */}
+          {!isImage && !isPDF && (
+
+            <div className="flex items-center gap-3 px-4 py-3 bg-[#171A22] border border-[#2A2F3A] rounded-2xl">
+
+              <div className="text-3xl">
+                📄
+              </div>
+
+              <div className="flex-1 min-w-0">
+
+                <p className="text-[#E7ECF5] text-sm truncate">
+                  {att.name}
+                </p>
+
+                <p className="text-[#8B94A7] text-xs">
+                  {fileType}
+                </p>
+
+              </div>
+
+              <a
+                href={att.url}
+                target="_blank"
+                rel="noreferrer"
+                download
+                className="px-3 py-2 rounded-xl bg-[#4F8CFF] text-white text-sm hover:scale-105 transition-all"
+              >
+                Download
+              </a>
+
+            </div>
+          )}
+
+        </div>
+      );
+    })}
+
+  </div>
+)}
 
               </div>
             </div>

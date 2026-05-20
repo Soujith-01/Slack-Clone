@@ -73,8 +73,8 @@ function MessageSender({
 
       const url =
         selectedFiles.length === 1
-          ? `${backendUrl}/fileTranser-api`
-          : `${backendUrl}/fileTranser-api/multiple`;
+          ? `${backendUrl}/fileTransfer-api`
+          : `${backendUrl}/fileTransfer-api/multiple`;
 
       const res = await axios.post(
         url,

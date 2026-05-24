@@ -26,11 +26,15 @@ chatApp.post("/chats/channel", verifyToken, async (req, res) => {
   const channel = await chatModel.create({
     channelName,
     type: "channel",
-    members: [...memberIds, adminId],
+    members: [adminId],
     admin: adminId,
+    inviteRequests: users.map((u) => ({ user: u._id, invitedBy: adminId })),
   });
 
-  const populated = await channel.populate("members admin", "username email");
+  const populated = await channel.populate(
+    "members admin inviteRequests.user inviteRequests.invitedBy",
+    "username email"
+  );
 
   res.status(200).json({ message: "channel created", payload: populated });
 });
@@ -75,6 +79,26 @@ chatApp.get("/chats/channels", verifyToken, async (req, res) => {
     .lean();
 
   res.status(200).json({ message: "channels", payload: channels });
+});
+
+// ================= GET CHANNEL NOTIFICATIONS =================
+chatApp.get("/chats/notifications", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+
+  const adminChannels = await chatModel
+    .find({ type: "channel", admin: userId, "joinRequests.0": { $exists: true } })
+    .populate("members admin joinRequests.user", "username email")
+    .lean();
+
+  const invitedChannels = await chatModel
+    .find({ type: "channel", "inviteRequests.user": userId })
+    .populate("admin inviteRequests.user inviteRequests.invitedBy", "username email")
+    .lean();
+
+  res.status(200).json({
+    message: "notifications",
+    payload: { adminChannels, invitedChannels },
+  });
 });
 
 // ================= GET DMS =================
@@ -130,16 +154,46 @@ chatApp.put("/add-members", verifyToken, async (req, res) => {
 
   const ids = users.map((u) => u._id);
 
-  await chatModel.findByIdAndUpdate(
-    channelId,
-    { $addToSet: { members: { $each: ids } } },
+  const alreadyMembers = ids.filter((id) =>
+    channel.members.some(
+      (member) => member.toString() === id.toString()
+    )
   );
+
+  if (alreadyMembers.length > 0) {
+    return res.status(400).json({
+      message: "some users are already members",
+      alreadyMembers,
+    });
+  }
+
+  const alreadyInvited = ids.filter((id) =>
+    channel.inviteRequests.some(
+      (request) => request.user.toString() === id.toString()
+    )
+  );
+
+  if (alreadyInvited.length > 0) {
+    return res.status(400).json({
+      message: "some users are already invited",
+      alreadyInvited,
+    });
+  }
+
+  ids.forEach((id) =>
+    channel.inviteRequests.push({ user: id, invitedBy: adminId })
+  );
+
+  await channel.save();
 
   const populated = await chatModel
     .findById(channelId)
-    .populate("members", "username email");
+    .populate(
+      "members admin inviteRequests.user inviteRequests.invitedBy",
+      "username email"
+    );
 
-  res.status(200).json({ message: "members added", payload: populated });
+  res.status(200).json({ message: "invite sent", payload: populated });
 });
 
 // ================= GET MEMBERS =================
@@ -437,7 +491,7 @@ chatApp.post(
                 message: approve
                     ? "request approved"
                     : "request rejected",
-                payload: channel
+                payload: channel,
             });
 
         } catch (err) {
@@ -450,4 +504,68 @@ chatApp.post(
             });
         }
     }
-)
+);
+
+// ================= RESPOND TO INVITE =================
+chatApp.post(
+    '/chats/respond-invite',
+    verifyToken,
+    async (req, res) => {
+        try {
+            const userId = req.user.userId;
+            const { channelId, approve } = req.body;
+
+            if (!channelId) {
+                return res.status(400).json({
+                    message: 'channelId is required'
+                });
+            }
+
+            const channel = await chatModel.findOne({
+                _id: channelId,
+                type: 'channel'
+            });
+
+            if (!channel) {
+                return res.status(404).json({
+                    message: 'channel not found'
+                });
+            }
+
+            const requestIndex = channel.inviteRequests.findIndex(
+                (request) =>
+                    request.user.toString() === userId.toString()
+            );
+
+            if (requestIndex === -1) {
+                return res.status(400).json({
+                    message: 'no pending invite found'
+                });
+            }
+
+            channel.inviteRequests.splice(requestIndex, 1);
+
+            if (approve) {
+                const alreadyMember = channel.members.some(
+                    (member) => member.toString() === userId.toString()
+                );
+
+                if (!alreadyMember) {
+                    channel.members.push(userId);
+                }
+            }
+
+            await channel.save();
+
+            res.status(200).json({
+                message: approve ? 'invite accepted' : 'invite rejected',
+                payload: channel,
+            });
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({
+                message: 'server error processing invite'
+            });
+        }
+    }
+);

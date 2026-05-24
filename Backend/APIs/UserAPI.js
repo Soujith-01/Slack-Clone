@@ -7,6 +7,7 @@ import { verifyToken } from '../middlewares/verifyToken.js'
 import {config} from 'dotenv'
 import {upload} from '../config/multer.js'
 import {uploadToCloudinary } from '../config/cloudinaryUpload.js'
+import cloudinary, { isCloudinaryConfigured } from '../config/cloudinary.js'
 
 config()
 
@@ -34,12 +35,15 @@ export const userApp = exp.Router()
         let result=await NewUserDocument.save()
         //send response
         res.status(201).json({message:'User Created'})//it is mandatory to send status code
-      }catch (err) {
+      } catch (err) {
     console.log("err is ", err);
-    //delete image from cloudinary
-    if (cloudinaryResult?.public_id) {
+    // delete image from cloudinary if upload happened
+    if (cloudinaryResult?.public_id && isCloudinaryConfigured) {
+      try {
+        await cloudinary.uploader.destroy(cloudinaryResult.public_id);
+      } catch (cleanupErr) {
         console.log("cloudinary cleanup failed", cleanupErr.message);
-      
+      }
     }
     next(err);
   }

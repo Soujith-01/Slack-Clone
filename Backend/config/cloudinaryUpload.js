@@ -1,3 +1,5 @@
+import cloudinary from "./cloudinary.js";
+
 export const uploadToCloudinary = (buffer, originalName) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(

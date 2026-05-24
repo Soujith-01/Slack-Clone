@@ -23,7 +23,7 @@ function ChatHeader({ chat }) {
       chatIdRef.current = chat?._id;
       setMembers(chat?.members || []);
     }
-  }, [chat?._id]);
+  }, [chat?._id, chat?.members]);
 
   // ✅ always fetch fresh members from backend
   const fetchMembers = async () => {
@@ -60,7 +60,7 @@ function ChatHeader({ chat }) {
     currentUser?._id?.toString();
 
   // =========================
-  // ADD MEMBER BY EMAIL
+  // SEND INVITE BY EMAIL
   // =========================
   const handleAddMember = async () => {
     try {
@@ -75,10 +75,10 @@ function ChatHeader({ chat }) {
       // backend returns the populated channel
       setMembers(res.data.payload?.members || []);
       setEmail("");
-      alert("Member added successfully");
+      alert("Invite sent successfully");
     } catch (err) {
       console.log(err);
-      alert(err?.response?.data?.message || "Error adding member");
+      alert(err?.response?.data?.message || "Error sending invite");
     } finally {
       setLoading(false);
     }

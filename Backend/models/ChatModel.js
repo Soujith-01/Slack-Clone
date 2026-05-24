@@ -49,6 +49,22 @@ const chatSchema = new Schema(
         },
       },
     ],
+    inviteRequests: [
+      {
+        user: {
+          type: Types.ObjectId,
+          ref: "user",
+        },
+        invitedBy: {
+          type: Types.ObjectId,
+          ref: "user",
+        },
+        invitedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

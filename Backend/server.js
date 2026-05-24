@@ -48,9 +48,7 @@ const io = new Server(server, {
   cors: {
     origin: [
       'http://localhost:5173',    // Frontend dev server
-      'http://localhost:3000',    // Local testing
       'http://127.0.0.1:5173',
-      'http://127.0.0.1:3000',
     ],
     credentials: true,
     methods: ["GET", "POST","PUT","DELETE"],
@@ -60,18 +58,38 @@ const io = new Server(server, {
 
 setupSocket(io);
 
-const connectDB = async()=>{
-    try{
-        await connect(process.env.DB_URL)
-        console.log('DB connected ')
-        const port=process.env.PORT || 3000;
-        server.listen(port,()=>console.log(`server listening in ${port}`))
-    }catch(error){
-        console.log("error in connecting",error.message)
-    }
-}
+// choose port early so handlers can access it
+const PORT = parseInt(process.env.PORT, 10) || 3000;
 
-connectDB()
+// handle unexpected rejections and uncaught exceptions
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception thrown:', err);
+  process.exit(1);
+});
+
+const connectDB = async () => {
+  try {
+    await connect(process.env.DB_URL);
+    console.log('DB connected ');
+
+    // if server is already listening (e.g., nodemon restarted the module), avoid listening twice
+    if (server.listening) {
+      console.log(`Server already listening on port ${PORT}`);
+      return;
+    }
+
+    server.listen(PORT, () => console.log(`server listening on ${PORT}`));
+  } catch (error) {
+    console.log('error in connecting', error.message);
+    process.exit(1);
+  }
+};
+
+connectDB();
 
 
 app.use((err,req,res,next)=>{

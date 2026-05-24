@@ -1,6 +1,7 @@
 import { useAuth } from "../store/authStore";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import { ChevronLeft } from "lucide-react";
 
 function UserProfile() {
 
@@ -117,6 +118,11 @@ function UserProfile() {
         </div>
 
       </div>
+      {/* BACK BUTTON */}
+      <button onClick={() => navigate(-1)} className="flex items-center gap-2 mt-6 text-[#8B94A7] hover:text-[#D6DCE5] transition-colors duration-200">
+        <ChevronLeft className="w-4 h-4" />
+        <span className="text-sm font-medium">Back</span>
+      </button>
     </div>
   );
 }

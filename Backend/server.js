@@ -5,7 +5,7 @@ import { createServer } from 'node:http'
 import { Server } from "socket.io";
 import cors from 'cors'
 import { userApp } from './APIs/UserAPI.js';
-import { chatApp } from './APIs/channelAPI.js';
+import { chatApp } from './APIs/ChannelAPI.js';
 import cookieParser from 'cookie-parser'
 import jwt from "jsonwebtoken"
 import { setupSocket } from "./sockets/socket.js";

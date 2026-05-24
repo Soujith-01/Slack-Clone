@@ -10,7 +10,9 @@ const chatSchema = new Schema(
 
     channelName: {
       type: String,
+      trim: true,
       unique: true,
+      sparse: true,
     },
 
     members: [

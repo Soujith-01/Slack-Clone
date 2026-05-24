@@ -72,18 +72,13 @@ function DMs({ dmList, user, unreadChatIds, clearUnread }) {
     <div className="text-[#D6DCE5]">
 
       {/* HEADER */}
-      <div className="flex items-center justify-between bg-[#171A22] border border-[#2A2F3A] px-4 py-3 rounded-2xl mb-3 shadow-lg">
+      <div className="flex items-center justify-between bg-[#171A22] border border-[#2A2F3A] px-4 py-3 rounded-xl mb-3 shadow-lg">
 
         <div className="flex items-center gap-2">
 
-          <ChevronDown
-            size={16}
-            className="text-[#8B94A7]"
-          />
-
           <h2 className="text-[16px] font-bold tracking-wide text-[#E7ECF5]">
 
-            Direct Messages
+            DIRECT MESSAGES
 
           </h2>
 
@@ -183,7 +178,7 @@ function DMs({ dmList, user, unreadChatIds, clearUnread }) {
         <Popup
           modal
           trigger={
-            <button className="flex items-center gap-3 px-3 py-2 rounded-md text-[#D6DCE5] bg-[#171A22] border border-[#2A2F3A] hover:bg-[#232734] transition w-full">
+            <button className="flex items-center gap-3 px-4 py-3 rounded-2xl text-[#D6DCE5] hover:bg-[#171A22] hover:border-[#2A2F3A] border border-transparent transition-all duration-300 w-full">
               <Plus size={16} />
 
               <span className="text-[15px] font-medium">

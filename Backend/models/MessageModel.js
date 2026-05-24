@@ -1,4 +1,29 @@
-import { Schema, model } from "mongoose";
+import mongoose, {
+  Schema,
+  model,
+} from "mongoose";
+
+const attachmentSchema = new Schema(
+  {
+    url: {
+      type: String,
+    },
+
+    type: {
+      type: String,
+    },
+
+    name: {
+      type: String,
+    },
+
+    public_id: {
+      type: String,
+      default: "",
+    },
+  },
+  { _id: false }
+);
 
 const messageSchema = new Schema(
   {
@@ -8,72 +33,59 @@ const messageSchema = new Schema(
       required: true,
     },
 
-    // DM or Channel
     receiver: {
       type: Schema.Types.ObjectId,
       ref: "user",
       default: null,
     },
 
+    parentMessage: {
+  type: Schema.Types.ObjectId,
+  ref: "message",
+  default: null,
+},
+
     channel: {
       type: Schema.Types.ObjectId,
-      ref: "channel",
+      ref: "chat",
       default: null,
     },
 
     content: {
       type: String,
       trim: true,
-      default:"",
+      default: "",
     },
 
-    //threads
-    parentMessage: {
+    threadReplies: [
+  {
+    type: Schema.Types.ObjectId,
+    ref: "message",
+  },
+],
+
+reactions: [
+  {
+    user: {
       type: Schema.Types.ObjectId,
-      ref: "message",
-      default: null,
+      ref: "user",
     },
-    //msg reactions 
-    reactions: [
-      {
-        user: {
-          type: Schema.Types.ObjectId,
-          ref: "user",
-        },
-        emoji: String,
-      },
-    ],
+    emoji: String,
+  },
+],
 
-   //file or image attachments
-    attachments: [
-      {
-        url: {
-          type: String,
-        },
-        type: {
-          type: String,
-        },
-        name: {
-          type: String,
-        },
-      },
-    ],
-    //editing messages
-    isEdited: {
-      type: Boolean,
-      default: false,
+    attachments: {
+      type: [attachmentSchema],
+      default: [],
     },
-    editedAt: Date,
-
-    //Read receipts  
-    readBy: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "user",
-      },
-    ],
   },
   { timestamps: true }
 );
 
-export const MessageModel = model("message", messageSchema);
+
+export const MessageModel =
+  mongoose.models.message ||
+  mongoose.model(
+    "message",
+    messageSchema
+  );

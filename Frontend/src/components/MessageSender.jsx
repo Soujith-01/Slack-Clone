@@ -190,7 +190,8 @@ function MessageSender({
                 type: file.type,
               })
             );
-
+            console.log(attachments);
+console.log(typeof attachments);
           socket.emit(
             "send-file",
             {
@@ -232,154 +233,132 @@ function MessageSender({
 
   return (
 
-    <form
-      onSubmit={
-        handleSendMessage
-      }
-      className="p-5 bg-[#171A22]/95 backdrop-blur-xl relative overflow-visible"
-    >
+  <form
+    onSubmit={handleSendMessage}
+    className="p-5 bg-[#171A22]/95 backdrop-blur-xl relative"
+  >
 
-      <div className="flex items-end gap-3 bg-[#111318] border border-[#2A2F3A] rounded-3xl px-4 py-3 shadow-[0_0_25px_rgba(0,0,0,0.25)] focus-within:border-[#4F8CFF] focus-within:shadow-[0_0_30px_rgba(79,140,255,0.15)] transition-all duration-300 overflow-visible">
+    {/* MESSAGE BAR */}
+    <div className="flex gap-3 items-end bg-[#111318] border border-[#2A2F3A] rounded-3xl px-4 py-3 shadow-[0_0_25px_rgba(0,0,0,0.25)] focus-within:border-[#4F8CFF] focus-within:shadow-[0_0_30px_rgba(79,140,255,0.15)] transition-all duration-300 overflow-visible">
 
-        {/* LEFT ACTIONS */}
-        <div className="flex items-center gap-2 pb-1">
+      {/* LEFT ACTIONS */}
+      <div className="flex items-center gap-2 self-end pb-1">
 
-          {/* FILE TRANSFER */}
-          <FileTransfer
-            selectedFiles={
-              selectedFiles
+        {/* FILE TRANSFER */}
+        <FileTransfer
+          selectedFiles={selectedFiles}
+          onFilesChange={setSelectedFiles}
+        />
+
+        {/* EMOJI */}
+        <div className="relative self-end">
+
+          <Popup
+            trigger={
+              <button
+                type="button"
+                className="w-10 h-10 rounded-2xl bg-[#171A22] hover:bg-[#232734] text-[#9AA4B2] hover:text-[#4F8CFF] flex items-center justify-center transition-all duration-300"
+              >
+                <SmilePlus size={18} />
+              </button>
             }
-            onFilesChange={
-              setSelectedFiles
-            }
-          />
+            position="top left"
+            closeOnDocumentClick
+            arrow={false}
+          >
 
-          {/* EMOJI */}
-          <div className="relative">
+            {(close) => (
 
-            <Popup
-              trigger={
-                <button
-                  type="button"
-                  className="w-10 h-10 rounded-2xl bg-[#171A22] hover:bg-[#232734] text-[#9AA4B2] hover:text-[#4F8CFF] flex items-center justify-center transition-all duration-300"
-                >
-                  <SmilePlus
-                    size={18}
-                  />
-                </button>
-              }
-              position="top left"
-              closeOnDocumentClick
-              arrow={false}
-            >
+              <div className="bg-[#1B1F27] border border-[#2A2F3A] shadow-2xl rounded-2xl p-3 w-64">
 
-              {(close) => (
+                <div className="grid grid-cols-6 gap-2">
 
-                <div className="bg-[#1B1F27] border border-[#2A2F3A] shadow-2xl rounded-2xl p-3 w-64">
+                  {emojis.map((emoji) => (
 
-                  <div className="grid grid-cols-6 gap-2">
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => {
 
-                    {emojis.map(
-                      (emoji) => (
+                        setContent(
+                          (prev) =>
+                            prev + emoji
+                        );
 
-                        <button
-                          key={emoji}
-                          type="button"
-                          onClick={() => {
+                        close();
+                      }}
+                      className="text-2xl hover:scale-125 transition-transform duration-200 p-1 rounded-lg hover:bg-[#2A2F3A]"
+                    >
 
-                            setContent(
-                              (prev) =>
-                                prev +
-                                emoji
-                            );
+                      {emoji}
 
-                            close();
-                          }}
-                          className="text-2xl hover:scale-125 transition-transform duration-200 p-1 rounded-lg hover:bg-[#2A2F3A]"
-                        >
-
-                          {emoji}
-
-                        </button>
-                      )
-                    )}
-
-                  </div>
+                    </button>
+                  ))}
 
                 </div>
-              )}
 
-            </Popup>
+              </div>
+            )}
 
-          </div>
+          </Popup>
 
         </div>
 
-        {/* INPUT */}
-        <textarea
-          rows={1}
-
-          value={content}
-
-          onChange={(e) =>
-            setContent(
-              e.target.value
-            )
-          }
-
-          placeholder={`Message ${
-            chat?.type ===
-            "channel"
-              ? `#${chat?.channelName}`
-              : chat?.channelName
-          }`}
-
-          className="flex-1 resize-none bg-transparent outline-none text-[15px] text-[#E7ECF5] placeholder:text-[#6F7887] leading-7 py-2 max-h-40 overflow-y-auto"
-
-          onKeyDown={(e) => {
-
-            if (
-              e.key === "Enter" &&
-              !e.shiftKey
-            ) {
-
-              e.preventDefault();
-
-              handleSendMessage(
-                e
-              );
-            }
-          }}
-        />
-
-        {/* SEND BUTTON */}
-        <button
-          type="submit"
-
-          disabled={
-            sending ||
-            (
-              !content.trim() &&
-              selectedFiles.length === 0
-            )
-          }
-
-          className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-lg ${
-            content.trim() ||
-            selectedFiles.length > 0
-              ? "bg-[linear-gradient(135deg,#4F8CFF,#3B6FD8)] text-white hover:scale-105 shadow-[0_0_25px_rgba(79,140,255,0.35)]"
-              : "bg-[#232734] text-[#6F7887] cursor-not-allowed"
-          }`}
-        >
-
-          <Send size={19} />
-
-        </button>
-
       </div>
 
-    </form>
-  );
+      {/* INPUT */}
+      <textarea
+        rows={1}
+        value={content}
+        onChange={(e) =>
+          setContent(e.target.value)
+        }
+        placeholder={`Message ${
+          chat?.type === "channel"
+            ? `#${chat?.channelName}`
+            : chat?.channelName
+        }`}
+        className="flex-1 resize-none bg-transparent outline-none text-[15px] text-[#E7ECF5] placeholder:text-[#6F7887] leading-7 py-2 max-h-40 overflow-y-auto"
+        onKeyDown={(e) => {
+
+          if (
+            e.key === "Enter" &&
+            !e.shiftKey
+          ) {
+
+            e.preventDefault();
+
+            handleSendMessage(e);
+          }
+        }}
+      />
+
+      {/* SEND BUTTON */}
+      <button
+        type="submit"
+        disabled={
+          sending ||
+          (
+            !content.trim() &&
+            selectedFiles.length === 0
+          )
+        }
+        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-lg ${
+          content.trim() ||
+          selectedFiles.length > 0
+            ? "bg-[linear-gradient(135deg,#4F8CFF,#3B6FD8)] text-white hover:scale-105 shadow-[0_0_25px_rgba(79,140,255,0.35)]"
+            : "bg-[#232734] text-[#6F7887] cursor-not-allowed"
+        }`}
+      >
+
+        <Send size={19} />
+
+      </button>
+
+    </div>
+
+  </form>
+);
 }
 
 export default MessageSender;

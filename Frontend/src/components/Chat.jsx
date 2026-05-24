@@ -1,10 +1,4 @@
-// Chat.jsx
-
-import React, {
-  useEffect,
-  useState,
-} from "react";
-
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useLocation } from "react-router";
 
@@ -14,267 +8,180 @@ import MessageSender from "./MessageSender";
 import ThreadPanel from "./ThreadPanel";
 
 import { getSocket } from "../socket";
-
 import { useAuth } from "../store/authStore";
 
 function Chat() {
+  const { state } = useLocation();
+  const chat = state?.chat;
 
-  const location = useLocation();
-
-  const chat = location.state?.chat;
-
-  const currentUser =
-    useAuth(
-      (state) =>
-        state.currentUser
-    );
+  const currentUser = useAuth((s) => s.currentUser);
+  const socket = getSocket();
 
   const [messages, setMessages] = useState([]);
-
   const [loading, setLoading] = useState(false);
-
   const [selectedThread, setSelectedThread] = useState(null);
 
+  // COPY
+  const handleCopyMessage = (c) =>
+    navigator.clipboard.writeText(c).catch(console.log);
 
-  // FETCH OLD MESSAGES
+  // EDIT
+  const handleEditMessage = (msg) =>
+    socket.emit("edit-message", {
+      messageId: msg._id,
+      newContent: msg.content,
+    });
+
+  // DELETE
+  const handleDeleteMessage = async (msg) => {
+    try {
+      await axios.delete("http://localhost:3000/message-api/delete", {
+        data: { messageId: msg._id },
+        withCredentials: true,
+      });
+
+      setMessages((p) => p.filter((m) => m._id !== msg._id));
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  // UPSERT
+  const upsertMessage = (msg) =>
+    setMessages((prev) => {
+      const exists = prev.some((m) => m._id === msg._id);
+      return exists
+        ? prev.map((m) => (m._id === msg._id ? msg : m))
+        : [...prev, msg];
+    });
+
+  // REPLACE
+  const replaceMessage = (msg) =>
+    setMessages((prev) =>
+      prev.map((m) => (m._id === msg._id ? msg : m))
+    );
+
+  // FETCH MESSAGES
   useEffect(() => {
     if (!chat?._id) return;
-    const getMessages = async () => {
+
+    (async () => {
       try {
         setLoading(true);
-        let res;
-        // CHANNEL
-        if (chat.type === "channel") {
 
-          res = await axios.get(
-            `http://localhost:3000/message-api/get-channel/${chat._id}`,
-            {
-                withCredentials: true,
-            }
-          );
-        }
+        const url =
+          chat.type === "channel"
+            ? `http://localhost:3000/message-api/get-channel/${chat._id}`
+            : `http://localhost:3000/message-api/get-dm/${chat._id}`;
 
-          // DM
-          if (chat.type === "dm") {
+        const res = await axios.get(url, { withCredentials: true });
 
-            res = await axios.get(
-              `http://localhost:3000/message-api/get-dm/${chat._id}`,
-              {
-                withCredentials: true,
-              }
-            );
-          }
+        // IMPORTANT: remove thread replies from main chat
+        const filtered = (res.data.payload || []).filter(
+          (m) => !m.parentMessage
+        );
 
-          setMessages(
-            res.data.payload
-          );
-
-        } catch (err) {
-
-          console.log(err);
-
-        } finally {
-
-          setLoading(false);
-
-        }
-      };
-
-    getMessages();
-
+        setMessages(filtered);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [chat]);
 
-
-
-  // SOCKET LISTENERS
+  // SOCKETS
   useEffect(() => {
+    if (!socket || !chat?._id) return;
 
-    const socket = getSocket();
-
-    if (!socket) return;
-
-    if (!chat?._id) return;
-
-    // JOIN CHANNEL
     if (chat.type === "channel") {
-
-      socket.emit(
-        "join-channel",
-        chat._id
-      );
+      socket.emit("join-channel", chat._id);
     }
 
-    socket.on(
-      "receive-channel-message",
-      (message) => {
+    // MAIN CHAT MESSAGE (BLOCK THREAD REPLIES)
+    socket.on("receive-channel-message", (msg) => {
+      if (msg.parentMessage) return;
+      upsertMessage(msg);
+    });
 
-        setMessages((prev) => [
-          ...prev,
-          message,
-        ]);
-      }
-    );
+    socket.on("receive-dm", (msg) => {
+      if (msg.parentMessage) return;
+      upsertMessage(msg);
+    });
 
-    socket.on(
-      "receive-message",
-      (message) => {
+    socket.on("message-edited", replaceMessage);
+    socket.on("reaction-updated", replaceMessage);
 
-        setMessages((prev) => [
-          ...prev,
-          message,
-        ]);
-      }
-    );
+    // THREAD EVENT (ONLY UPDATE THREAD + PARENT)
+    socket.on("thread-message-received", ({ parentMessage }) => {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m._id === parentMessage._id ? parentMessage : m
+        )
+      );
 
-    socket.on(
-      "receive-dm",
-      (message) => {
-
-        setMessages((prev) => [
-          ...prev,
-          message,
-        ]);
-      }
-    );
-
-    socket.on(
-      "message-edited",
-      (updatedMessage) => {
-
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg._id === updatedMessage._id
-              ? updatedMessage
-              : msg
-          )
-        );
-      }
-    );
-
-    socket.on(
-      "reaction-updated",
-      (updatedMessage) => {
-
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg._id === updatedMessage._id
-              ? updatedMessage
-              : msg
-          )
-        );
-      }
-    );
-
-    socket.on(
-  "receive-thread-message",
-  (reply) => {
-
-    setMessages((prev) =>
-      prev.map((msg) =>
-
-        msg._id?.toString() ===
-        reply.parentMessage?.toString()
-
-          ? {
-              ...msg,
-              threadCount:
-                (msg.threadCount || 0) + 1,
-            }
-
-          : msg
-      )
-    );
-  }
-);
+      setSelectedThread((prev) =>
+        prev?._id === parentMessage._id ? parentMessage : prev
+      );
+    });
 
     return () => {
-
       socket.off("receive-channel-message");
-
       socket.off("receive-dm");
-
-      socket.off("receive-message");
-
       socket.off("message-edited");
-
       socket.off("reaction-updated");
-
-      socket.off("receive-thread-message");
+      socket.off("thread-message-received");
     };
-
-  }, [chat]);
-
-
+  }, [chat, socket]);
 
   return (
-  <div className="h-full flex overflow-hidden bg-[#0F1117]">
-    {/* MAIN CHAT */}
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="h-full flex overflow-hidden bg-[#0F1117]">
 
-      {/* HEADER */}
-      <div className="shrink-0 border-b border-[#2A2F3A] bg-[#171A22]/95 backdrop-blur-xl shadow-lg">
-        <ChatHeader chat={chat} />
-      </div>
-      {/* MESSAGES */}
-      <div className="flex-1 min-h-0 overflow-hidden bg-[#0F1117]">
-        {loading ? (
-          <div className="h-full flex flex-col items-center justify-center bg-[#0F1117]">
+      {/* CHAT */}
+      <div className="flex-1 flex flex-col overflow-hidden">
 
-            {/* LOADER */}
-            <div className="w-12 h-12 rounded-full border-4 border-[#2A2F3A] border-t-[#4F8CFF] animate-spin mb-5"></div>
+        <div className="shrink-0 border-b border-[#2A2F3A] bg-[#171A22]/95">
+          <ChatHeader chat={chat} />
+        </div>
 
-            <p className="text-[#8B94A7] text-sm font-medium tracking-wide">
+        <div className="flex-1 overflow-hidden">
+          {loading ? (
+            <div className="h-full flex items-center justify-center text-[#8B94A7]">
               Loading messages...
-            </p>
-          </div>
-        ) : (
+            </div>
+          ) : (
+            <MessageList
+              messages={messages}
+              currentUserId={currentUser?._id}
+              socket={socket}
+              onCopyMessage={handleCopyMessage}
+              onEditMessage={handleEditMessage}
+              onDeleteMessage={handleDeleteMessage}
+              openThread={(msg) =>
+                setSelectedThread(msg)
+              }
+            />
+          )}
+        </div>
 
-          <MessageList
-            messages={messages}
-            currentUserId={
-              currentUser?._id
-            }
-
-            openThread={
-              setSelectedThread
-            }
-          />
-
-        )}
+        <div className="shrink-0 border-t border-[#2A2F3A] bg-[#171A22]/95">
+          <MessageSender chat={chat} currentUser={currentUser} />
+        </div>
 
       </div>
 
-      {/* SENDER */}
-      <div className="shrink-0 border-t border-[#2A2F3A] bg-[#171A22]/95 backdrop-blur-xl">
-
-        <MessageSender
+      {/* THREAD PANEL */}
+      {selectedThread && (
+        <ThreadPanel
+          thread={selectedThread}
           chat={chat}
-          currentUser={
-            currentUser
-          }
+          currentUser={currentUser}
+          onClose={() => setSelectedThread(null)}
         />
-
-      </div>
+      )}
 
     </div>
-
-    {/* THREAD PANEL */}
-    {selectedThread && (
-
-      <ThreadPanel
-        thread={selectedThread}
-        chat={chat}
-        currentUser={
-          currentUser
-        }
-        onClose={() =>
-          setSelectedThread(null)
-        }/>
-
-    )}
-
-  </div>
-);
+  );
 }
 
 export default Chat;

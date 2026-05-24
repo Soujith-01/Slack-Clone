@@ -46,19 +46,9 @@ const UserSchema = new Schema({
         }
     },
 
-    notificationSettings: {
-        soundNotifications: { type: Boolean, default: true },
-        desktopNotifications: { type: Boolean, default: true }
-    },
-
     privacySettings: {
         showOnlineStatus: { type: Boolean, default: true },
         readReceipts: { type: Boolean, default: true }
-    },
-
-    chatPreferences: {
-        enterToSend: { type: Boolean, default: true },
-        showTypingIndicators: { type: Boolean, default: true }
     },
 
     // Incrementing this value invalidates existing tokens when changed

@@ -70,14 +70,13 @@ fileTransferApp.post("/",verifyToken,upload.single("file"),async (req, res) => {
       const streamUpload = () => {
         return new Promise((resolve, reject) => {
           const stream =
-            cloudinary.uploader.upload_stream(
-              {
-                folder: "slack-clone-files",
-                 resource_type:
-                 file.mimetype === "application/pdf"
-                 ? "raw"
-                 : "auto",
-              },
+            cloudinary.uploader.upload_stream({
+  folder: "slack-clone-files",
+  resource_type: "auto", // ✅ FIX HERE
+  use_filename: true,
+  unique_filename: false,
+  filename_override: file.originalname,
+},
               (error, result) => {
                 if (error) {
                   reject(error);
@@ -122,14 +121,13 @@ fileTransferApp.post("/multiple",verifyToken,upload.array("files", 5),async (req
         const streamUpload = () => {
           return new Promise((resolve, reject) => {
             const stream =
-              cloudinary.uploader.upload_stream(
-                {
-                  folder: "slack-clone-files",
-                  resource_type:
-                  file.mimetype === "application/pdf"
-                  ? "raw"
-                  : "auto",
-                },
+              cloudinary.uploader.upload_stream({
+  folder: "slack-clone-files",
+  resource_type: "auto", // ✅ SAME FIX
+  use_filename: true,
+  unique_filename: false,
+  filename_override: file.originalname,
+},
                 (error, result) => {
                   if (error) {
                     reject(error);

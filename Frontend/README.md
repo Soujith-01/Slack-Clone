@@ -1,6 +1,6 @@
 # Slack-Clone Frontend
 
-This is the Frontend for a Slack-like real-time chat application built with **React** and **Vite**. It provides a modern, fast, and feature-rich interface for team communication, channels, and direct messaging.
+This is the Frontend for a Slack-like real-time chat application built with **React** and **Vite**. It provides a modern, fast, and feature-rich interface for team communication, channels, and direct messages.
 
 ## Features
 
@@ -41,20 +41,42 @@ This is the Frontend for a Slack-like real-time chat application built with **Re
 Frontend/
 ├── src/
 │   ├── components/
-│   │   ├── Channels.jsx
-│   │   ├── ChatList.jsx
-│   │   ├── ChatWindow.jsx
-│   │   ├── DMs.jsx
-│   │   ├── EditProfile.jsx
-│   │   ├── Home.jsx
-│   │   ├── Login.jsx
-│   │   ├── Register.jsx
-│   │   ├── RootLayout.jsx
-│   │   ├── Settings.jsx
-│   │   └── userProfile.jsx
+│   │   ├── auth/
+│   │   │   ├── EditProfile.jsx
+│   │   │   ├── Login.jsx
+│   │   │   └── Register.jsx
+│   │   ├── channels/
+│   │   │   ├── Channels.jsx
+│   │   │   └── DMs.jsx
+│   │   ├── chat/
+│   │   │   ├── Chat.jsx
+│   │   │   ├── ChatHeader.jsx
+│   │   │   ├── ChatList.jsx
+│   │   │   ├── ChatWindow.jsx
+│   │   │   ├── FileTransfer.jsx
+│   │   │   ├── MessageContainer.jsx
+│   │   │   ├── MessageList.jsx
+│   │   │   ├── MessageSender.jsx
+│   │   │   ├── Notifications.jsx
+│   │   │   └── ThreadPanel.jsx
+│   │   ├── layout/
+│   │   │   ├── Header.jsx
+│   │   │   ├── Home.jsx
+│   │   │   ├── RootLayout.jsx
+│   │   │   └── SideBar.jsx
+│   │   └── profile/
+│   │       ├── settings/
+│   │       │   ├── ProfileSettings.jsx
+│   │       │   └── SecuritySettings.jsx
+│   │       ├── Settings.jsx
+│   │       └── UserProfile.jsx
 │   ├── store/
 │   │   └── authStore.js
+│   ├── styles/
+│   │   └── common.js
 │   ├── App.jsx
+│   ├── main.jsx
+│   ├── index.css
 │   └── socket.js
 ├── tailwind.config.js
 ├── vite.config.js

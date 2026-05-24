@@ -12,6 +12,8 @@ import { setupSocket } from "./sockets/socket.js";
 import { messageApp } from "./APIs/MessageAPI.js";
 import {fileTransferApp } from "./APIs/FileTransferAPI.js"
 import googleAuthRoute from './APIs/GoogleAPI.js'
+import dns from "node:dns/promises";
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const app=exp()
 const server=createServer(app)

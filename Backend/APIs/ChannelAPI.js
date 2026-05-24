@@ -487,11 +487,30 @@ chatApp.post(
 
             await channel.save();
 
+            // populate channel for a clean payload
+            const populated = await chatModel
+              .findById(channelId)
+              .populate(
+                "members admin inviteRequests.user inviteRequests.invitedBy",
+                "username email"
+              );
+
+            // emit socket event to the user who was approved so their UI updates
+            try {
+              const io = req.app.get('io');
+              const socketId = io?.onlineUsers?.[userId?.toString()];
+              if (approve && io && socketId) {
+                io.to(socketId).emit('joined-channel', populated);
+              }
+            } catch (e) {
+              console.log('socket emit error', e);
+            }
+
             res.status(200).json({
-                message: approve
-                    ? "request approved"
-                    : "request rejected",
-                payload: channel,
+              message: approve
+                ? "request approved"
+                : "request rejected",
+              payload: populated,
             });
 
         } catch (err) {
@@ -557,9 +576,28 @@ chatApp.post(
 
             await channel.save();
 
+            // populate channel for a clean payload
+            const populated = await chatModel
+              .findById(channelId)
+              .populate(
+                "members admin inviteRequests.user inviteRequests.invitedBy",
+                "username email"
+              );
+
+            // notify the user who accepted the invite (if connected)
+            try {
+              const io = req.app.get('io');
+              const socketId = io?.onlineUsers?.[userId?.toString()];
+              if (approve && io && socketId) {
+                io.to(socketId).emit('joined-channel', populated);
+              }
+            } catch (e) {
+              console.log('socket emit error', e);
+            }
+
             res.status(200).json({
-                message: approve ? 'invite accepted' : 'invite rejected',
-                payload: channel,
+              message: approve ? 'invite accepted' : 'invite rejected',
+              payload: populated,
             });
         } catch (err) {
             console.log(err);

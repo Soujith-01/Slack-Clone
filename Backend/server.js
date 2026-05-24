@@ -56,6 +56,9 @@ const io = new Server(server, {
   }
 });
 
+// expose io to express routes so APIs can emit events
+app.set('io', io);
+
 setupSocket(io);
 
 // choose port early so handlers can access it

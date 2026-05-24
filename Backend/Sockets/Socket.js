@@ -8,6 +8,9 @@ export const setupSocket = (io) => {
 
   const onlineUsers = {};
 
+  // attach online users map to io so other modules can access it
+  io.onlineUsers = onlineUsers;
+
   io.use(verifysocket);
 
   io.on("connection", (socket) => {

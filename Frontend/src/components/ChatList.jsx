@@ -93,10 +93,22 @@ function ChatList() {
     socket.on("receive-channel-message", handleChannel);
     socket.on("receive-message", handleChannel);
 
+    const handleJoined = (channel) => {
+      if (!channel || !channel._id) return;
+      setchannelList((prev) => {
+        const exists = prev.find((c) => c._id === channel._id);
+        if (exists) return prev;
+        return [...prev, channel];
+      });
+    };
+
+    socket.on("joined-channel", handleJoined);
+
     return () => {
       socket.off("receive-dm", handleDm);
       socket.off("receive-channel-message", handleChannel);
       socket.off("receive-message", handleChannel);
+      socket.off("joined-channel", handleJoined);
     };
   }, [activeChatId, dmList, user?._id]);
 

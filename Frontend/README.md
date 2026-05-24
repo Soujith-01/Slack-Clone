@@ -1,16 +1,68 @@
-# React + Vite
+# Slack-Clone Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the Frontend for a Slack-like real-time chat application built with **React** and **Vite**. It provides a modern, fast, and feature-rich interface for team communication, channels, and direct messaging.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Authentication**
+  - Login and registration with support for Google OAuth.
+  - Persistent session management and user state using Zustand.
+- **Real-Time Messaging**
+  - Channels (group chat) and Direct Messages (DM).
+  - Instant updates via socket.io for new messages and unread indicators.
+  - Customizable workspace with channel creation/joining; channel member management.
+- **User Profile & Preferences**
+  - View and edit user profile.
+- **Responsive Modern UI**
+  - Stylish dark theme using Tailwind CSS and Lucide icons.
+  - Popups for inviting users and managing channels.
+  - Interactive chat sidebar and detailed chat window layout.
+- **Settings**
+  - Manage account and preferences through a dedicated settings page.
 
-## React Compiler
+## Tech Stack & Main Packages
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React** (`react`, `react-dom`) — core UI library.
+- **Vite** — blazingly fast build tool for development.
+- **Tailwind CSS** (`tailwindcss`, `@tailwindcss/vite`) — utility-first styling.
+- **Zustand** — lightweight state management, especially for auth state.
+- **socket.io-client** — real-time bidirectional communication.
+- **React Router** (`react-router`, `react-router-dom`) — declarative routing in SPA.
+- **axios** — HTTP client for API integration.
+- **reactjs-popup** — popups for inviting users, creating/searching channels.
+- **lucide-react** — SVG icon library.
+- **react-hot-toast** — toast notifications.
+- **react-hook-form** — elegant form validation.
+- **dotenv** — use environment variables.
 
-## Expanding the ESLint configuration
+## Project Structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```
+Frontend/
+├── src/
+│   ├── components/
+│   │   ├── Channels.jsx
+│   │   ├── ChatList.jsx
+│   │   ├── ChatWindow.jsx
+│   │   ├── DMs.jsx
+│   │   ├── EditProfile.jsx
+│   │   ├── Home.jsx
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── RootLayout.jsx
+│   │   ├── Settings.jsx
+│   │   └── userProfile.jsx
+│   ├── store/
+│   │   └── authStore.js
+│   ├── App.jsx
+│   └── socket.js
+├── tailwind.config.js
+├── vite.config.js
+└── package.json
+```
+
+## Customization
+
+- API endpoints are configurable via `.env` and `VITE_BACKEND_URL`.
+- Tailwind CSS config is in `tailwind.config.js`.
+- Modify channels, DMs, and authentication logic in their respective components in `src/components`.

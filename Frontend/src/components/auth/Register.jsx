@@ -9,14 +9,14 @@ import {
   pageBackground,
   submitBtn,
   mutedText,
-} from "../styles/common";
+} from "../../styles/common";
 
 import { useForm } from "react-hook-form";
 import { NavLink, useNavigate } from "react-router";
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
-import { useAuth } from "../store/authStore";
+import { useAuth } from "../../store/authStore";
 
 function Register() {
   const {

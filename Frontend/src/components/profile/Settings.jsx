@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { ChevronLeft } from "lucide-react";
-import ProfileSettings from "../components/settings/ProfileSettings";
-import SecuritySettings from "../components/settings/SecuritySettings";
+import ProfileSettings from "./settings/ProfileSettings";
+import SecuritySettings from "./settings/SecuritySettings";
 
 function Settings() {
   const [activeTab, setActiveTab] = useState("profile");

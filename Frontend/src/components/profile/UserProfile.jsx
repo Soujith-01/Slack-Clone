@@ -1,4 +1,4 @@
-import { useAuth } from "../store/authStore";
+import { useAuth } from "../../store/authStore";
 import { useNavigate } from "react-router";
 import { useState } from "react";
 import { ChevronLeft } from "lucide-react";

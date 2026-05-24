@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useAuth } from "../../store/authStore";
+import { useAuth } from "../../../store/authStore";
 import { useNavigate } from "react-router";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";

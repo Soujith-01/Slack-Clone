@@ -1,5 +1,5 @@
-import EditProfile from "../EditProfile";
-import { useAuth } from "../../store/authStore";
+import EditProfile from "../../auth/EditProfile";
+import { useAuth } from "../../../store/authStore";
 
 function ProfileSettings() {
 

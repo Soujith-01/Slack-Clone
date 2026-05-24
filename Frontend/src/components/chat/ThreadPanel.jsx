@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { X, Send, Pencil } from "lucide-react";
-import { getSocket } from "../socket";
+import { getSocket } from "../../socket";
 
 function ThreadPanel({ thread, chat, onClose }) {
   const [replies, setReplies] = useState([]);

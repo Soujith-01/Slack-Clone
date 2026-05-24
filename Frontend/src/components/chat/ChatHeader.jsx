@@ -3,7 +3,7 @@ import Popup from "reactjs-popup";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-import { useAuth } from "../store/authStore";
+import { useAuth } from "../../store/authStore";
 
 const BACKEND = "http://localhost:3000";
 

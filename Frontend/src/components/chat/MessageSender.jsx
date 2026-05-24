@@ -9,7 +9,7 @@ import {
   SmilePlus,
 } from "lucide-react";
 
-import { getSocket } from "../socket";
+import { getSocket } from "../../socket";
 
 import Popup from "reactjs-popup";
 

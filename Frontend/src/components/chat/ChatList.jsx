@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useLocation } from "react-router";
-import { useAuth } from "../store/authStore";
-import { getSocket } from "../socket";
+import { useAuth } from "../../store/authStore";
+import { getSocket } from "../../socket";
 
-import Channels from "./Channels";
-import DMs from "./DMs";
+import Channels from "../channels/Channels";
+import DMs from "../channels/DMs";
 
 function ChatList() {
 

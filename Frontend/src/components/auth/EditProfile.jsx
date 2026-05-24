@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import { useAuth } from "../store/authStore";
+import { useAuth } from "../../store/authStore";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 

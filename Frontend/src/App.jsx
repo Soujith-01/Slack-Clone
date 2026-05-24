@@ -1,15 +1,15 @@
 import React, { useEffect } from "react";
 import {createBrowserRouter,RouterProvider} from "react-router";
-import Home from "./components/home";
-import RootLayout from "./components/RootLayout";
-import Register from "./components/Register";
-import Login from "./components/Login";
-import ChatWindow from "./components/ChatWindow";
-import UserProfile from "./components/userProfile";
-import EditProfile from "./components/EditProfile";
-import ChatList from "./components/ChatList";
-import Chat from "./components/Chat";
-import Settings from "./components/Settings";
+import Home from "./components/layout/Home";
+import RootLayout from "./components/layout/RootLayout";
+import Register from "./components/auth/Register";
+import Login from "./components/auth/Login";
+import ChatWindow from "./components/chat/ChatWindow";
+import UserProfile from "./components/profile/UserProfile";
+import EditProfile from "./components/auth/EditProfile";
+import ChatList from "./components/chat/ChatList";
+import Chat from "./components/chat/Chat";
+import Settings from "./components/profile/Settings";
 
 import { useAuth } from "./store/authStore";
 import { connectSocket } from "./socket";

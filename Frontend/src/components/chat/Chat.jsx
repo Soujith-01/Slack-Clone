@@ -7,8 +7,8 @@ import MessageList from "./MessageList";
 import MessageSender from "./MessageSender";
 import ThreadPanel from "./ThreadPanel";
 
-import { getSocket } from "../socket";
-import { useAuth } from "../store/authStore";
+import { getSocket } from "../../socket";
+import { useAuth } from "../../store/authStore";
 
 function Chat() {
   const { state } = useLocation();
